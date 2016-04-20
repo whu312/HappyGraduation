@@ -98,3 +98,6 @@ def querycontracts(req):
         a['allpage'] = str(allpage)
         a['contracts'] = contracts
         return render_to_response("querycontracts.html",a)
+
+#add product control and manager
+
