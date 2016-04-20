@@ -15,7 +15,7 @@ ONE_PAGE_NUM = 20
 # Create your views here.
 
 def testhtml(req):
-	return render_to_response("home.html")
+	return render_to_response("base.html")
 	
 def addcycle(req):
     thiscycle = cycle(name='一次',cycletype=1)
