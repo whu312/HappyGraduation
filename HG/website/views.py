@@ -15,6 +15,9 @@ from django.views.decorators.csrf import csrf_exempt
 add user
 '''
 
+def testhtml(req):
+	return render_to_response("home.html")
+	
 def index(req):
     if req.user.is_authenticated():
         a = {}
