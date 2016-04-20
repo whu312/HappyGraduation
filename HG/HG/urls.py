@@ -22,10 +22,15 @@ from website.users import *
 urlpatterns = [
     url(r'^html$', testhtml),
     url(r'^test$', test),
+    url(r'^testcycle$', addcycle),
     url(r'^$', index),
     url(r'^login', login),
     url(r'^logout', logout),
     url(r'^newcontract', newcontract),
     url(r'^statuscontract', statuscontract),
     url(r'^querycontracts', querycontracts),
+    url(r'^newfield', newfield),
+    url(r'^newparty', newparty),
+    url(r'^newmanager', newmanager),
+    url(r'^newproduct', newproduct),
 ]

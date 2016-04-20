@@ -1,0 +1,25 @@
+﻿{% extends 'base.html' %}
+
+{% block center %}
+
+<div class="right">
+    <div class="new">
+        <h1>欢迎使用富瑞星通业务查询系统</h1>
+    </div>
+    <div class="newfield">
+        <form method='post' action='/newmanager'>
+            姓名:<input type='text' name='name' />
+            编号:<input type='text' name='number' />
+            电话:<input type='text' name='tel' />
+            所属团队:<select name='party_id'>
+                {% for item in parties%}
+                <option value='{{item.id}}'>{{item.name}}</option>
+                {%endfor%}
+            </select>
+            <input type="submit" value="Submit" />
+        </form>
+    </div>
+<div>
+
+
+{% endblock %}

@@ -1,0 +1,20 @@
+﻿{% extends 'base.html' %}
+
+{% block center %}
+
+<div class="right">
+    <div class="new">
+        <h1>欢迎使用富瑞星通业务查询系统</h1>
+    </div>
+    <div class="newfield">
+        <form method='post' action='/newfield'>
+            职场名称:<input type='text' name='name' />
+            职场地址:<input type='text' name='address' />
+            职场电话:<input type='text' name='tel' />
+            <input type="submit" value="Submit" />
+        </form>
+    </div>
+<div>
+
+
+{% endblock %}

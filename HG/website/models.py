@@ -50,4 +50,5 @@ class repayitem(models.Model):
     thiscontract = models.ForeignKey(contract)
 class loginfo(models.Model):
     info = models.CharField(max_length = 1024)
-    thisuser = models.ForeignKey(User)
+    time = models.CharField(max_length = 128)
+    thisuser = models.ForeignKey(User)  

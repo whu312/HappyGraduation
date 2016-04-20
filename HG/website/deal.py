@@ -15,13 +15,16 @@ def CreateRepayItem(onecontract):
     thisproduct = onecontract.thisproduct
     repaycycle = thisproduct.repaycycle
     if repaycycle.cycletype == 1: #once
-        totalmoney = onecontract.money + onecontract.money*thisproduct.rate/12*thisproduct.closedperiod
+        if thisproduct.closedtype == 'm':
+            totalmoney = onecontract.money + onecontract.money*float(thisproduct.rate)/12*thisproduct.closedperiod
+        elif thisproduct.closedtype == 'd':
+            totalmoney = onecontract.money + onecontract.money*float(thisproduct.rate)/365*thisproduct.closedperiod
         thisrepayitem = repayitem(repaydate=onecontract.enddate,repaymoney=totalmoney,repaytype=3,
                 status=1,thiscontract=onecontract)
         thisrepayitem.save()
     elif repaycycle.cycletype == 2: #every month
         thisdate = datetime.datetime.strptime(onecontract.endDate,'%Y-%m-%d').date()
-        monthmoney = onecontract.money + onecontract.money*thisproduct.rate/12
+        monthmoney = onecontract.money + onecontract.money*float(thisproduct.rate)/12
         lastrepayitem = repayitem(repaydate=onecontract.enddate,repaymoney=monthmoney,repaytype=2,
                 status=1,thiscontract=onecontract)
         lastrepayitem.save()
@@ -34,6 +37,6 @@ def CreateRepayItem(onecontract):
             monthrepayitem.save()
             thisdate = getPreDay(thisdate,1,0)
         days = getDays(startdate,thisdate)
-        monthrepayitem.money += onecontract.money + onecontract.money*thisproduct.rate/365*days
+        monthrepayitem.money += onecontract.money + onecontract.money*float(thisproduct.rate)/365*days
         monthrepayitem.save()
     

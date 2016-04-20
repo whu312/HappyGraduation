@@ -1,4 +1,4 @@
-from django.shortcuts import render
+﻿from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 import sys
@@ -17,6 +17,13 @@ ONE_PAGE_NUM = 20
 def testhtml(req):
 	return render_to_response("home.html")
 	
+def addcycle(req):
+    thiscycle = cycle(name='一次',cycletype=1)
+    thiscycle.save()
+    thiscycle = cycle(name='按月',cycletype=2)
+    thiscycle.save()
+    return HttpResponse("cycle ok")
+
 def checkauth(func):
     def _checkauth(req):
         if req.user.is_authenticated():
@@ -50,7 +57,7 @@ def newcontract(req):
                 bank=bank,bank_card=bank_card,money=money,thisproduct=product_id,startdate=startdate,
                 enddate=enddate,status=1,thismanager=manager_id,renewal_id=-1)
         thiscontract.save()
-        thislog = loginfo(info="new contract with id=%d" % (thiscontract.id),thisuser=req.user)
+        thislog = loginfo(info="new contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
         thislog.save()
         
         CreateRepayItem(thiscontract)
@@ -68,7 +75,8 @@ def statuscontract(req):
         initstatus = thiscontract.status
         thiscontract.status = int(status)
         thiscontract.save()
-        thislog = loginfo(info="change contract with id=%d from status=%s to %d" % (thiscontract.id,status,initstatus),thisuser=req.user)
+        thislog = loginfo(info="change contract with id=%d from status=%s to %d" % (thiscontract.id,status,initstatus),
+                time=str(datetime.datetime.now()),thisuser=req.user)
         thislog.save()
         a = {'user':req.user}
         return render_to_response("home.html",a)
@@ -100,4 +108,65 @@ def querycontracts(req):
         return render_to_response("querycontracts.html",a)
 
 #add product control and manager
+@csrf_exempt
+@checkauth
+def newfield(req):
+    a = {'user':req.user}
+    if req.method == "GET":
+        return render_to_response("newfield.html",a)
+    elif req.method == "POST":
+        name = req.POST.get("name",'')
+        address = req.POST.get("address",'')
+        tel = req.POST.get("tel","")
+        thisfield = field(name=name,address=address,tel=tel)
+        thisfield.save()
+        return render_to_response("home.html",a)
+
+@csrf_exempt
+@checkauth
+def newparty(req):
+    a = {'user':req.user}
+    if req.method == "GET":
+        a["fields"] = field.objects.all()
+        return render_to_response("newparty.html",a)
+    elif req.method == "POST":
+        name = req.POST.get("name",'')
+        field_id = req.POST.get("field_id",'')
+        print field_id,"aaa"
+        thisparty = party(name=name,thisfield_id=field_id)
+        thisparty.save()
+        return render_to_response("home.html",a)
+@csrf_exempt
+@checkauth
+def newmanager(req):
+    a = {'user':req.user}
+    if req.method == "GET":
+        a["parties"] = party.objects.all()
+        return render_to_response("newmanager.html",a)
+    elif req.method == "POST":
+        name = req.POST.get("name",'')
+        tel = req.POST.get("tel",'')
+        number = req.POST.get("number",'')
+        party_id = req.POST.get("party_id","")
+        thismanager = manager(name=name,tel=tel,number=number,thisparty_id=party_id)
+        thismanager.save()
+        return render_to_response("home.html",a) 
+@csrf_exempt
+@checkauth
+def newproduct(req):
+    a = {'user':req.user}
+    if req.method == "GET":
+        a["mamagers"] = manager.objects.all()
+        a["cycles"] = cycle.objects.all()
+        return render_to_response("newproduct.html",a)
+    elif req.method == "POST":
+        name = req.POST.get("name",'')
+        rate = req.POST.get("rate",'')
+        repaycycle_id = req.POST.get("repaycycle_id",'')
+        closedtype = req.POST.get("closedtype","")
+        closedperiod = req.POST.get("closedperiod","")
+        thisproduct = product(name=name,rate=rate,repaycycle_id=int(repaycycle_id),
+                closedtype=closedtype,closedperiod=int(closedperiod))
+        thisproduct.save()
+        return render_to_response("home.html",a)
 
