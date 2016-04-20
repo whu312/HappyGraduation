@@ -113,6 +113,7 @@ def querycontracts(req):
 def newfield(req):
     a = {'user':req.user}
     if req.method == "GET":
+        print "here"
         return render_to_response("newfield.html",a)
     elif req.method == "POST":
         name = req.POST.get("name",'')
