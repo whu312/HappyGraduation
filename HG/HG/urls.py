@@ -17,8 +17,11 @@ from django.conf.urls import url
 from django.contrib import admin
 import settings
 from website.views import *
+from website.users import *
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    url(r'^test$', test),
     url(r'^$', index),
+    url(r'^login', login),
+    url(r'^logout', logout),
 ]

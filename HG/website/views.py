@@ -11,5 +11,15 @@ import re
 from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
+'''
+add user
+'''
+
 def index(req):
-    return render_to_response("home.html")
+    if req.user.is_authenticated():
+        a = {}
+        a['user'] = req.user
+        return render_to_response("home.html",a)
+    else:
+        return render_to_response("index.html")
+
