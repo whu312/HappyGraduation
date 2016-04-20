@@ -25,4 +25,7 @@ urlpatterns = [
     url(r'^$', index),
     url(r'^login', login),
     url(r'^logout', logout),
+    url(r'^newcontract', newcontract),
+    url(r'^statuscontract', statuscontract),
+    url(r'^querycontracts', querycontracts),
 ]
