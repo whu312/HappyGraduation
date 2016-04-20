@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 import re
 from django.views.decorators.csrf import csrf_exempt
+from deal import *
 
 ONE_PAGE_NUM = 20
 # Create your views here.
@@ -47,10 +48,13 @@ def newcontract(req):
         manager_id = req.POST.get('manager_id','')
         thiscontract = contract(number=number,client_name=client_name,client_idcard=client_idcard,
                 bank=bank,bank_card=bank_card,money=money,thisproduct=product_id,startdate=startdate,
-                enddate=enddate,status=1,thismanager=manager_id)
+                enddate=enddate,status=1,thismanager=manager_id,renewal_id=-1)
         thiscontract.save()
         thislog = loginfo(info="new contract with id=%d" % (thiscontract.id),thisuser=req.user)
         thislog.save()
+        
+        CreateRepayItem(thiscontract)
+        
         a = {'user':req.user}
         return render_to_response("home.html",a)
 
