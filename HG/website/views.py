@@ -16,7 +16,7 @@ add user
 '''
 
 def testhtml(req):
-	return render_to_response("home.html")
+	return render_to_response("base.html")
 	
 def index(req):
     if req.user.is_authenticated():

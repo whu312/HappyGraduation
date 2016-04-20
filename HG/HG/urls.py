@@ -21,7 +21,7 @@ from website.users import *
 
 urlpatterns = [
     url(r'^html$', testhtml),
-    url(r'^test$', test),
+    url(r'^test$', test),   
     url(r'^$', index),
     url(r'^login', login),
     url(r'^logout', logout),

@@ -1,173 +1,88 @@
-﻿?<!DOCTYPE HTML>
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=GBK">
-<link rel="stylesheet" href="/static/css/bootstrap.css">
-    <script type="text/javascript">
-function review()
-{
-    var r=confirm("确认删除？");
-    if (r==true)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-function show_confirm()
-{
-var r=confirm("确认提交？");
-if (r==true)
-  {
-  alert("You pressed OK!");
-  }
-else
-  {
-  alert("You pressed Cancel!");
-  }
-}
-</script>
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Bootstrap dropdown with navbar example</title>
+    <link href="static/css/bootstrap.css" rel="stylesheet" type="text/css" />
     <style type="text/css">
-    body{
-	font-size: 12px;
-	margin: 0;
-     }
-     a:link,a:visited{
-      text-decoration:none;  /*超链接无下划线*/
-      }
-      a:hover{
-    text-decoration:underline; /*鼠标放上去有下划线*/
-     }
-     .title{
-     background-color:  #AA0000  ;
+	 .title{
      margin:0px;
      padding:0px;
-     height: 100px;
-     
+     height: 80px;
+     float：left
     }
-    .end{
-    background-color:  #AA0000  ;
-    margin:auto;
-    height: 25px;    
-    position:absolute; 
-    bottom:0;
-    right:0;
-    left:0;
-    }
-    .myfoot{
-    background-color:  #AA0000  ;
-    margin:auto;
-    height: 25px;    
-    position:absolute; 
-    bottom:0%;
-    right:0%;
-    left:0%;
-    }
-     .left{
-     width: 200px;
-     height:600px;
-     
-     float: left;
-     }
-     .left_up{
-     margin-top:50px;
-     margin-left:10px;
-     height:250px;
-     float: left;
-     }
-     .left_bot{
-     float: left;
-     margin-left: -80px;
-     margin-top:300px;
-     margin-bottom: 20px;
-     }
-     .left_bot li{
-     list-style-type: none;
-     line-height: 20px;
-    
-     }
-     .left_up li{
-     list-style-type: none;
-     line-height: 20px;
-    
-     }
-     .right{
-     width:70%;
-     height: 100%;
-     float: left;
-     border-left:#000 solid 1px;
-     border-right:#000 solid 0px;
-     border-top:#000 solid 0px;
-     border-bottom:#AA0000 solid 0px; 
-     }
-     .fenge{
-     float:left;/*左漂浮*/
-     width: 1px;
-     height:850px;
-     background: #000;/*填充颜色*/
-   }
-   .bottom{
-    background-color: #AA0000  ;
-    margin-bottom:5px;
-    height: 30px;
-    width:1308px;
-   float: left;
-   }
-   .new {
-    margin-top:30px;
-    margin-left: 23px;
-   
-   }
-   .added{
-   margin-left: 23px;
-   }
-
-   
-   .sure{
-   text-align: center;
-   }
-    </style>
-  </head>
-  
-  <body>
-    <div class="title">
-    <p style="color: white;font-size:40px;text-align: center;padding-top: 30px;font-family:&#39;黑体&#39;">富瑞星通业务查询系统</p>
+	</style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-inner">
+            <div class="container">
+                <ul class="nav">
+                        <div class="title">
+    <p style="color: white;font-size:40px;padding-top: 30px;font-family:&#39;黑体&#39;">金融理财管理系统</p>
+                        </div>
+					
+                    <li class="active"><a href="#">Home</a></li>
+                    <li class="dropdown" id="accountmenu">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">合同管理<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="addcontract.html">新增合同</a></li>
+                            <li><a href="#">合同查询</a></li>
+                            <li><a href="#">合同审核</a></li>
+							<li><a href="#">审核回退</a></li>
+							<li><a href="#">审核回退</a></li>
+							<li><a href="#">全部合同查询</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown" id="accountmenu">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">还款管理<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">还款查询</a></li>
+                            <li><a href="#">到期续单</a></li>
+                            <li><a href="#">还款确认</a></li>
+							<li><a href="#">全部还款查询</a></li>
+                        </ul>
+                    </li>
+					<li class="dropdown" id="accountmenu">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">参数设置<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">产品管理</a></li>
+                            <li><a href="#">经理管理</a></li>
+                            <li><a href="#">团队管理</a></li>
+							<li><a href="#">职场管理</a></li>
+                        </ul>
+                    </li>
+					<li class="dropdown" id="accountmenu">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">系统设置<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">账户管理</a></li>
+                            <li><a href="#">密码修改</a></li>
+                            <li><a href="#">系统日志</a></li>
+                        </ul>
+                    </li>
+                    <li class="dropdown" id="accountmenu">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">统计功能<b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">还款计划</a></li>
+                            <li><a href="#">进账统计</a></li>
+                            <li><a href="#">年化进账统计</a></li>
+							<li><a href="#">返款统计</a></li>
+							<li><a href="#">待收查询</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
-    <div class="left">  
-    <div class="left_up">
-    <ul>
-    <li><a href="/add/1"><span style="color: black;font-family:微软雅黑;font-size: 15px">新增合同</span></a></li>
-    <li><a href="/comcheck/"><span style="color: black;font-family:微软雅黑;font-size: 15px">合同审核</span></a></li>
-    <li><a href="/purchases/"><span style="color: black;font-family:微软雅黑;font-size: 15px">合同查询</span></a></li>
-    <li><a href="/querybns/"><span style="color: black;font-family:微软雅黑;font-size: 15px">业绩查询</span></a></li>
-    <li><a href="/allcom/"><span style="color: black;font-family:微软雅黑;font-size: 15px">所有合同</span></a></li>
-    <li><a href="/allfinc/"><span style="color: black;font-family:微软雅黑;font-size: 15px">所有产品</span></a></li>
-    <li><a href="/allcoun/"><span style="color: black;font-family:微软雅黑;font-size: 15px">所有经理</span></a></li>
-    <li><a href="/today/"><span style="color: black;font-family:微软雅黑;font-size: 15px">今日提醒</span></a></li>
-    </ul>
-    </div>  
-
-    <div class="left_bot">
-    <ul>
-    <li><a href="/queryrtn/"><span style="color: black;font-family:微软雅黑;font-size: 15px">返款查询</span></a></li>
-    <li><a href="/queryfin/"><span style="color: black;font-family:微软雅黑;font-size: 15px">财务查询</span></a></li>
-    <li><a href="/querysyn/"><span style="color: black;font-family:微软雅黑;font-size: 15px">综合查询</span></a></li>
-    <li><a href="/add/2"><span style="color: black;font-family:微软雅黑;font-size: 15px">新增产品</span></a></li>
-    <li><a href="/add/3"><span style="color: black;font-family:微软雅黑;font-size: 15px">新增经理</span></a></li>
-    <li><a href="/control/"><span style="color: black;font-family:微软雅黑;font-size: 15px">账户管理</span></a></li>
-    {%if superuser%}
-    <li><a href="/movecoun/"><span style="color: black;font-family:微软雅黑;font-size: 15px">修改经理</span></a></li>
-    {%endif%}
-    </ul>
+    <div class="container-fluid">
+     <h1>金融理财管理系统</h1>
     </div>
-</div>
-    {% block center %}
-    {% endblock %}
-    <script src="/site_media/js/jquery.js"></script>
-        <script src="/site_media/js/bootstrap.js" type="text/javascript"></script>
-        <script src="/site_media/js/base.js" type="text/javascript"></script>
-        <script type="text/javascript" src="http://widget.renren.com/js/rrshare.js"></script>
-        <script src="/site_media/js/kymo.js" type="text/javascript"></script>
-
-       
-</body></html>
+	<script type="text/javascript" src="static/js/jquery.js"></script>
+	<script type="text/javascript" src="/static/js/bootstrap.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.dropdown-toggle').dropdown();
+        });
+   </script>
+</body>
+</html>
