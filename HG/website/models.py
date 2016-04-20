@@ -10,6 +10,7 @@ class users(models.Model):
     thisuser = models.ForeignKey(User)
 class cycle(models.Model):
     name = models.CharField(max_length = 128)
+    cycletype = models.IntegerField()
 class product(models.Model):
     name = models.CharField(max_length = 128)
     rate = models.CharField(max_length = 16)
@@ -37,9 +38,16 @@ class contract(models.Model):
     money = models.CharField(max_length = 128)
     thisproduct = models.ForeignKey(product)
     startdate = models.CharField(max_length = 32)
-    enddata = models.CharField(max_length = 32)
+    enddate = models.CharField(max_length = 32)
     status = models.IntegerField()
     thismanager = models.ForeignKey(manager)
+    renewal_id = models.IntegerField()
+class repayitem(models.Model):
+    repaydate = models.CharField(max_length = 32)
+    repaymoney = models.CharField(max_length = 128)
+    repaytype = models.IntegerField()
+    status = models.IntegerField()
+    thiscontract = models.ForeignKey(contract)
 class loginfo(models.Model):
     info = models.CharField(max_length = 1024)
-    thisuser = models.ForeignKey(users)
+    thisuser = models.ForeignKey(User)

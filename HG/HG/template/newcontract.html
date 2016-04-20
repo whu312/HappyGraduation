@@ -1,0 +1,21 @@
+﻿{% extends 'base.html' %}
+
+{% block center %}
+
+<div class="right">
+    <div class="new">
+        <h1>欢迎使用富瑞星通业务查询系统</h1>
+    </div>
+    <div class="newcontract">
+        <form mothod='post' action='/newcontract'>
+            合同编号:<input type='text' name='number' />
+            客户姓名:<input type='text' name='client_name' />
+            客户身份证:<input type='text' name='client_idcard' />
+            开户行:<input type='text' name='bank' />
+            银行卡:<input type='text' name='bank_idcard' />
+        </form>
+    </div>
+<div>
+
+
+{% endblock %}
