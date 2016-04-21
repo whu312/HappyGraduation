@@ -16,12 +16,12 @@ ONE_PAGE_NUM = 20
 # Create your views here.
 
 def testhtml(req):
-	return render_to_response("searchcontract.html")
-	
+    return render_to_response("searchcontract.html")
+    
 def addcycle(req):
-    thiscycle = cycle(name='一次',cycletype=1)
+    thiscycle = cycle(name=u'一次',cycletype=1)
     thiscycle.save()
-    thiscycle = cycle(name='按月',cycletype=2)
+    thiscycle = cycle(name=u'按月',cycletype=2)
     thiscycle.save()
     return HttpResponse("cycle ok")
 
@@ -64,7 +64,7 @@ def newcontract(req):
             return render_to_response("home.html",a)
         else:
             a["form"] = form
-            return render_to_response('passwd.html', RequestContext(request, a))
+            return render_to_response('newcontract.html', RequestContext(req, a))
 
 @csrf_exempt
 @checkauth
