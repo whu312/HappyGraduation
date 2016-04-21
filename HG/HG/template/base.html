@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -18,23 +18,23 @@
         <div class="navbar-inner">
             <div class="container">
                 <ul class="nav">
-                        <div class="title">
+                    <li>    <div class="title">
     <p style="color: white;font-size:40px;padding-top: 30px;font-family:&#39;黑体&#39;">金融理财管理系统</p>
                         </div>
-					
-                    <li class="active"><a href="#">Home</a></li>
-                    <li class="dropdown" id="accountmenu">
+                        </li>
+                    <li>&nbsp;&nbsp;</li>
+                    <li style="padding-top: 30px;"><a href="#">Home</a></li>
+                    <li class="dropdown" id="accountmenu" style="padding-top: 30px;">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">合同管理<b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            <li><a href="addcontract.html">新增合同</a></li>
+                            <li><a href="/newcontract">新增合同</a></li>
                             <li><a href="#">合同查询</a></li>
                             <li><a href="#">合同审核</a></li>
-							<li><a href="#">审核回退</a></li>
 							<li><a href="#">审核回退</a></li>
 							<li><a href="#">全部合同查询</a></li>
                         </ul>
                     </li>
-                    <li class="dropdown" id="accountmenu">
+                    <li class="dropdown" id="accountmenu" style="padding-top: 30px;">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">还款管理<b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <li><a href="#">还款查询</a></li>
@@ -43,24 +43,24 @@
 							<li><a href="#">全部还款查询</a></li>
                         </ul>
                     </li>
-					<li class="dropdown" id="accountmenu">
+					<li class="dropdown" id="accountmenu" style="padding-top: 30px;">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">参数设置<b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#">产品管理</a></li>
-                            <li><a href="#">经理管理</a></li>
-                            <li><a href="#">团队管理</a></li>
-							<li><a href="#">职场管理</a></li>
+                            <li><a href="/newproduct">产品管理</a></li>
+                            <li><a href="/newmanager">经理管理</a></li>
+                            <li><a href="/newparty">团队管理</a></li>
+							<li><a href="/newfield">职场管理</a></li>
                         </ul>
                     </li>
-					<li class="dropdown" id="accountmenu">
+					<li class="dropdown" id="accountmenu" style="padding-top: 30px;">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">系统设置<b class="caret"></b></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#">账户管理</a></li>
-                            <li><a href="#">密码修改</a></li>
-                            <li><a href="#">系统日志</a></li>
+                            <li><a href="/settings">账户管理</a></li>
+                            <li><a href="/passwd">密码修改</a></li>
+                            <li><a href="/log">系统日志</a></li>
                         </ul>
                     </li>
-                    <li class="dropdown" id="accountmenu">
+                    <li class="dropdown" id="accountmenu" style="padding-top: 30px;">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">统计功能<b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             <li><a href="#">还款计划</a></li>
@@ -70,13 +70,17 @@
 							<li><a href="#">待收查询</a></li>
                         </ul>
                     </li>
+                    <li class="dropdown" style="padding-top: 30px;">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">{{user.username}}</b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/logout">切换账号登陆</a></li>
+                        <li><a href="/logout">退出</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>
     </div>
-    <div class="container-fluid">
-    
- </div>
     {% block center %}
     {% endblock %}
  

@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 
 class users(models.Model):
     name = models.CharField(max_length = 128)
+    username = models.CharField(max_length = 128)
+    position = models.CharField(max_length = 128)
     jurisdiction = models.IntegerField()
     thisuser = models.ForeignKey(User)
 class cycle(models.Model):
@@ -42,6 +44,7 @@ class contract(models.Model):
     status = models.IntegerField()
     thismanager = models.ForeignKey(manager)
     renewal_id = models.IntegerField()
+    operator = models.ForeignKey(User) 
 class repayitem(models.Model):
     repaydate = models.CharField(max_length = 32)
     repaymoney = models.CharField(max_length = 128)

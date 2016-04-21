@@ -1,0 +1,30 @@
+﻿{% extends 'base.html' %}
+
+{% block center %}
+
+<div class="right">
+    <div class="container">
+      <h2>日志</h2>      
+      <table class="table">
+        <thead>
+          <tr>
+            <th>信息</th>
+            <th>时间</th>
+            <th>操作人</th>
+          </tr>
+        </thead>
+        <tbody>
+        {%for item in logs%}
+        <tr>
+            <td>{{item.info}}</td>
+            <td>{{item.time}}</td>
+            <td>{{item.thisuser.username}}</td>
+        </tr>
+        {%endfor%}
+        </tbody>
+      </table>
+    </div>
+<div>
+
+
+{% endblock %}
