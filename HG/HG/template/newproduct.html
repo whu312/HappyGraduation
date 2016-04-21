@@ -4,9 +4,14 @@
 {% load bootstrap_toolkit %}
 <div class="right">
     <div class="new">
-        <h1>欢迎使用富瑞星通业务查询系统</h1>
+        <h1>欢迎使用理财管理查询系统</h1>
     </div>
-    
+    {% if create_succ %}
+        <div class="alert alert-error">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            <h4>成功!</h4>保存成功
+        </div>
+    {% endif %}
     <div class="well">
         <form class="form-horizontal" action="" method="post">
             {% csrf_token %}

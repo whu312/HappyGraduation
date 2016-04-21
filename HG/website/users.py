@@ -11,16 +11,12 @@ import re
 from django.views.decorators.csrf import csrf_exempt
 from myforms import *
 
-def getJurisdictions(filename="page.txt"):
-    fi = open(filename,"r+")
-    content = fi.read()
-    lines = content.split("\n")
+def getJurisdictions(onelist=jurlist):
     j = 1
     ans = {}
-    for line in lines:
+    for line in onelist:
         ans[line] = j
         j = j << 1
-    fi.close()
     return ans
 
 def checkjurisdiction(req,page):
@@ -81,41 +77,53 @@ def logout(req):
     auth.logout(req)
     return render_to_response("index.html")
 
-
+@csrf_exempt
 @checkauth
-def userctl(req,a={}):
+def userctl(req):
+    '''
     a['user'] = req.user
     jur = getJurisdictions()
     jur = sorted(jur.iteritems(), key=lambda d:d[1], reverse = False)
     a["jur"] = jur
     a['users'] = users.objects.all()
     return render_to_response("userctl.html",a)
-
-@csrf_exempt
-@checkauth
-def adduser(req):
-    a = {'user':req.user}
-    if req.method == 'POST':
-        username = req.POST.get("username","")
-        password = req.POST.get("password","")
-        name = req.POST.get("name","")
-        email = req.POST.get("email","")
-        position = req.POST.get("position","")
-        check_list = req.POST.getlist("jur")
-        jur = 0
-        for item in check_list:
-            jur += int(item)
-        userexist = User.objects.filter(username = username)
-        if not userexist:
-            user = User(username = username, email = email)
-            user.set_password(password)
-            user.save()
-            oneuser = users(name=name,username=username,jurisdiction=jur,thisuser=user)
-            oneuser.save()
-            a["add_status"] = 1
+    '''
+    a = {}
+    a["user"] = req.user
+    a['users'] = users.objects.all()
+    if req.method == 'GET':
+        form = NewUserForm()
+        a["form"] = form
+        return render_to_response('userctl.html', a)
+    else:
+        form = NewUserForm(req.POST)
+        if form.is_valid():
+            username = req.POST.get("username","")
+            password = req.POST.get('password', '')
+            name = req.POST.get("name","")
+            email = req.POST.get("email","")
+            position = req.POST.get("position","")
+            check_list = req.POST.getlist("jur")
+            jur = 0
+            for item in check_list:
+                jur += int(item)
+            userexist = User.objects.filter(username = username)
+            if not userexist:
+                user = User(username = username, email = email)
+                user.set_password(password)
+                user.save()
+                oneuser = users(name=name,username=username,jurisdiction=jur,thisuser=user)
+                oneuser.save()
+                a["add_succ"] = True
+                a["form"] = form
+                return render_to_response('userctl.html', a)
+            else:
+                a["form"] = form
+                a["exist"] = True
+                return render_to_response('userctl.html', a)
         else:
-            a['user_exist'] = 1
-        return userctl(req,a)
+            a["form"] = form
+            return render_to_response('userctl.html', a)
 
 @csrf_exempt
 @checkauth
@@ -127,7 +135,7 @@ def deleteuser(req):
         curuser = thisuser.thisuser
         thisuser.delete()
         curuser.delete()
-        return userctl(req,a)
+        return render_to_response('home.html', a)
 
 @csrf_exempt
 @checkauth
@@ -145,7 +153,7 @@ def passwd(request):
                 newpassword = request.POST.get('newpsw1', '')
                 user.set_password(newpassword)
                 user.save()
-                return render_to_response('home.html', RequestContext(request,{'changepwd_success':True,"user":request.user}))
+                return render_to_response('passwd.html', RequestContext(request,{'changepwd_success':True,"user":request.user}))
             else:
                 return render_to_response('passwd.html', RequestContext(request, {'form': form,'oldpassword_is_wrong':True,"user":request.user}))
         else:

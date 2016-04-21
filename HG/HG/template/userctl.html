@@ -2,30 +2,32 @@
 
 {% block center %}
 
+{% load bootstrap_toolkit %}
 <div class="right">
    
-    <div>
-        <form method='post' action='/adduser'>
-            登录名:<input type='text' name='username' />
-            密码:<input type='text' name='password' /><br />
-            姓名:<input type='text' name='name' />
-            邮箱:<input type='text' name='email' />
-            职位:<input type='text' name='position' /><br />
-            {%if add_status%}
-            添加成功
-            {%endif%}
-            {%if user_exist%}
-            用户已存在添加失败
-            {%endif%}
-            权限:<br />
-            {% for item in jur %}
-            <input name='jur' type="checkbox" value="{{item.1}}" />{{item.0}}&nbsp;&nbsp;
-            {%endfor%}
-            <br />
-            <input type="submit" value="添加用户" />
+    {% if exist %}
+        <div class="alert alert-error">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            <h4>错误!</h4>用户名已存在
+        </div>
+    {% endif %}
+    {% if add_succ %}
+        <div class="alert alert-error">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            <h4>成功!</h4>用户添加成功
+        </div>
+    {% endif %}
+    <div class="well">
+        <form class="form-horizontal" action="" method="post">
+            {% csrf_token %}
+            {{ form|as_bootstrap:"horizontal" }}
+            <p class="form-actions">
+                <input type="submit" value="提交" class="btn btn-primary">
+            </p>
         </form>
     </div>
-    
+<div>
+    <br />
     <div>
         <form method='post' action='/deleteuser'>
             <select name="user_id">
