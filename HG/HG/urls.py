@@ -36,4 +36,5 @@ urlpatterns = [
     url(r'^settings$', userctl),
     url(r'^adduser$', adduser),
     url(r'^deleteuser$', deleteuser),
+    url(r'^passwd$', passwd),
 ]

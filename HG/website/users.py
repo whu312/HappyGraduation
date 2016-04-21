@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 import re
 from django.views.decorators.csrf import csrf_exempt
+from myforms import *
 
 def getJurisdictions(filename="page.txt"):
     fi = open(filename,"r+")
@@ -127,3 +128,25 @@ def deleteuser(req):
         thisuser.delete()
         curuser.delete()
         return userctl(req,a)
+
+@csrf_exempt
+@checkauth
+def passwd(request):
+    if request.method == 'GET':
+        form = ChangepwdForm()
+        return render_to_response('passwd.html', RequestContext(request, {'form': form,'user':request.user}))
+    else:
+        form = ChangepwdForm(request.POST)
+        if form.is_valid():
+            username = request.user.username
+            oldpassword = request.POST.get('oldpsw', '')
+            user = auth.authenticate(username=username, password=oldpassword)
+            if user is not None and user.is_active:
+                newpassword = request.POST.get('newpsw1', '')
+                user.set_password(newpassword)
+                user.save()
+                return render_to_response('home.html', RequestContext(request,{'changepwd_success':True,"user":request.user}))
+            else:
+                return render_to_response('passwd.html', RequestContext(request, {'form': form,'oldpassword_is_wrong':True,"user":request.user}))
+        else:
+            return render_to_response('passwd.html', RequestContext(request, {'form': form,"user":request.user}))
