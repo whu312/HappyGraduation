@@ -1,0 +1,130 @@
+﻿{% extends 'base.html' %}
+
+{% block center %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>addcontract</title>
+	<link href="static/css/bootstrap.css" rel="stylesheet" type="text/css" />
+	<link href="static/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
+	<script type="text/javascript" src="/static/js/jquery.js"></script>
+	<script type="text/javascript" src="/static/js/bootstrap.js"></script>
+	<script type="text/javascript" src="/static/js/bootstrap-datetimepicker.js"></script>
+	<script type="text/javascript" src="static/js/bootstrap-datetimepicker.min.js"></script>
+
+</head>
+<body>
+
+
+   <form class="form-horizontal"  action="javascript:alert('添加成功.');" method="post">
+    <fieldset >
+      <div id="legend" class="">
+        <legend class="">新增合同</legend>
+      </div>
+    <div class="control-group">
+
+          <!-- Text input-->
+          <label class="control-label" for="input01">合同编号</label>
+          <div class="controls">
+            <input type="text"  class="input-xlarge">
+          </div>
+		  
+        </div>
+		<div class="control-group">
+
+          <!-- Text input-->
+          <label class="control-label" for="input01">姓名</label>
+          <div class="controls">
+            <input type="text" class="input-xlarge">
+          </div>
+        </div>
+
+    <div class="control-group">
+
+          <!-- Text input-->
+          <label class="control-label" for="input01">身份证号</label>
+          <div class="controls">
+            <input type="text"  class="input-xlarge">
+          </div>
+        </div>
+
+    <div class="control-group">
+
+          <!-- Text input-->
+          <label class="control-label" for="input01">开户行</label>
+          <div class="controls">
+            <input type="text"  class="input-xlarge">
+          </div>
+        </div>
+		    <div class="control-group">
+
+          <!-- Text input-->
+          <label class="control-label" for="input01">银行卡号</label>
+          <div class="controls">
+            <input type="text"  class="input-xlarge">
+          </div>
+        </div>
+	    <div class="control-group">
+
+          <!-- Text input-->
+          <label class="control-label" for="input01">产品</label>
+          <div class="controls">
+            <input type="text"  class="input-xlarge">
+          </div>
+        </div>
+	    <div class="control-group">
+
+          <!-- Text input-->
+          <label class="control-label" for="input01">金额</label>
+          <div class="controls">
+            <input type="text"  class="input-xlarge">
+          </div>
+        </div>
+	    <div class="control-group">
+
+          <!-- Text input-->
+          <label class="control-label" for="input01">签约日期</label>
+         <div class="controls">
+            <input type="text"  class="input-xlarge form_datetime" id="form_datetime">
+			<script type="text/javascript">
+    $(".form_datetime").datetimepicker({format: 'yyyy-mm-dd hh:ii'});
+</script> 
+          </div>
+        </div>
+	    <div class="control-group">
+
+          <!-- Text input-->
+          <label class="control-label" for="input01">到期日期</label>
+          <div class="controls">
+            <input type="text"  class="input-xlarge form_datetime" id="form_datetime">
+			<script type="text/javascript">
+    $(".form_datetime").datetimepicker({format: 'yyyy-mm-dd hh:ii'});
+</script> 
+          </div>
+        </div>
+	    <div class="control-group">
+
+          <!-- Text input-->
+          <label class="control-label" for="input01">理财顾问</label>
+          <div class="controls">
+            <input type="text"  class="input-xlarge">
+          </div>
+        </div>
+	                <div class="control-group" style="text-align:center">
+                    <div class="col-md-offset-2 col-md-10">  
+                        <button type="submit" class="btn btn-primary btn-sm">  
+                           添加  
+                        </button>  
+                        <button type="reset" class="btn btn-primary btn-sm">  
+                           重置    
+                        </button>  
+                    </div>  
+                </div>  
+    </fieldset>
+
+  </form>
+   
+</body>
+</html>
+        
+{% endblock %}
