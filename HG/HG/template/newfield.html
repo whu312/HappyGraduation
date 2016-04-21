@@ -1,17 +1,18 @@
 ﻿{% extends 'base.html' %}
 
 {% block center %}
-
+{% load bootstrap_toolkit %}
 <div class="right">
     <div class="new">
         <h1>欢迎使用富瑞星通业务查询系统</h1>
     </div>
-    <div class="newfield">
-        <form method='post' action='/newfield'>
-            职场名称:<input type='text' name='name' />
-            职场地址:<input type='text' name='address' />
-            职场电话:<input type='text' name='tel' />
-            <input type="submit" value="Submit" />
+    <div class="well">
+        <form class="form-horizontal" action="" method="post">
+            {% csrf_token %}
+            {{ form|as_bootstrap:"horizontal" }}
+            <p class="form-actions">
+                <input type="submit" value="提交" class="btn btn-primary">
+            </p>
         </form>
     </div>
 <div>

@@ -19,7 +19,7 @@ def getNextDay(onedate,months,days):
                     continue 
     else:
         try:
-            thisdate = datetime.date(thisdate.year,thisdate.month-months,thisdate.day)
+            thisdate = datetime.date(thisdate.year,thisdate.month+months,thisdate.day)
         except:
             nowday = thisdate.day
             while True:
@@ -48,7 +48,7 @@ def getPreDay(onedate,months,days): # months<=12
                     continue 
     else:
         try:
-            thisdate = datetime.date(thisdate.year,thisdate.month+months,thisdate.day)
+            thisdate = datetime.date(thisdate.year,thisdate.month-months,thisdate.day)
         except:
             nowday = thisdate.day
             while True:
