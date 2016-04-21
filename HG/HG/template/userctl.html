@@ -1,0 +1,43 @@
+﻿{% extends 'base.html' %}
+
+{% block center %}
+
+<div class="right">
+   
+    <div>
+        <form method='post' action='/adduser'>
+            登录名:<input type='text' name='username' />
+            密码:<input type='text' name='password' /><br />
+            姓名:<input type='text' name='name' />
+            邮箱:<input type='text' name='email' />
+            职位:<input type='text' name='position' /><br />
+            {%if add_status%}
+            添加成功
+            {%endif%}
+            {%if user_exist%}
+            用户已存在添加失败
+            {%endif%}
+            权限:<br />
+            {% for item in jur %}
+            <input name='jur' type="checkbox" value="{{item.1}}" />{{item.0}}&nbsp;&nbsp;
+            {%endfor%}
+            <br />
+            <input type="submit" value="添加用户" />
+        </form>
+    </div>
+    
+    <div>
+        <form method='post' action='/deleteuser'>
+            <select name="user_id">
+                {%for item in users%}
+                <option value='{{item.id}}'>{{item.username}}</option>
+                {%endfor%}
+            </select>
+            <br />
+            <input type="submit" value="删除用户" />
+        </form>
+    </div>
+<div>
+
+
+{% endblock %}

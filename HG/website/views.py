@@ -10,6 +10,7 @@ from django.http import HttpResponseRedirect
 import re
 from django.views.decorators.csrf import csrf_exempt
 from deal import *
+from users import *
 
 ONE_PAGE_NUM = 20
 # Create your views here.
@@ -24,13 +25,6 @@ def addcycle(req):
     thiscycle.save()
     return HttpResponse("cycle ok")
 
-def checkauth(func):
-    def _checkauth(req):
-        if req.user.is_authenticated():
-            return func(req)
-        return render_to_response("index.html")
-    return _checkauth
-
 @checkauth
 def index(req):
     a = {'user':req.user}
@@ -41,7 +35,7 @@ def index(req):
 def newcontract(req):
     if req.method == 'GET':
         a = {'user':req.user}
-        return render_to_response("newcontract.html")
+        return render_to_response("newcontract.html",a)
     elif req.method == 'POST':
         number = req.POST.get('number','')
         client_name = req.POST.get('client_name','')
@@ -55,7 +49,7 @@ def newcontract(req):
         manager_id = req.POST.get('manager_id','')
         thiscontract = contract(number=number,client_name=client_name,client_idcard=client_idcard,
                 bank=bank,bank_card=bank_card,money=money,thisproduct=product_id,startdate=startdate,
-                enddate=enddate,status=1,thismanager=manager_id,renewal_id=-1)
+                enddate=enddate,status=1,thismanager=manager_id,renewal_id=-1,operator_id=req.user.id)
         thiscontract.save()
         thislog = loginfo(info="new contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
         thislog.save()
