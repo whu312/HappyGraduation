@@ -42,6 +42,7 @@ def newcontract(req):
         return render_to_response("newcontract.html",a)
     elif req.method == 'POST':
         form = NewContractForm(req.POST)
+        a["form"] = form
         if form.is_valid():
             number = req.POST.get('number','')
             client_name = req.POST.get('client_name','')
@@ -61,10 +62,15 @@ def newcontract(req):
             thislog.save()
         
             CreateRepayItem(thiscontract)
-            return render_to_response("home.html",a)
+            a["create_succ"] = True
+            return render_to_response("newcontract.html",a)
         else:
+
             a["form"] = form
             return render_to_response('newcontract.html', a)
+
+            return render_to_response('newcontract.html', RequestContext(req, a))
+
 
 @csrf_exempt
 @checkauth
@@ -119,49 +125,51 @@ def newfield(req):
         return render_to_response("newfield.html",a)
     elif req.method == "POST":
         form = NewFieldForm(req.POST)
+        a["form"] = form
         if form.is_valid():
             name = req.POST.get("name",'')
             address = req.POST.get("address",'')
             tel = req.POST.get("tel","")
             thisfield = field(name=name,address=address,tel=tel)
             thisfield.save()
-            return render_to_response("home.html",a)
+            a["create_succ"] = True
+            return render_to_response("newfield.html",a)
         else:
-            a["form"] = form
             return render_to_response("newfield.html",a)
 
 @csrf_exempt
 @checkauth
 def newparty(req):
     a = {'user':req.user}
+    a["fields"] = field.objects.all()
     if req.method == "GET":
         form = NewPartyForm()
         a["form"] = form
-        a["fields"] = field.objects.all()
         return render_to_response("newparty.html",a)
     elif req.method == "POST":
         form = NewPartyForm(req.POST)
+        a["form"] = form
         if form.is_valid():
             name = req.POST.get("name",'')
             field_id = req.POST.get("field_id",'')
             thisparty = party(name=name,thisfield_id=field_id)
             thisparty.save()
-            return render_to_response("home.html",a)
+            a["create_succ"] = True
+            return render_to_response("newparty.html",a)
         else:
-            a["form"] = form
-            a["fields"] = field.objects.all()
             return render_to_response("newparty.html",a)
 @csrf_exempt
 @checkauth
 def newmanager(req):
     a = {'user':req.user}
+    a["parties"] = party.objects.all()
     if req.method == "GET":
         form = NewManagerForm()
         a["form"] = form
-        a["parties"] = party.objects.all()
         return render_to_response("newmanager.html",a)
     elif req.method == "POST":
         form = NewManagerForm(req.POST)
+        a["form"] = form
         if form.is_valid():
             name = req.POST.get("name",'')
             tel = req.POST.get("tel",'')
@@ -169,22 +177,22 @@ def newmanager(req):
             party_id = req.POST.get("party_id","")
             thismanager = manager(name=name,tel=tel,number=number,thisparty_id=party_id)
             thismanager.save()
-            return render_to_response("home.html",a)
+            a["create_succ"] = True
+            return render_to_response("newmanager.html",a)
         else:
-            a["parties"] = party.objects.all()
-            a["form"] = form
             return render_to_response("newmanager.html",a)
 @csrf_exempt
 @checkauth
 def newproduct(req):
     a = {'user':req.user}
+    a["cycles"] = cycle.objects.all()
     if req.method == "GET":
         form = NewProductForm()
         a["form"] = form
-        a["cycles"] = cycle.objects.all()
         return render_to_response("newproduct.html",a)
     elif req.method == "POST":
         form = NewProductForm(req.POST)
+        a["form"] = form
         if form.is_valid():
             name = req.POST.get("name",'')
             rate = req.POST.get("rate",'')
@@ -194,10 +202,9 @@ def newproduct(req):
             thisproduct = product(name=name,rate=rate,repaycycle_id=int(repaycycle_id),
                     closedtype=closedtype,closedperiod=int(closedperiod))
             thisproduct.save()
-            return render_to_response("home.html",a)
+            a["create_succ"] = True
+            return render_to_response("newproduct.html",a)
         else:
-            a["form"] = form
-            a["cycles"] = cycle.objects.all()
             return render_to_response("newproduct.html",a)
 @checkauth
 def getlog(req):
@@ -206,6 +213,7 @@ def getlog(req):
         a = {'user':req.user}
         a["logs"] = alllogs
         return render_to_response("log.html",a)
+
 @csrf_exempt
 @checkauth
 def altercontract(req):
@@ -236,3 +244,5 @@ def altercontract(req):
 		thislog.save()
 		a = {'user':req.user}
 		return render_to_response("home.html",a)
+
+

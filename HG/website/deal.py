@@ -25,22 +25,33 @@ def CreateRepayItem(onecontract):
         thisrepayitem.save()
     elif repaycycle.cycletype == 2: #every month
         thisdate = datetime.datetime.strptime(onecontract.enddate,'%Y-%m-%d').date()
-        monthmoney = intmoney + intmoney*float(thisproduct.rate)/1200
-        lastrepayitem = repayitem(repaydate=onecontract.enddate,repaymoney=str(monthmoney),repaytype=2,
-                status=1,thiscontract=onecontract)
-        lastrepayitem.save()
-        monthmoney -= intmoney
-        thisdate = getPreDay(thisdate,1,0)
         startdate = datetime.datetime.strptime(onecontract.startdate,'%Y-%m-%d').date()
-        tmpdate = getNextDay(startdate,1,0)
-        print "tmpdate",tmpdate
-        while thisdate>tmpdate:
+        tmpdate1 = getNextDay(startdate,1,0)
+        tmpdate2 = getNextDay(tmpdate1,1,0)
+        if thisdate>=tmpdate2:
+            firstmoney = intmoney + intmoney*float(thisproduct.rate)/1200
+            lastrepayitem = repayitem(repaydate=onecontract.enddate,repaymoney=str(firstmoney),repaytype=2,
+                    status=1,thiscontract=onecontract)
+            lastrepayitem.save()
+            thisdate = getPreDay(thisdate,1,0)
+        monthmoney = intmoney*float(thisproduct.rate)/1200
+        while thisdate>=tmpdate2:
             monthrepayitem = repayitem(repaydate=str(thisdate),repaymoney=str(monthmoney),repaytype=1,
                 status=1,thiscontract=onecontract)
             monthrepayitem.save()
             thisdate = getPreDay(thisdate,1,0)
-            print thisdate
-        days = getDays(startdate,thisdate)
-        monthrepayitem.repaymoney = str(float(monthrepayitem.repaymoney) + intmoney*float(thisproduct.rate)/36500*days)
-        monthrepayitem.save()
+        if tmpdate1<=thisdate:
+            tmpdate3 = getPreDay(thisdate,1,0)
+            days = getDays(startdate,tmpdate3)
+            lastmoney = monthmoney + intmoney*float(thisproduct.rate)/36500*days
+            monthrepayitem = repayitem(repaydate=str(thisdate),repaymoney=str(lastmoney),repaytype=1,
+                status=1,thiscontract=onecontract)
+            monthrepayitem.save()
+        else:
+            days = getDays(startdate,thisdate)
+            lastmoney = intmoney + intmoney*float(thisproduct.rate)/36500*days
+            monthrepayitem = repayitem(repaydate=str(thisdate),repaymoney=str(lastmoney),repaytype=2,
+                status=1,thiscontract=onecontract)
+            monthrepayitem.save()
+            
     

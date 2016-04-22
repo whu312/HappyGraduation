@@ -12,6 +12,17 @@ from django.views.decorators.csrf import csrf_exempt
 from django import forms
 from django.template import *
 
+jurlist = ["新增合同","合同查询","合同审核","审核回退","全部合同查询","还款查询","到期续单",
+        "还款确认","全部还款查询","产品管理","经理管理","团队管理","职场管理","账户管理",
+        "密码修改","系统日志","还款计划","进账统计","年化进账统计","返款统计","待收查询"]
+def getjurtuple(onelist):
+    j = 1
+    jlist = []
+    for item in jurlist:
+        jlist.append((str(j),item))
+        j = j<<1
+    return tuple(jlist)
+
 class ChangepwdForm(forms.Form):
     oldpassword = forms.CharField(
         required=True,
@@ -255,4 +266,69 @@ class NewProductForm(forms.Form):
             raise forms.ValidationError(u"所有项都为必填项")
         else:
             cleaned_data = super(NewProductForm, self).clean()
+        return cleaned_data
+
+class NewUserForm(forms.Form):
+    username = forms.CharField(
+        required=True,
+        label=u"登陆名",
+        error_messages={'required': u'请输入登录名'},
+        widget=forms.TextInput(
+            attrs={
+                'placeholder':u"登录名",
+            }
+        ),
+    )
+    password = forms.CharField(
+        required=True,
+        label=u"密码",
+        error_messages={'required': u'请输入密码'},
+        widget=forms.PasswordInput(
+            attrs={
+                'placeholder':u"密码",
+            }
+        ),
+    )
+    name = forms.CharField(
+        required=True,
+        label=u"姓名",
+        error_messages={'required': u'请输入姓名'},
+        widget=forms.TextInput(
+            attrs={
+                'placeholder':u"姓名",
+            }
+        ),
+    )
+    email = forms.EmailField(
+        required=True,
+        label=u"邮箱",
+        error_messages={'required': u'请输入邮箱'},
+        widget=forms.TextInput(
+            attrs={
+                'placeholder':u"邮箱",
+            }
+        ),
+    )
+    position = forms.CharField(
+        required=True,
+        label=u"职位",
+        error_messages={'required': u'请输入职位'},
+        widget=forms.TextInput(
+            attrs={
+                'placeholder':u"职位",
+            }
+        ),
+    )
+    jur = forms.MultipleChoiceField(
+        required=True,
+        label=u"权限",
+        error_messages={'required': u'请选择权限'},
+        choices=getjurtuple(jurlist), 
+        widget=forms.CheckboxSelectMultiple(),
+    )
+    def clean(self):
+        if not self.is_valid():
+            raise forms.ValidationError(u"所有项都为必填项")
+        else:
+            cleaned_data = super(NewUserForm, self).clean()
         return cleaned_data
