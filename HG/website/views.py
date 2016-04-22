@@ -64,7 +64,7 @@ def newcontract(req):
             return render_to_response("home.html",a)
         else:
             a["form"] = form
-            return render_to_response('newcontract.html', RequestContext(req, a))
+            return render_to_response('newcontract.html', a)
 
 @csrf_exempt
 @checkauth
@@ -206,3 +206,33 @@ def getlog(req):
         a = {'user':req.user}
         a["logs"] = alllogs
         return render_to_response("log.html",a)
+@csrf_exempt
+@checkauth
+def altercontract(req):
+	a = {'user':req.user}
+	a['products'] = product.objects.all()
+	a['managers'] = manager.objects.all()
+	if req.method == "GET":
+		contractid = req.GET.get("contractid",'')
+		thiscontract = contract.objects.get(id = int(contractid))
+		a["contract"] = thiscontract
+		return render_to_response("altercontract.html",a)
+	if req.method == "POST":
+		id = req.POST.get("contractid",'')
+		thiscontract = contract.objects.get(id = int(id))
+		thiscontract.number = req.POST.get("number",'')
+		thiscontract.bank = req.POST.get("bank",'')
+		thiscontract.bank_card = req.POST.get("bank_card",'')
+		thiscontract.money = req.POST.get("money",'')
+		thiscontract.client_name = req.POST.get("client_name",'')
+		thiscontract.client_idcard = req.POST.get("client_idcard",'')
+		thiscontract.product_id = req.POST.get("product_id",'')
+		thiscontract.startdate = req.POST.get('startdate','')
+		thiscontract.enddate = req.POST.get("enddate",'')
+		thiscontract.manager_id = req.POST.get('manager_id','')
+		thiscontract.save()
+		
+		thislog = loginfo(info="alter contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
+		thislog.save()
+		a = {'user':req.user}
+		return render_to_response("home.html",a)

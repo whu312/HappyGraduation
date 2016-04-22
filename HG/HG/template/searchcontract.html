@@ -1,16 +1,8 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 
 {% block center %}
-<!DOCTYPE html>
-<html>
-<head>
-	<title>addcontract</title>
-	<link href="../../website/static/css/bootstrap.css" rel="stylesheet" type="text/css" />
-	<link href="../../website/static/css/bootstrap-datetimepicker.min.css" rel="stylesheet" media="screen">
-	<script type="text/javascript" src="../../website/static/js/jquery.js"></script>
-	<script type="text/javascript" src="../../website/static/js/bootstrap.js"></script>
-	<script type="text/javascript" src="../../website/static/js/bootstrap-datetimepicker.js"></script>
-	<script type="text/javascript" src="../../website/static/js/bootstrap-datetimepicker.min.js"></script>
+
+
 <style>
 .input-append{
 text-align:center;
@@ -20,13 +12,40 @@ margin-right:auto;
 </style>
 </head>
 <body>
-      <div id="legend" class="">
-        <legend class="">查询合同</legend>
-      </div>
+<h2>合同查询</h2>
 <div class="input-append" >
     <input type="text" class="span2 search-query">
         <button type="submit" class="btn">Search</button>
 </div>
+    <div class="container">
+   
+      <table class="table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>合同编号</th>
+            <th>姓名</th>
+            <th>身份证号</th>
+            <th>开户行</th>
+            <th>银行卡号</th>
+            <th>产品</th>
+            <th>金额</th>
+            <th>签约日</th>
+            <th>到期日</th>
+            <th>理财顾问</th>
+          </tr>
+        </thead>
+        <tbody>
+        {%for item in logs%}
+        <tr>
+            <td>{{item.info}}</td>
+            <td>{{item.time}}</td>
+            <td>{{item.thisuser.username}}</td>
+        </tr>
+        {%endfor%}
+        </tbody>
+      </table>
+    </div>
 
 </body>
 </html>

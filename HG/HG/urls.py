@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'^newcontract$', newcontract),
     url(r'^statuscontract$', statuscontract),
     url(r'^querycontracts$', querycontracts),
+	url(r'^altercontract$', altercontract),
     url(r'^newfield$', newfield),
     url(r'^newparty$', newparty),
     url(r'^newmanager$', newmanager),
