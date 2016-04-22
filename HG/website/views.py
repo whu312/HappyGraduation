@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from deal import *
 from users import *
 
-ONE_PAGE_NUM = 10
+ONE_PAGE_NUM = 5
 # Create your views here.
 
 def testhtml(req):
@@ -88,37 +88,8 @@ def statuscontract(req):
         a = {'user':req.user}
         return render_to_response("home.html",a)
 
-@checkauth
-def querycontracts(req):
-    if req.method == 'GET':
-        try:
-            thispage = int(req.GET.get("page",'1'))
-            pagetype = str(req.GET.get("pagetype",''))
-        except ValueError:
-            thispage = 1
-            allpage = 1
-            pagetype = ''
-        try:
-            number = req.GET.get('number','')
-        except ValueError:
-            number = ""
-        contracts = []
-        a = {'user':req.user}
-        if pagetype == 'pagedown':
-            thispage += 1
-        elif pagetype == 'pageup':
-            thispage -= 1
-        if number=="":
-            allpage = contract.objects.count()
-            startpos = ((thispage-1)*ONE_PAGE_NUM if (thispage-1)*ONE_PAGE_NUM<allpage else allpage)
-            endpos = (thispage*ONE_PAGE_NUM if thispage*ONE_PAGE_NUM<allpage else allpage)
-            contracts = contract.objects.all()[startpos:endpos]
-        else:
-            contracts = contract.objects.filter(number=number)
-        a['curpage'] = thispage
-        a['allpage'] = str(allpage)
-        a['contracts'] = contracts
-        return render_to_response("querycontracts.html",a)
+
+
 
 #add product control and manager
 @csrf_exempt
@@ -273,3 +244,41 @@ def checkcontract(req):
 		a = {'user':req.user}
 		return render_to_response("home.html",a)
 
+@csrf_exempt
+@checkauth
+def querycontracts(req):
+    if req.method == 'GET':
+        try:
+            thispage = int(req.GET.get("page",'1'))
+            pagetype = str(req.GET.get("pagetype",''))
+        except ValueError:
+            thispage = 1
+            allpage = 1
+            pagetype = ''
+        try:
+            number = req.GET.get('number','')
+        except ValueError:
+            number = ""
+        contracts = []
+        a = {'user':req.user}
+        if pagetype == 'pagedown':
+            thispage += 1
+        elif pagetype == 'pageup':
+            thispage -= 1
+        if number=="":
+            allcount = contract.objects.count()
+            startpos = ((thispage-1)*ONE_PAGE_NUM if (thispage-1)*ONE_PAGE_NUM<allcount else allcount)
+            endpos = (thispage*ONE_PAGE_NUM if thispage*ONE_PAGE_NUM<allcount else allcount)
+            contracts = contract.objects.all()[startpos:endpos]
+        else:
+            contracts = contract.objects.filter(number=number)
+        a['curpage'] = thispage
+        a['allpage'] = allcount/ONE_PAGE_NUM + 1
+        a['contracts'] = contracts
+        return render_to_response("querycontracts.html",a)
+    if req.method == 'POST':
+        a = {'user':req.user}
+        number = req.POST.get("number",'')
+        contracts = contract.objects.filter(number=number)
+        a['contracts'] = contracts
+        return render_to_response("querycontracts.html",a)
