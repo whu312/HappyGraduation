@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from deal import *
 from users import *
 
-ONE_PAGE_NUM = 20
+ONE_PAGE_NUM = 10
 # Create your views here.
 
 def testhtml(req):
@@ -93,16 +93,21 @@ def querycontracts(req):
     if req.method == 'GET':
         try:
             thispage = int(req.GET.get("page",'1'))
+            pagetype = str(req.GET.get("pagetype",''))
         except ValueError:
             thispage = 1
             allpage = 1
+            pagetype = ''
         try:
             number = req.GET.get('number','')
         except ValueError:
             number = ""
         contracts = []
         a = {'user':req.user}
-        a['curpage'] = str(thispage)
+        if pagetype == 'pagedown':
+            thispage += 1
+        elif pagetype == 'pageup':
+            thispage -= 1
         if number=="":
             allpage = contract.objects.count()
             startpos = ((thispage-1)*ONE_PAGE_NUM if (thispage-1)*ONE_PAGE_NUM<allpage else allpage)
@@ -110,6 +115,7 @@ def querycontracts(req):
             contracts = contract.objects.all()[startpos:endpos]
         else:
             contracts = contract.objects.filter(number=number)
+        a['curpage'] = thispage
         a['allpage'] = str(allpage)
         a['contracts'] = contracts
         return render_to_response("querycontracts.html",a)
@@ -245,4 +251,25 @@ def altercontract(req):
 		a = {'user':req.user}
 		return render_to_response("home.html",a)
 
+@csrf_exempt
+@checkauth
+def checkcontract(req):
+	a = {'user':req.user}
+	if req.method == 'GET':
+		contractid = req.GET.get("contractid",'')
+		print "he",contractid
+		thiscontract = contract.objects.get(id = int(contractid))
+		a["contract"] = thiscontract
+		return render_to_response("checkcontract.html",a)
+	if req.method == 'POST':
+		id = req.POST.get("contractid",'')
+		print "id",id
+		thiscontract = contract.objects.get(id = int(id))
+		newstatus = req.POST.get('status','')
+		thiscontract.status = newstatus
+		thiscontract.save()
+		thislog = loginfo(info="check contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
+		thislog.save()
+		a = {'user':req.user}
+		return render_to_response("home.html",a)
 

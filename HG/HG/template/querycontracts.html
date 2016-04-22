@@ -22,7 +22,6 @@ margin-right:auto;
       <table class="table">
         <thead>
           <tr>
-            <th>序号</th>
             <th>合同编号</th>
             <th>姓名</th>
             <th>身份证号</th>
@@ -36,15 +35,29 @@ margin-right:auto;
           </tr>
         </thead>
         <tbody>
-        {%for item in logs%}
+        {%for contract in contracts%}
         <tr>
-            <td>{{item.info}}</td>
-            <td>{{item.time}}</td>
-            <td>{{item.thisuser.username}}</td>
+            <td>{{contract.number}}</td>
+            <td>{{contract.client_name}}</td>
+            <td>{{contract.client_idcard}}</td>
+		    <td>{{contract.bank}}</td>
+			<td>{{contract.bank_card}}</td>
+            <td>{{contract.thisproduct.name}}</td>
+			<td>{{contract.money}}</td>
+			<td>{{contract.startdate}}</td>
+			<td>{{contract.enddate}}</td>
+            <td>{{contract.thismanager.name}}</td>
         </tr>
         {%endfor%}
         </tbody>
       </table>
+	  {%ifnotequal curpage 1 %}
+		<a href="/querycontracts?page={{curpage}}&&pagetype=pageup">上一页</a>
+		{% endifnotequal %}
+		
+		{% ifnotequal curpage allpage %}
+		<a href="/querycontracts?page={{curpage}}&&pagetype=pagedown">下一页</a>
+		{% endifnotequal %}
     </div>
 
 </body>

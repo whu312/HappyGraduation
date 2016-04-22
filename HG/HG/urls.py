@@ -28,7 +28,7 @@ urlpatterns = [
     url(r'^logout$', logout),
     url(r'^newcontract$', newcontract),
     url(r'^statuscontract$', statuscontract),
-    #url(r'^checkcontract$', checkcontract),
+    url(r'^checkcontract$', checkcontract),
     #url(r'^rollbackcontract$', rollbackcontract),
     url(r'^querycontracts$', querycontracts),
 	url(r'^altercontract$', altercontract),

@@ -8,7 +8,7 @@
     <div class="new">
         <h1>合同修改</h1>
     </div>
-    <div class="newcontract">
+    <div class="checkcontract">
         <div class="well">  
             <form class="form-horizontal" action="/altercontract" method="post">
 				<input type="hidden" id="contractid" name="contractid" placeholder="合同id" value={{contract.id}}>
@@ -47,7 +47,8 @@
             {%endfor%}
             </select>
             <p class="form-actions">
-                <input type="submit" value="修改合同" class="btn btn-primary">
+
+                <input type="submit" value="提交" class="btn btn-primary">
             </p>
 
             </form>
