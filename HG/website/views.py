@@ -331,7 +331,7 @@ def statusrepayitem(req,type_id):
         return HttpResponse(jsonstr,content_type='application/javascript')
 @csrf_exempt
 @checkauth
-def checkcontract(req):
+def checkcontracts(req):
     if req.method == 'GET':
         try:
             thispage = int(req.GET.get("page",'1'))
@@ -355,9 +355,10 @@ def checkcontract(req):
             for con in contract.objects.all():
                 if con.status != 2 :
                     allcount += 1
+            print allcount
             startpos = ((thispage-1)*ONE_PAGE_NUM if (thispage-1)*ONE_PAGE_NUM<allcount else allcount)
             endpos = (thispage*ONE_PAGE_NUM if thispage*ONE_PAGE_NUM<allcount else allcount)
-            contracts = contract.objects.all()[startpos:endpos]
+            contracts = contract.objects.exclude(status = 2)[startpos:endpos]
         else:
             contracts = contract.objects.filter(number=number)
         a['curpage'] = thispage
@@ -365,7 +366,42 @@ def checkcontract(req):
         a['contracts'] = contracts
         return render_to_response("checkcontracts.html",a)
 
-
+@csrf_exempt
+@checkauth
+def rollbackcontracts(req):
+    if req.method == 'GET':
+        try:
+            thispage = int(req.GET.get("page",'1'))
+            pagetype = str(req.GET.get("pagetype",''))
+        except ValueError:
+            thispage = 1
+            allpage = 1
+            pagetype = ''
+        try:
+            number = req.GET.get('number','')
+        except ValueError:
+            number = ""
+        contracts = []
+        a = {'user':req.user}
+        if pagetype == 'pagedown':
+            thispage += 1
+        elif pagetype == 'pageup':
+            thispage -= 1
+        if number=="":
+            allcount = 0
+            for con in contract.objects.all():
+                if con.status == 2 :
+                    allcount += 1
+            print allcount
+            startpos = ((thispage-1)*ONE_PAGE_NUM if (thispage-1)*ONE_PAGE_NUM<allcount else allcount)
+            endpos = (thispage*ONE_PAGE_NUM if thispage*ONE_PAGE_NUM<allcount else allcount)
+            contracts = contract.objects.filter(status = 2)[startpos:endpos]
+        else:
+            contracts = contract.objects.filter(number=number)
+        a['curpage'] = thispage
+        a['allpage'] = allcount/ONE_PAGE_NUM + 1
+        a['contracts'] = contracts
+        return render_to_response("rollbackcontracts.html",a)
 @csrf_exempt
 @checkauth
 def rollbackcontract(req):
