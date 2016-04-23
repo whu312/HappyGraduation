@@ -11,6 +11,7 @@ import re
 from django.views.decorators.csrf import csrf_exempt
 from deal import *
 from users import *
+import json
 
 ONE_PAGE_NUM = 10
 # Create your views here.
@@ -273,3 +274,87 @@ def checkcontract(req):
 		a = {'user':req.user}
 		return render_to_response("home.html",a)
 
+@checkauth
+def queryrepayitems(req,type_id):
+    a = {'user':req.user}
+    def item_compare(x,y):
+        if y.repaydate>x.repaydate:
+            return 1
+        elif y.repaydate<x.repaydate:
+            return -1
+        return 0
+    if req.method == "GET":
+        fromdate = req.GET.get("fromdate","1976-10-11")
+        todate = req.GET.get("todate","2050-10-11")
+        contract_number = req.GET.get("contract_id","")
+        if fromdate=="": fromdate = "1976-10-11"
+        if todate=="": todate="2050-10-11"
+        items = [] 
+        try:
+            contract_id = contract.objects.filter(number=contract_number)[0].id
+        except:
+            contract_id = -1
+        if type_id=="1" or type_id=='4':
+            if contract_id != -1:
+                try:
+                    items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,
+                            thiscontract_id__exact=contract_id)
+                except:
+                    items = []
+            elif contract_number=="":
+                items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate)
+        elif type_id=="2":
+            if contract_id != -1:
+                items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,
+                        thiscontract_id__exact=contract_id,repaytype__gte=2,status__exact=1)
+            elif contract_number=="":
+                items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,
+                        repaytype__gte=2,status__exact=1)
+        elif type_id=="3":
+            if contract_id != -1:
+                items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,
+                        thiscontract_id__exact=contract_id,repaytype__gte=2,status__exact=1)
+            elif contract_number=="":
+                items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,
+                        status__exact=1)
+        a["repayitems"] = sorted(items,cmp=item_compare)
+        a["type_id"] = type_id
+        return render_to_response("queryrepayitems.html",a)
+
+@csrf_exempt
+@checkauth
+def statusrepayitem(req,type_id):
+    if req.method == "POST":
+        item_id = req.POST.get("repayitem_id","")
+        #status = req.POST.get("status","")
+        items = repayitem.objects.filter(id=int(item_id))
+        a = {"message":"false"}
+        if len(items)>0:
+            thisitem = items[0]
+            if type_id == '1': #还款
+                if thisitem.status==1:
+                    a["message"] = "true"
+                    a["info"] = "还款成功"
+                    restitems = repayitem.objects.filter(thiscontract_id=thisitem.thiscontract.id,repaydate__lte=thisitem.repaydate)
+                    for restitem in restitems:
+                        if restitem.status==1:
+                            a["info"] = "前期款项还未还"
+                            a["message"] = "false"
+                            break
+                    if a["message"]=="true":
+                        thisitem.status = 2
+                        thisitem.save()
+            elif type_id == '2':
+                if thisitem.repaytype>1:
+                    a["message"] = "true"
+                    a["info"] = "续签成功"
+                    restitems = repayitem.objects.filter(thiscontract_id=thisitem.thiscontract.id)
+                    for restitem in restitems:
+                        if restitem.repaytype==1 and restitem.status==1:
+                            a["info"] = "还有款项没有还清"
+                            a["message"] = "false"
+                            break
+        else:
+            a["info"] = "没有该还款项"
+        jsonstr = json.dumps(a,ensure_ascii=False)
+        return HttpResponse(jsonstr,content_type='application/javascript')

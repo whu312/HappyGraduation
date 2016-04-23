@@ -30,9 +30,11 @@ def checkjurisdiction(req,page):
     return False
 
 def checkauth(func):
-    def _checkauth(req,a={}):
+    def _checkauth(req,arg=""):
         if req.user.is_authenticated():
-            return func(req)
+            if arg=="":
+                return func(req)
+            return func(req,arg)
         return render_to_response("index.html")
     return _checkauth
 
