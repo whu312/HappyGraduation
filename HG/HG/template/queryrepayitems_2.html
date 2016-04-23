@@ -16,7 +16,7 @@ String.prototype.Trim = function()
 { 
     return this.replace(/(^\s*)|(\s*$)/g, ""); 
 }
-function repay(myid,type_id){
+function repay(myid){
     var r = confirm("确认还款?");
     if(r==true){
     $.ajax({
@@ -29,15 +29,8 @@ function repay(myid,type_id){
             with (data.message)
             {
                 if(Trim()=='true'){
-                    if(type_id=="1"||type_id=="4"){
-                        var me = document.getElementById("operate_"+myid);
-                        me.innerHTML= "";
-                    }
-                    else
-                    {
-                        var me = document.getElementById("row_"+myid);
-                        me.innerHTML= "";
-                    }
+                    var me = document.getElementById("operate_"+myid);
+                    me.innerHTML= "";
                     alert(data.info);
                 }
                 else{
@@ -48,7 +41,7 @@ function repay(myid,type_id){
         }); 
     }
 }  
-function renewal(myid,type_id){
+function renewal(myid){
     var r = confirm("确认续签?");
     if(r==true){
     $.ajax({
@@ -61,15 +54,8 @@ function renewal(myid,type_id){
             with (data.message)
             {
                 if(Trim()=='true'){
-                    if(type_id=="1"||type_id=="4"){
-                        var me = document.getElementById("operate_"+myid);
-                        me.innerHTML= "";
-                    }
-                    else
-                    {
-                        var me = document.getElementById("row_"+myid);
-                        me.innerHTML= "";
-                    }
+                    var me = document.getElementById("operate_"+myid);
+                    me.innerHTML= "";
                     alert(data.info);
                 }
                 else{
@@ -113,12 +99,12 @@ function renewal(myid,type_id){
             <td>
                 <div id="operate_{{item.id}}">
                 {%ifequal item.status 1%}
-                <button onclick="repay({{item.id}},{{type_id}})">还款</button>
+                <button onclick="repay({{item.id}})">还款</button>
                 {%ifequal item.repaytype 2%}
-                <button onclick="renewal({{item.id}},{{type_id}})">续签</button>
+                <button onclick="renewal({{item.id}})">续签</button>
                 {%endifequal%}
                 {%ifequal item.repaytype 3%}
-                <button onclick="renewal({{item.id}},{{type_id}})">续签</button>
+                <button onclick="renewal({{item.id}})">续签</button>
                 {%endifequal%}
                 {%endifequal%}
                 </div>

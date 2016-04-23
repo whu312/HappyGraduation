@@ -306,7 +306,7 @@ def statusrepayitem(req,type_id):
                 if thisitem.status==1:
                     a["message"] = "true"
                     a["info"] = "还款成功"
-                    restitems = repayitem.objects.filter(thiscontract_id=thisitem.thiscontract.id,repaydate__lte=thisitem.repaydate)
+                    restitems = repayitem.objects.filter(thiscontract_id=thisitem.thiscontract.id,repaydate__lt=thisitem.repaydate)
                     for restitem in restitems:
                         if restitem.status==1:
                             a["info"] = "前期款项还未还"
