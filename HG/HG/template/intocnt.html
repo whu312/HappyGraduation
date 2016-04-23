@@ -31,18 +31,27 @@ function getpartylist(field_id){
             with (data.message)
             {
                 if(Trim()=='true'){
-                    var partystr = "团队<select id='party_select' name='party_id' onchange='getmanagerlist(this.options[this.options.selectedIndex].value)'><option value='-1' selected>--</option>";
-                    for(var i=0;i<data.parties.length;i++){
-                        partystr += "<option value='"+data.parties[i][0]+"'>"+data.parties[i][1]+"</option>";
+                    if(field_id!="-1"){
+                        var partystr = "团队<select id='party_select' name='party_id' onchange='getmanagerlist(this.options[this.options.selectedIndex].value)'><option value='-1' selected>--</option>";
+                        for(var i=0;i<data.parties.length;i++){
+                            partystr += "<option value='"+data.parties[i][0]+"'>"+data.parties[i][1]+"</option>";
+                        }
+                        partystr += "</selected>";
+                        document.getElementById("party").innerHTML = partystr;
                     }
-                    partystr += "</selected>";
-                    document.getElementById("party").innerHTML = partystr;
                     document.getElementById("cnt").innerHTML = data.cnt;
                     document.getElementById("totalm").innerHTML = data.totalmoney;
                 }
             }
          }
     }); 
+    if(document.getElementById("field_select").value=="-1"){
+        document.getElementById("manager").innerHTML = "";
+        document.getElementById("party").innerHTML = "";
+    }
+    if(document.getElementById("party_select").value=="-1"){
+        document.getElementById("manager").innerHTML = "";
+    }
 }
 
 function getmanagerlist(party_id){
@@ -61,18 +70,27 @@ function getmanagerlist(party_id){
             with (data.message)
             {
                 if(Trim()=='true'){
-                    var managerstr = "经理<select id='manager_select' name='manager_id' onchange='getpersoncnt(this.options[this.options.selectedIndex].value)'><option value='-1' selected>--</option>";
-                    for(var i=0;i<data.managers.length;i++){
-                        managerstr += "<option value='"+data.managers[i][0]+"'>"+data.managers[i][1]+"</option>";
+                    if(party_id!="-1"){
+                        var managerstr = "经理<select id='manager_select' name='manager_id' onchange='getpersoncnt(this.options[this.options.selectedIndex].value)'><option value='-1' selected>--</option>";
+                        for(var i=0;i<data.managers.length;i++){
+                            managerstr += "<option value='"+data.managers[i][0]+"'>"+data.managers[i][1]+"</option>";
+                        }
+                        managerstr += "</selected>";
+                        document.getElementById("manager").innerHTML = managerstr;
                     }
-                    managerstr += "</selected>";
-                    document.getElementById("manager").innerHTML = managerstr;
                     document.getElementById("cnt").innerHTML = data.cnt;
                     document.getElementById("totalm").innerHTML = data.totalmoney;
                 }
             }
          }
     }); 
+    if(document.getElementById("field_select").value=="-1"){
+        document.getElementById("manager").innerHTML = "";
+        document.getElementById("party").innerHTML = "";
+    }
+    if(party_id=="-1"){
+        document.getElementById("manager").innerHTML = "";
+    }
 }
 
 
@@ -94,7 +112,14 @@ function getpersoncnt(manager_id){
                 }
             }
          }
-    }); 
+    });
+   if(document.getElementById("field_select").value=="-1"){
+        document.getElementById("manager").innerHTML = "";
+        document.getElementById("party").innerHTML = "";
+    } 
+   if(document.getElementById("party_select").value=="-1"){
+        document.getElementById("manager").innerHTML = "";
+    } 
 }
 
 </script>
