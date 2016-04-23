@@ -18,6 +18,7 @@ from django.contrib import admin
 import settings
 from website.views import *
 from website.users import *
+from website.statistics import *
 
 urlpatterns = [
     url(r'^html$', testhtml),
@@ -42,4 +43,10 @@ urlpatterns = [
     url(r'^deleteuser$', deleteuser),
     url(r'^passwd$', passwd),
     url(r'^log$', getlog),
+    url(r'^repayplan$', repayplan),
+    url(r'^dayrepay/([0-9]{4}-[0-9]{2}-[0-9]{2})$', dayrepay),
+    url(r'^intocnt$', intocnt),
+    url(r'^getparties$', getparties),
+    url(r'^getmanagers$', getmanagers),
+    url(r'^getpersoncnt$', getpersoncnt),
 ]
