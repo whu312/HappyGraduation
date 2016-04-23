@@ -246,6 +246,63 @@ def checkcontract(req):
 
 @csrf_exempt
 @checkauth
+def checkcontracts(req):
+    if req.method == 'GET':
+        try:
+            thispage = int(req.GET.get("page",'1'))
+            pagetype = str(req.GET.get("pagetype",''))
+        except ValueError:
+            thispage = 1
+            allpage = 1
+            pagetype = ''
+        try:
+            number = req.GET.get('number','')
+        except ValueError:
+            number = ""
+        contracts = []
+        a = {'user':req.user}
+        if pagetype == 'pagedown':
+            thispage += 1
+        elif pagetype == 'pageup':
+            thispage -= 1
+        if number=="":
+            allcount = 0
+            for con in contract.objects.all():
+                if con.status != 2 :
+                    allcount += 1
+            startpos = ((thispage-1)*ONE_PAGE_NUM if (thispage-1)*ONE_PAGE_NUM<allcount else allcount)
+            endpos = (thispage*ONE_PAGE_NUM if thispage*ONE_PAGE_NUM<allcount else allcount)
+            contracts = contract.objects.all()[startpos:endpos]
+        else:
+            contracts = contract.objects.filter(number=number)
+        a['curpage'] = thispage
+        a['allpage'] = allcount/ONE_PAGE_NUM + 1
+        a['contracts'] = contracts
+        return render_to_response("checkcontracts.html",a)
+
+
+@csrf_exempt
+@checkauth
+def rollbackcontract(req):
+	a = {'user':req.user}
+	if req.method == 'GET':
+		contractid = req.GET.get("contractid",'')
+		print "he",contractid
+		thiscontract = contract.objects.get(id = int(contractid))
+		a["contract"] = thiscontract
+		return render_to_response("rollbackcontract.html",a)
+	if req.method == 'POST':
+		id = req.POST.get("contractid",'')
+		thiscontract = contract.objects.get(id = int(id))
+		thiscontract.status = 3
+		thiscontract.save()
+		thislog = loginfo(info="rollbackcontract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
+		thislog.save()
+		a = {'user':req.user}
+		return render_to_response("home.html",a)
+
+@csrf_exempt
+@checkauth
 def querycontracts(req):
     if req.method == 'GET':
         try:
