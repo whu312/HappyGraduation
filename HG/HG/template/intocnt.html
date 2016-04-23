@@ -1,0 +1,129 @@
+﻿{% extends 'base.html' %}
+
+{% block center %}
+<style>
+.input-append{
+text-align:center;
+margin-left:auto; 
+margin-right:auto;
+}
+</style>
+<script language="JavaScript" type="text/javascript" src="http://www.my97.net/dp/My97DatePicker/WdatePicker.js"></script>
+<script>
+String.prototype.Trim = function() 
+{ 
+    return this.replace(/(^\s*)|(\s*$)/g, ""); 
+}
+function getpartylist(field_id){
+    if(field_id=="-1"){
+        document.getElementById("party").innerHTML = "";
+        document.getElementById("manager").innerHTML = "";
+    }    
+    var fromdate = document.getElementById("fromdate").value;
+    var todate = document.getElementById("todate").value;
+    $.ajax({
+        type: "GET",
+        data: "field_id="+field_id+"&fromdate="+fromdate+"&todate="+todate,
+        url: "/getparties",
+        dataType: "json",
+        cache: false,
+        success: function(data){ 
+            with (data.message)
+            {
+                if(Trim()=='true'){
+                    var partystr = "团队<select id='party_select' name='party_id' onchange='getmanagerlist(this.options[this.options.selectedIndex].value)'><option value='-1' selected>--</option>";
+                    for(var i=0;i<data.parties.length;i++){
+                        partystr += "<option value='"+data.parties[i][0]+"'>"+data.parties[i][1]+"</option>";
+                    }
+                    partystr += "</selected>";
+                    document.getElementById("party").innerHTML = partystr;
+                    document.getElementById("cnt").innerHTML = data.cnt;
+                    document.getElementById("totalm").innerHTML = data.totalmoney;
+                }
+            }
+         }
+    }); 
+}
+
+function getmanagerlist(party_id){
+    if(party=="-1"){
+        document.getElementById("manager").innerHTML = "";
+    }
+    var fromdate = document.getElementById("fromdate").value;
+    var todate = document.getElementById("todate").value;
+    $.ajax({
+        type: "GET",
+        data: "party_id="+party_id+"&fromdate="+fromdate+"&todate="+todate,
+        url: "/getmanagers",
+        dataType: "json",
+        cache: false,
+        success: function(data){ 
+            with (data.message)
+            {
+                if(Trim()=='true'){
+                    var managerstr = "经理<select id='manager_select' name='manager_id' onchange='getpersoncnt(this.options[this.options.selectedIndex].value)'><option value='-1' selected>--</option>";
+                    for(var i=0;i<data.managers.length;i++){
+                        managerstr += "<option value='"+data.managers[i][0]+"'>"+data.managers[i][1]+"</option>";
+                    }
+                    managerstr += "</selected>";
+                    document.getElementById("manager").innerHTML = managerstr;
+                    document.getElementById("cnt").innerHTML = data.cnt;
+                    document.getElementById("totalm").innerHTML = data.totalmoney;
+                }
+            }
+         }
+    }); 
+}
+
+
+function getpersoncnt(manager_id){
+    var fromdate = document.getElementById("fromdate").value;
+    var todate = document.getElementById("todate").value;
+    $.ajax({
+        type: "GET",
+        data: "manager_id="+manager_id+"&fromdate="+fromdate+"&todate="+todate,
+        url: "/getpersoncnt",
+        dataType: "json",
+        cache: false,
+        success: function(data){ 
+            with (data.message)
+            {
+                if(Trim()=='true'){
+                    document.getElementById("cnt").innerHTML = data.cnt;
+                    document.getElementById("totalm").innerHTML = data.totalmoney;
+                }
+            }
+         }
+    }); 
+}
+
+</script>
+
+
+<h2>进账统计</h2>
+<div class="input-append" >
+    起始日期
+    <input id="fromdate" value={{fromdate}} name="fromdate" onClick="WdatePicker()">
+    终止日期
+    <input id="todate" value={{todate}} name="todate" onClick="WdatePicker()">
+    <br />
+    <p id="field">职场
+    <select id="field_select" name="field_id" onchange="getpartylist(this.options[this.options.selectedIndex].value)">
+        <option value="-1" selected>--</option>
+        {%for field in fields%}
+        <option value={{field.id}}>{{field.name}}</option>
+        {%endfor%}
+    </select>
+    </p>
+    
+    <p id="party">
+    </p>
+    <p id="manager">
+    </p>
+</div>
+<div class="container">
+    <h3>共计<m id="cnt">{{cnt}}</m>笔 &nbsp;&nbsp; 共<m id="totalm">{{totalmoney}}</m></h3><br />
+</div>
+
+        
+{% endblock %}
