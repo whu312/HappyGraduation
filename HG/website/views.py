@@ -221,7 +221,9 @@ def altercontract(req):
 		thislog = loginfo(info="alter contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
 		thislog.save()
 		a = {'user':req.user}
-		return render_to_response("home.html",a)
+		a["create_succ"] = True
+		a["contract"] = thiscontract
+		return render_to_response("altercontract.html",a)
 
 @csrf_exempt
 @checkauth
@@ -243,7 +245,9 @@ def checkcontract(req):
 		thislog = loginfo(info="check contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
 		thislog.save()
 		a = {'user':req.user}
-		return render_to_response("home.html",a)
+		a["create_succ"] = True
+		a["contract"] = thiscontract
+		return render_to_response("checkcontract.html",a)
 
 @checkauth
 def queryrepayitems(req,type_id):
@@ -458,5 +462,8 @@ def querycontracts(req):
         a = {'user':req.user}
         number = req.POST.get("number",'')
         contracts = contract.objects.filter(number=number)
+        a['contract_size'] = contracts.count() 
         a['contracts'] = contracts
+        a['curpage'] = 1
+        a['allpage'] = 1
         return render_to_response("querycontracts.html",a)
