@@ -18,13 +18,11 @@ function getpartylist(field_id){
     if(field_id=="-1"){
         document.getElementById("party").innerHTML = "";
         document.getElementById("manager").innerHTML = "";
-    }    
-    var fromdate = document.getElementById("fromdate").value;
-    var todate = document.getElementById("todate").value;
+    }
     $.ajax({
         type: "GET",
-        data: "field_id="+field_id+"&fromdate="+fromdate+"&todate="+todate,
-        url: "/getparties/intocnt",
+        data: "field_id="+field_id,
+        url: "/getparties/waitrepay",
         dataType: "json",
         cache: false,
         success: function(data){ 
@@ -58,12 +56,10 @@ function getmanagerlist(party_id){
     if(party=="-1"){
         document.getElementById("manager").innerHTML = "";
     }
-    var fromdate = document.getElementById("fromdate").value;
-    var todate = document.getElementById("todate").value;
     $.ajax({
         type: "GET",
-        data: "party_id="+party_id+"&fromdate="+fromdate+"&todate="+todate,
-        url: "/getmanagers/intocnt",
+        data: "party_id="+party_id,
+        url: "/getmanagers/waitrepay",
         dataType: "json",
         cache: false,
         success: function(data){ 
@@ -95,12 +91,10 @@ function getmanagerlist(party_id){
 
 
 function getpersoncnt(manager_id){
-    var fromdate = document.getElementById("fromdate").value;
-    var todate = document.getElementById("todate").value;
     $.ajax({
         type: "GET",
-        data: "manager_id="+manager_id+"&fromdate="+fromdate+"&todate="+todate,
-        url: "/getpersoncnt/intocnt",
+        data: "manager_id="+manager_id,
+        url: "/getpersoncnt/waitrepay",
         dataType: "json",
         cache: false,
         success: function(data){ 
@@ -125,13 +119,8 @@ function getpersoncnt(manager_id){
 </script>
 
 
-<h2>进账统计</h2>
+<h2>待收统计</h2>
 <div class="input-append" >
-    起始日期
-    <input id="fromdate" value={{fromdate}} name="fromdate" onClick="WdatePicker()">
-    终止日期
-    <input id="todate" value={{todate}} name="todate" onClick="WdatePicker()">
-    <br />
     <p id="field">职场
     <select id="field_select" name="field_id" onchange="getpartylist(this.options[this.options.selectedIndex].value)">
         <option value="-1" selected>--</option>

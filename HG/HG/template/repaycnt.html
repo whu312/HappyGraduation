@@ -24,7 +24,7 @@ function getpartylist(field_id){
     $.ajax({
         type: "GET",
         data: "field_id="+field_id+"&fromdate="+fromdate+"&todate="+todate,
-        url: "/getparties/intocnt",
+        url: "/getparties/repaycnt",
         dataType: "json",
         cache: false,
         success: function(data){ 
@@ -63,7 +63,7 @@ function getmanagerlist(party_id){
     $.ajax({
         type: "GET",
         data: "party_id="+party_id+"&fromdate="+fromdate+"&todate="+todate,
-        url: "/getmanagers/intocnt",
+        url: "/getmanagers/repaycnt",
         dataType: "json",
         cache: false,
         success: function(data){ 
@@ -100,7 +100,7 @@ function getpersoncnt(manager_id){
     $.ajax({
         type: "GET",
         data: "manager_id="+manager_id+"&fromdate="+fromdate+"&todate="+todate,
-        url: "/getpersoncnt/intocnt",
+        url: "/getpersoncnt/repaycnt",
         dataType: "json",
         cache: false,
         success: function(data){ 
@@ -125,7 +125,7 @@ function getpersoncnt(manager_id){
 </script>
 
 
-<h2>进账统计</h2>
+<h2>返款统计</h2>
 <div class="input-append" >
     起始日期
     <input id="fromdate" value={{fromdate}} name="fromdate" onClick="WdatePicker()">

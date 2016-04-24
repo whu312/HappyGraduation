@@ -47,7 +47,10 @@ urlpatterns = [
     url(r'^repayplan$', repayplan),
     url(r'^dayrepay/([0-9]{4}-[0-9]{2}-[0-9]{2})$', dayrepay),
     url(r'^intocnt$', intocnt),
-    url(r'^getparties$', getparties),
-    url(r'^getmanagers$', getmanagers),
-    url(r'^getpersoncnt$', getpersoncnt),
+    url(r'^getparties/(.+)$', getparties),
+    url(r'^getmanagers/(.+)$', getmanagers),
+    url(r'^getpersoncnt/(.+)$', getpersoncnt),
+    url(r'^yearintocnt$', yearintocnt),
+    url(r'^repaycnt$', repaycnt),
+    url(r'^waitrepay$', waitrepay),
 ]

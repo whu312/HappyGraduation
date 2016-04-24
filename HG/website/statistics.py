@@ -114,7 +114,7 @@ def intocnt(req,a={},type_id=0):
         for item in items:
             totalmoney += float(item.money)
         #a = {"user":req.user}
-        a["totalmoney"] = totalmoney
+        a["totalmoney"] = "%.02f" % totalmoney
         a["cnt"] = len(items)
         a["fromdate"] = fromdate
         a["todate"] = todate
@@ -126,7 +126,7 @@ def intocnt(req,a={},type_id=0):
         return HttpResponse(jsonstr,content_type='application/javascript')
     
 @checkauth
-def getparties(req):
+def getparties(req,which_type):
     if req.method == "GET":
         field_id = req.GET.get("field_id","")
         ps = party.objects.filter(thisfield_id=int(field_id))
@@ -135,10 +135,17 @@ def getparties(req):
         for p in ps:
             plist.append((p.id,p.name))
         a["parties"] = plist
-        return intocnt(req,a,1)
+        if which_type=="yearintocnt":
+            return yearintocnt(req,a,1)
+        elif which_type=="intocnt":
+            return intocnt(req,a,1)
+        elif which_type=="repaycnt":
+            return repaycnt(req,a,1)
+        elif which_type=="waitrepay":
+            return waitrepay(req,a,1)
 
 @checkauth
-def getmanagers(req):
+def getmanagers(req,which_type):
     if req.method == "GET":
         party_id = req.GET.get("party_id","")
         ms = manager.objects.filter(thisparty_id=int(party_id))
@@ -147,10 +154,150 @@ def getmanagers(req):
         for m in ms:
             mlist.append((m.id,m.name))
         a["managers"] = mlist
-        return intocnt(req,a,2)
+        if which_type=="yearintocnt":
+            return yearintocnt(req,a,1)
+        elif which_type=="intocnt":
+            return intocnt(req,a,1)
+        elif which_type=="repaycnt":
+            return repaycnt(req,a,1)
+        elif which_type=="waitrepay":
+            return waitrepay(req,a,1)
 
 @checkauth
-def getpersoncnt(req):
+def getpersoncnt(req,which_type):
     if req.method == "GET":
         a = {"message":"true"}
-        return intocnt(req,a,2)
+        if which_type=="yearintocnt":
+            return yearintocnt(req,a,1)
+        elif which_type=="intocnt":
+            return intocnt(req,a,1)
+        elif which_type=="repaycnt":
+            return repaycnt(req,a,1)
+        elif which_type=="waitrepay":
+            return waitrepay(req,a,1)
+    
+@checkauth
+def yearintocnt(req,a={},type_id=0):
+    if req.method == "GET":
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+        todate = req.GET.get("todate",str(datetime.date.today()))
+        #if fromdate=="": fromdate = "1976-10-11"
+        #if todate=="": todate="2050-10-11"
+        field_id = int(req.GET.get("field_id","-1"))
+        party_id = int(req.GET.get("party_id","-1"))
+        manager_id = int(req.GET.get("manager_id","-1"))
+        items = []
+        if manager_id != -1:
+            items = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate,thismanager_id=manager_id)
+        elif party_id != -1:
+            ms = manager.objects.filter(thisparty_id=party_id)
+            for m in ms:
+                items.extend(contract.objects.filter(startdate__gte=fromdate,
+                    startdate__lte=todate,thismanager_id=m.id))
+        elif field_id != -1:
+            ps = party.objects.filter(thisfield_id=field_id)
+            for p in ps:
+                ms = manager.objects.filter(thisparty_id=p.id)
+                for m in ms:
+                    items.extend(contract.objects.filter(startdate__gte=fromdate,
+                        startdate__lte=todate,thismanager_id=m.id))
+        else:
+            items = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate)
+        totalmoney = 0.0
+        for item in items:
+            if item.thisproduct.closedtype == 'm':
+                totalmoney += 12*float(item.money)/item.thisproduct.closedperiod
+            elif item.thisproduct.closedtype == 'd':
+                totalmoney += 365*float(item.money)/item.thisproduct.closedperiod
+        #a = {"user":req.user}
+        a["totalmoney"] = "%.02f" % totalmoney
+        a["cnt"] = len(items)
+        a["fromdate"] = fromdate
+        a["todate"] = todate
+        if type_id==0:
+            a["user"] = req.user
+            a["fields"] = field.objects.all()
+            return render_to_response("yearintocnt.html",a)
+        jsonstr = json.dumps(a,ensure_ascii=False)
+        return HttpResponse(jsonstr,content_type='application/javascript')
+
+@checkauth
+def repaycnt(req,a={},type_id=0):
+    if req.method == "GET":
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+        todate = req.GET.get("todate",str(datetime.date.today()))
+        #if fromdate=="": fromdate = "1976-10-11"
+        #if todate=="": todate="2050-10-11"
+        field_id = int(req.GET.get("field_id","-1"))
+        party_id = int(req.GET.get("party_id","-1"))
+        manager_id = int(req.GET.get("manager_id","-1"))
+        
+        anslist = []
+        items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate)
+        if manager_id != -1:
+            for item in items:    
+                if item.thiscontract.thismanager.id == manager_id:
+                    anslist.append(item)
+        elif party_id != -1:
+            for item in items:    
+                if item.thiscontract.thismanager.thisparty.id == party_id:
+                    anslist.append(item)
+        elif field_id != -1:
+            for item in items:    
+                if item.thiscontract.thismanager.thisparty.thisfield.id == field_id:
+                    anslist.append(item)
+        else:
+            anslist = items
+            
+        totalmoney = 0.0
+        for item in anslist:
+            if item.status==3:
+                totalmoney += float(item.repaymoney)-float(item.thiscontract.money)
+            else:
+                totalmoney += float(item.repaymoney)
+        a["totalmoney"] = "%.02f" % totalmoney
+        a["cnt"] = len(anslist)
+        a["fromdate"] = fromdate
+        a["todate"] = todate
+        if type_id==0:
+            a["user"] = req.user
+            a["fields"] = field.objects.all()
+            return render_to_response("repaycnt.html",a)
+        jsonstr = json.dumps(a,ensure_ascii=False)
+        return HttpResponse(jsonstr,content_type='application/javascript')
+
+@checkauth
+def waitrepay(req,a={},type_id=0):
+    if req.method == "GET":
+        field_id = int(req.GET.get("field_id","-1"))
+        party_id = int(req.GET.get("party_id","-1"))
+        manager_id = int(req.GET.get("manager_id","-1"))
+        anslist = []
+        items = repayitem.objects.filter(status=1)
+        if manager_id != -1:
+            for item in items:    
+                if item.thiscontract.thismanager.id == manager_id:
+                    anslist.append(item)
+        elif party_id != -1:
+            for item in items:    
+                if item.thiscontract.thismanager.thisparty.id == party_id:
+                    anslist.append(item)
+        elif field_id != -1:
+            for item in items:
+                if item.thiscontract.thismanager.thisparty.thisfield.id == field_id:
+                    anslist.append(item)
+        else:
+            anslist = items
+            
+        totalmoney = 0.0
+        for item in anslist:
+            totalmoney += float(item.repaymoney)
+            
+        a["totalmoney"] = "%.02f" % totalmoney
+        a["cnt"] = len(anslist)
+        if type_id==0:
+            a["user"] = req.user
+            a["fields"] = field.objects.all()
+            return render_to_response("waitrepay.html",a)
+        jsonstr = json.dumps(a,ensure_ascii=False)
+        return HttpResponse(jsonstr,content_type='application/javascript')
