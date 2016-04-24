@@ -87,9 +87,9 @@ function renewal(myid,type_id){
 <div class="input-append" >
     <form action="/queryrepayitems/{{type_id}}" method="get">
     起始日期
-    <input id="fromdate" name="fromdate" onClick="WdatePicker()">
+    <input id="fromdate" name="fromdate" value={{fromdate}} onClick="WdatePicker()">
     终止日期
-    <input id="todate" name="todate" onClick="WdatePicker()">
+    <input id="todate" name="todate" value={{todate}} onClick="WdatePicker()">
     <input type="text" name="contract_id" placeholder="合同编号">
     <input type="submit" value="Search">
     </form>

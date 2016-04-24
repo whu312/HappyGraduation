@@ -88,8 +88,10 @@ def userctl(req):
     a['users'] = users.objects.all()
     return render_to_response("userctl.html",a)
     '''
-    a = {}
-    a["user"] = req.user
+    a = {'user':req.user}
+    if not checkjurisdiction(req,"账户管理"):
+        return render_to_response("jur.html",a)
+    
     a['users'] = users.objects.all()
     if req.method == 'GET':
         form = NewUserForm()
@@ -140,6 +142,10 @@ def deleteuser(req):
 @csrf_exempt
 @checkauth
 def passwd(request):
+    a = {'user':request.user}
+    if not checkjurisdiction(request,"密码修改"):
+        return render_to_response("jur.html",a)
+    
     if request.method == 'GET':
         form = ChangepwdForm()
         return render_to_response('passwd.html', RequestContext(request, {'form': form,'user':request.user}))

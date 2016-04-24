@@ -19,6 +19,19 @@ ONE_PAGE_NUM = 5
 def testhtml(req):
     return render_to_response("searchcontract.html")
     
+def cleanall(req):
+    repayitem.objects.all().delete()
+    contract.objects.all().delete()
+    loginfo.objects.all().delete()
+    manager.objects.all().delete()
+    party.objects.all().delete()
+    field.objects.all().delete()
+    product.objects.all().delete()
+    users.objects.all().delete()
+    cycle.objects.all().delete()
+    User.objects.all().delete()
+    return HttpResponse("clean ok")
+
 def addcycle(req):
     thiscycle = cycle(name=u'一次',cycletype=1)
     thiscycle.save()
@@ -35,6 +48,9 @@ def index(req):
 @checkauth
 def newcontract(req):
     a = {'user':req.user}
+    if not checkjurisdiction(req,"新增合同"):
+        return render_to_response("jur.html",a)
+
     a['products'] = product.objects.all()
     a['managers'] = manager.objects.all()
     form = NewContractForm()
@@ -62,7 +78,7 @@ def newcontract(req):
             thislog = loginfo(info="new contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
             thislog.save()
         
-            CreateRepayItem(thiscontract)
+            #CreateRepayItem(thiscontract)
             a["create_succ"] = True
             return render_to_response("newcontract.html",a)
         else:
@@ -97,6 +113,9 @@ def statuscontract(req):
 @checkauth
 def newfield(req):
     a = {'user':req.user}
+    if not checkjurisdiction(req,"职场管理"):
+        return render_to_response("jur.html",a)
+    
     if req.method == "GET":
         form = NewFieldForm()
         a["form"] = form
@@ -119,6 +138,9 @@ def newfield(req):
 @checkauth
 def newparty(req):
     a = {'user':req.user}
+    if not checkjurisdiction(req,"团队管理"):
+        return render_to_response("jur.html",a)
+    
     a["fields"] = field.objects.all()
     if req.method == "GET":
         form = NewPartyForm()
@@ -140,6 +162,9 @@ def newparty(req):
 @checkauth
 def newmanager(req):
     a = {'user':req.user}
+    if not checkjurisdiction(req,"经理管理"):
+        return render_to_response("jur.html",a)
+    
     a["parties"] = party.objects.all()
     if req.method == "GET":
         form = NewManagerForm()
@@ -163,6 +188,9 @@ def newmanager(req):
 @checkauth
 def newproduct(req):
     a = {'user':req.user}
+    if not checkjurisdiction(req,"产品管理"):
+        return render_to_response("jur.html",a)
+    
     a["cycles"] = cycle.objects.all()
     if req.method == "GET":
         form = NewProductForm()
@@ -186,6 +214,9 @@ def newproduct(req):
             return render_to_response("newproduct.html",a)
 @checkauth
 def getlog(req):
+    a = {'user':req.user}
+    if not checkjurisdiction(req,"系统日志"):
+        return render_to_response("jur.html",a)
     if req.method == "GET":
         alllogs = loginfo.objects.all()
         a = {'user':req.user}
@@ -229,15 +260,17 @@ def altercontract(req):
 @checkauth
 def checkcontract(req):
 	a = {'user':req.user}
+	if not checkjurisdiction(req,"合同审核"):
+		return render_to_response("jur.html",a)
 	if req.method == 'GET':
 		contractid = req.GET.get("contractid",'')
-		print "he",contractid
+        #print "he",contractid
 		thiscontract = contract.objects.get(id = int(contractid))
 		a["contract"] = thiscontract
 		return render_to_response("checkcontract.html",a)
 	if req.method == 'POST':
 		id = req.POST.get("contractid",'')
-		print "id",id
+        #print "id",id
 		thiscontract = contract.objects.get(id = int(id))
 		newstatus = req.POST.get('status','')
 		thiscontract.status = newstatus
@@ -252,6 +285,9 @@ def checkcontract(req):
 @checkauth
 def queryrepayitems(req,type_id):
     a = {'user':req.user}
+    if not checkjurisdiction(req,"还款查询"):
+        return render_to_response("jur.html",a)
+    
     def item_compare(x,y):
         if y.repaydate>x.repaydate:
             return 1
@@ -259,11 +295,10 @@ def queryrepayitems(req,type_id):
             return -1
         return 0
     if req.method == "GET":
-        fromdate = req.GET.get("fromdate","1976-10-11")
-        todate = req.GET.get("todate","2050-10-11")
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()))
+        todate = req.GET.get("todate",str(datetime.date.today()+datetime.timedelta(7))) #下一周
         contract_number = req.GET.get("contract_id","")
-        if fromdate=="": fromdate = "1976-10-11"
-        if todate=="": todate="2050-10-11"
+        
         items = [] 
         try:
             contract_id = contract.objects.filter(number=contract_number)[0].id
@@ -294,6 +329,8 @@ def queryrepayitems(req,type_id):
                         status__exact=1)
         a["repayitems"] = sorted(items,cmp=item_compare)
         a["type_id"] = type_id
+        a["fromdate"] = fromdate
+        a["todate"] = todate
         return render_to_response("queryrepayitems.html",a)
 
 @csrf_exempt
@@ -307,7 +344,10 @@ def statusrepayitem(req,type_id):
         if len(items)>0:
             thisitem = items[0]
             if type_id == '1': #还款
-                if thisitem.status==1:
+                if not checkjurisdiction(req,"还款确认"):
+                    a["info"] = "对不起您没有还款权限"
+                    
+                elif thisitem.status==1:
                     a["message"] = "true"
                     a["info"] = "还款成功"
                     restitems = repayitem.objects.filter(thiscontract_id=thisitem.thiscontract.id,repaydate__lt=thisitem.repaydate)
@@ -320,7 +360,9 @@ def statusrepayitem(req,type_id):
                         thisitem.status = 2
                         thisitem.save()
             elif type_id == '2':
-                if thisitem.repaytype>1:
+                if not checkjurisdiction(req,"到期续单"):
+                    a["info"] = "对不起您没有续单权限"
+                elif thisitem.repaytype>1:
                     a["message"] = "true"
                     a["info"] = "续签成功"
                     restitems = repayitem.objects.filter(thiscontract_id=thisitem.thiscontract.id)
@@ -336,6 +378,10 @@ def statusrepayitem(req,type_id):
 @csrf_exempt
 @checkauth
 def checkcontracts(req):
+    a = {'user':req.user}
+    if not checkjurisdiction(req,"合同审核"):
+        return render_to_response("jur.html",a)
+    
     if req.method == 'GET':
         try:
             thispage = int(req.GET.get("page",'1'))
@@ -349,7 +395,6 @@ def checkcontracts(req):
         except ValueError:
             number = ""
         contracts = []
-        a = {'user':req.user}
         if pagetype == 'pagedown':
             thispage += 1
         elif pagetype == 'pageup':
@@ -357,7 +402,7 @@ def checkcontracts(req):
         if number=="":
             allcount = 0
             for con in contract.objects.all():
-                if con.status != 2 :
+                if con.status == 1 or con.status == 3:
                     allcount += 1
             print allcount
             startpos = ((thispage-1)*ONE_PAGE_NUM if (thispage-1)*ONE_PAGE_NUM<allcount else allcount)
@@ -373,6 +418,10 @@ def checkcontracts(req):
 @csrf_exempt
 @checkauth
 def rollbackcontracts(req):
+    a = {'user':req.user}
+    if not checkjurisdiction(req,"审核回退"):
+        return render_to_response("jur.html",a)
+    
     if req.method == 'GET':
         try:
             thispage = int(req.GET.get("page",'1'))
@@ -386,7 +435,6 @@ def rollbackcontracts(req):
         except ValueError:
             number = ""
         contracts = []
-        a = {'user':req.user}
         if pagetype == 'pagedown':
             thispage += 1
         elif pagetype == 'pageup':
@@ -429,6 +477,10 @@ def rollbackcontract(req):
 @csrf_exempt
 @checkauth
 def querycontracts(req):
+    a = {'user':req.user}
+    if not checkjurisdiction(req,"合同查询"):
+        return render_to_response("jur.html",a)
+    
     if req.method == 'GET':
         try:
             thispage = int(req.GET.get("page",'1'))
@@ -467,3 +519,37 @@ def querycontracts(req):
         a['curpage'] = 1
         a['allpage'] = 1
         return render_to_response("querycontracts.html",a)
+
+@csrf_exempt
+@checkauth
+def lastcheck(req):
+    a = {'user':req.user}
+    if not checkjurisdiction(req,"最终审核"):
+        return render_to_response("jur.html",a)
+    if req.method == "GET":
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+        todate = req.GET.get("todate",str(datetime.date.today())) #前一周
+        cons = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate,status=2)
+        a = {'user':req.user}
+        totalmoney = 0.0
+        for con in cons:
+            totalmoney += float(con.money)
+        a["cons"] = cons
+        a["totalmoney"] = totalmoney
+        a["fromdate"] = fromdate
+        a["todate"] = todate
+        return render_to_response("lastcheck.html",a)
+    if req.method == "POST":
+        fromdate = req.POST.get("fromdate","")
+        todate = req.POST.get("todate","")
+        status = req.POST.get("status","")
+        
+        cons = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate,status=2)
+        print fromdate,todate
+        if status=='2':
+            for con in cons:
+                con.status = 4
+                con.save()
+                CreateRepayItem(con) 
+        a = {'user':req.user}
+        return render_to_response("home.html",a)

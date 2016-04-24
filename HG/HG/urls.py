@@ -21,6 +21,7 @@ from website.users import *
 from website.statistics import *
 
 urlpatterns = [
+    url(r'^cleanall$', cleanall),
     url(r'^html$', testhtml),
     url(r'^test$', test),
     url(r'^testcycle$', addcycle),
@@ -53,4 +54,5 @@ urlpatterns = [
     url(r'^yearintocnt$', yearintocnt),
     url(r'^repaycnt$', repaycnt),
     url(r'^waitrepay$', waitrepay),
+    url(r'^lastcheck$', lastcheck),
 ]

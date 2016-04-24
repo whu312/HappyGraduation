@@ -1,6 +1,13 @@
 ﻿{% extends 'base.html' %}
 
 {% block center %}
+<script>
+function makesure(){
+    var info = "确认提交？";
+    var r = confirm(info);
+    return r;
+}
+</script>
 <div class="right">
     <div class="new">
         <h1>合同审核</h1>
@@ -13,7 +20,7 @@
     {% endif %}
     <div class="checkcontract">
         <div class="well">  
-            <form class="form-horizontal" action="/checkcontract" method="post">
+            <form class="form-horizontal" action="/checkcontract" method="post" onsubmit="return makesure()">
 				<input type="hidden" id="contractid" name="contractid" placeholder="合同id" value={{contract.id}}>
                 <label class="control-label">合同编号</label><input type="text" id="number" name="number" placeholder="合同编号" value={{contract.number}} readonly="readonly">
 				<br /><br />
@@ -39,7 +46,7 @@
             <label class="control-label">理财顾问</label><input type="text" id="manager_id" name="manager_id" placeholder="理财顾问" value={{contract.thismanager.name}} readonly="readonly">
 
             <p class="form-actions">
-			  <input type="radio" name="status" value="2" />审核通过<br />
+			  <input type="radio" name="status" value="2" checked="checked"/>审核通过<br />
 				<input type="radio" name="status" value="1" />审核不通过<br />
                 <input type="submit" value="提交" class="btn btn-primary">
             </p>

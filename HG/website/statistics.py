@@ -15,6 +15,10 @@ import json
 @csrf_exempt
 @checkauth
 def repayplan(req):
+    if not checkjurisdiction(req,"还款计划"):
+        a = {'user':req.user}
+        return render_to_response("jur.html",a)
+    
     if req.method == "GET":
         fromdate = req.GET.get("fromdate",str(datetime.date.today()))
         todate = req.GET.get("todate",str(datetime.date.today()+datetime.timedelta(7))) #未来一周
@@ -61,6 +65,10 @@ def repayplan(req):
 
 @checkauth
 def dayrepay(req,onedate):
+    a = {'user':req.user}
+    if not checkjurisdiction(req,"还款计划"):
+        return render_to_response("jur.html",a)
+    
     if req.method == "POST":
         return
     items = repayitem.objects.filter(repaydate__exact=onedate)
@@ -85,6 +93,9 @@ def dayrepay(req,onedate):
 
 @checkauth
 def intocnt(req,a={},type_id=0):
+    if not checkjurisdiction(req,"进账统计"):
+        a = {'user':req.user}
+        return render_to_response("jur.html",a)
     if req.method == "GET":
         fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
         todate = req.GET.get("todate",str(datetime.date.today()))
@@ -178,6 +189,9 @@ def getpersoncnt(req,which_type):
     
 @checkauth
 def yearintocnt(req,a={},type_id=0):
+    if not checkjurisdiction(req,"年化进账统计"):
+        a = {'user':req.user}
+        return render_to_response("jur.html",a)
     if req.method == "GET":
         fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
         todate = req.GET.get("todate",str(datetime.date.today()))
@@ -223,6 +237,10 @@ def yearintocnt(req,a={},type_id=0):
 
 @checkauth
 def repaycnt(req,a={},type_id=0):
+    if not checkjurisdiction(req,"返款统计"):
+        a = {'user':req.user}
+        return render_to_response("jur.html",a)
+    
     if req.method == "GET":
         fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
         todate = req.GET.get("todate",str(datetime.date.today()))
@@ -268,6 +286,10 @@ def repaycnt(req,a={},type_id=0):
 
 @checkauth
 def waitrepay(req,a={},type_id=0):
+    if not checkjurisdiction(req,"待收查询"):
+        a = {'user':req.user}
+        return render_to_response("jur.html",a)
+    
     if req.method == "GET":
         field_id = int(req.GET.get("field_id","-1"))
         party_id = int(req.GET.get("party_id","-1"))

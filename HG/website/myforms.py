@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django import forms
 from django.template import *
 
-jurlist = ["新增合同","合同查询","合同审核","审核回退","全部合同查询","还款查询","到期续单",
+jurlist = ["新增合同","合同查询","合同审核","审核回退","最终审核","还款查询","到期续单",
         "还款确认","全部还款查询","产品管理","经理管理","团队管理","职场管理","账户管理",
         "密码修改","系统日志","还款计划","进账统计","年化进账统计","返款统计","待收查询"]
 def getjurtuple(onelist):
