@@ -5,6 +5,12 @@
     <div class="new">
         <h1>合同审核</h1>
     </div>
+    {% if create_succ %}
+        <div class="alert alert-error">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            <h4>成功!</h4>审核成功
+        </div>
+    {% endif %}
     <div class="checkcontract">
         <div class="well">  
             <form class="form-horizontal" action="/checkcontract" method="post">

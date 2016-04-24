@@ -5,7 +5,7 @@
 <script>
 function GoTo(var1){
  var PageNo=document.getElementById("PageNo").value;
-if (PageNo <= var1){
+ if (PageNo <= var1){
  var url = "";
  url = 'querycontracts?page='+PageNo;
  window.open(url, '_self');
@@ -36,6 +36,14 @@ function rollback(var1){
  window.open(url,'_self');
 
 }
+function count(var1){
+var num = var1;
+if(num == 0){
+window.alert("没有相关合同！请重新输入");
+}
+
+}
+
 </script>
 <style>
 .input-append{
@@ -48,7 +56,7 @@ text-align:center;
 }
 </style>
 
-<body>
+<body onload="count({{contract_size}})">
 <h2>合同查询</h2>
 <div class="input-append" >
  <form class="form-horizontal" action="/querycontracts" method="post">
@@ -75,6 +83,8 @@ text-align:center;
           </tr>
         </thead>
         <tbody>
+
+
         {%for contract in contracts%}
         <tr>
             <td>{{contract.number}}</td>
@@ -111,8 +121,9 @@ text-align:center;
 		{% ifnotequal curpage allpage %}
 		<a href="/querycontracts?page={{curpage}}&&pagetype=pagedown">下一页</a>
 		{% endifnotequal %}
+		{% ifnotequal allpage 1 %}
 		<p>跳转到第<input id='PageNo' style="width:30px;"> 页 <input type='button' value='GO' onclick="GoTo({{allpage}})"></p>
-		
+		{% endifnotequal %}
 		</div>
     </div>
 
