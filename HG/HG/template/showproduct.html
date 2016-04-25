@@ -30,13 +30,10 @@ window.open("/querycontracts",'_parent')
                     <th>年化收益</th>
                     <td>{{product.rate}} </td>
                 </tr>
-                <tr>
-                    <th>封闭类型</th>
-                    <td>{{product.closedtype}}  </td>
-                </tr>
+               
                 <tr>
                     <th>封闭期</th>
-                    <td>{{ product.closedperiod}}</td>
+                    <td>{{product.closedperiod}}{%ifequal product.closedtype 'm'%}月{%else%}天{%endifequal%}</td>
                 </tr>
                 <tr>
                     <th>返款周期</th>
