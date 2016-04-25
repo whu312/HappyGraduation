@@ -218,9 +218,29 @@ def getlog(req):
     if not checkjurisdiction(req,"系统日志"):
         return render_to_response("jur.html",a)
     if req.method == "GET":
-        alllogs = loginfo.objects.all()
-        a = {'user':req.user}
-        a["logs"] = alllogs
+        try:
+            thispage = int(req.GET.get("page",'1'))
+            pagetype = str(req.GET.get("pagetype",''))
+        except ValueError:
+            thispage = 1
+            allpage = 1
+            pagetype = ''
+        logs = []
+        if pagetype == 'pagedown':
+            thispage += 1
+        elif pagetype == 'pageup':
+            thispage -= 1
+        allcount = 0
+        for log in loginfo.objects.all():
+            allcount += 1
+        print allcount
+        startpos = ((thispage-1)*ONE_PAGE_NUM if (thispage-1)*ONE_PAGE_NUM<allcount else allcount)
+        endpos = (thispage*ONE_PAGE_NUM if thispage*ONE_PAGE_NUM<allcount else allcount)
+        logs = loginfo.objects.all()[startpos:endpos]
+        print logs.count()
+        a['curpage'] = thispage
+        a['allpage'] = (allcount-1)/ONE_PAGE_NUM + 1
+        a['logs'] = logs
         return render_to_response("log.html",a)
 
 @csrf_exempt
@@ -258,6 +278,26 @@ def altercontract(req):
 
 @csrf_exempt
 @checkauth
+def showcontract(req,contract_id):
+	a = {'user':req.user}
+	if req.method == 'GET':
+		contractid = contract_id
+		thiscontract = contract.objects.get(id = int(contractid))
+		a["contract"] = thiscontract
+		return render_to_response("showcontract.html",a)
+
+@csrf_exempt
+@checkauth
+def showproduct(req,product_id):
+	a = {'user':req.user}
+	if req.method == 'GET':
+		productid = product_id
+		thisproduct = product.objects.get(id = int(productid))
+		a["product"] = thisproduct
+		return render_to_response("showproduct.html",a)
+
+@csrf_exempt
+@checkauth
 def checkcontract(req):
 	a = {'user':req.user}
 	if not checkjurisdiction(req,"合同审核"):
@@ -272,15 +312,21 @@ def checkcontract(req):
 		id = req.POST.get("contractid",'')
         #print "id",id
 		thiscontract = contract.objects.get(id = int(id))
-		newstatus = req.POST.get('status','')
-		thiscontract.status = newstatus
+		newstatus = int(req.POST.get('status',''))
+		print newstatus
+		if newstatus == 2:
+			thiscontract.status = newstatus
+		print thiscontract.status
 		thiscontract.save()
 		thislog = loginfo(info="check contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
 		thislog.save()
+		contracts = contract.objects.filter(status = 1)
+		allcount = contracts.count()
 		a = {'user':req.user}
-		a["create_succ"] = True
-		a["contract"] = thiscontract
-		return render_to_response("checkcontract.html",a)
+		a['curpage'] = 1
+		a['allpage'] = (allcount-1)/ONE_PAGE_NUM + 1
+		a["contracts"] = contracts[0:ONE_PAGE_NUM]
+		return render_to_response("checkcontracts.html",a)
 
 @checkauth
 def queryrepayitems(req,type_id):
@@ -402,16 +448,17 @@ def checkcontracts(req):
         if number=="":
             allcount = 0
             for con in contract.objects.all():
-                if con.status == 1 or con.status == 3:
+                if con.status == 1:
                     allcount += 1
             print allcount
             startpos = ((thispage-1)*ONE_PAGE_NUM if (thispage-1)*ONE_PAGE_NUM<allcount else allcount)
             endpos = (thispage*ONE_PAGE_NUM if thispage*ONE_PAGE_NUM<allcount else allcount)
-            contracts = contract.objects.exclude(status = 2)[startpos:endpos]
+            contracts = contract.objects.filter(status = 1)[startpos:endpos]
+            print contracts.count()
         else:
             contracts = contract.objects.filter(number=number)
         a['curpage'] = thispage
-        a['allpage'] = allcount/ONE_PAGE_NUM + 1
+        a['allpage'] = (allcount-1)/ONE_PAGE_NUM + 1
         a['contracts'] = contracts
         return render_to_response("checkcontracts.html",a)
 
@@ -507,7 +554,7 @@ def querycontracts(req):
         else:
             contracts = contract.objects.filter(number=number)
         a['curpage'] = thispage
-        a['allpage'] = allcount/ONE_PAGE_NUM + 1
+        a['allpage'] = (allcount-1)/ONE_PAGE_NUM + 1
         a['contracts'] = contracts
         return render_to_response("querycontracts.html",a)
     if req.method == 'POST':

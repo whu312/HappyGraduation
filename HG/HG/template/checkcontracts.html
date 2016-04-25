@@ -59,7 +59,7 @@ text-align:center;
         </thead>
         <tbody>
         {%for contract in contracts%}
-         {% ifnotequal  contract.status 2 %}
+         {% ifequal  contract.status 1 %}
         <tr>
             <td>{{contract.number}}</td>
             <td>{{contract.client_name}}</td>
@@ -78,7 +78,7 @@ text-align:center;
 			</td>
 			
         </tr>
-		{% endifnotequal %}
+		{% endifequal %}
         {%endfor%}
         </tbody>
       </table>
