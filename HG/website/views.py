@@ -320,7 +320,7 @@ def checkcontract(req):
 		return render_to_response("checkcontract.html",a)
 	if req.method == 'POST':
 		id = req.POST.get("contractid",'')
-        #print "id",id
+		print "id",id
 		thiscontract = contract.objects.get(id = int(id))
 		newstatus = int(req.POST.get('status',''))
 		print newstatus
