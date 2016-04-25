@@ -1,0 +1,103 @@
+﻿{% extends 'base.html' %}
+
+{% block center %}
+
+
+<style>
+.input-append{
+text-align:center;
+margin-left:auto; 
+margin-right:auto;
+}
+</style>
+<script language="JavaScript" type="text/javascript" src="http://www.my97.net/dp/My97DatePicker/WdatePicker.js"></script>
+<script>
+String.prototype.Trim = function() 
+{ 
+    return this.replace(/(^\s*)|(\s*$)/g, ""); 
+}
+function repay(myid){
+    var r = confirm("确认还款?");
+    if(r==true){
+    $.ajax({
+        type: "POST",
+        data: "repayitem_id="+myid,
+        url: "/statusrepayitem/1/",
+        dataType: "json",
+        cache: false,
+        success: function(data){ 
+            with (data.message)
+            {
+                if(Trim()=='true'){
+                    document.getElementById("status").innerHTML="该还款项已完成";
+                    alert(data.info);
+                }
+                else{
+                    alert(data.info);
+                }
+            }
+         }
+        }); 
+    }
+}  
+function renewal(myid,type_id){
+    
+    var num = document.getElementById("renewal_num").value;
+    if(num==""){
+        alert("请输入续签合同号");
+    }
+    else{
+        var r = confirm("确认续签?");
+        if(r==true){
+            $.ajax({
+                type: "POST",
+                data: "repayitem_id="+myid+"&renewal_num="+num,
+                url: "/statusrepayitem/2/",
+                dataType: "json",
+                cache: false,
+                success: function(data){ 
+                    with (data.message)
+                    {
+                        if(Trim()=='true'){
+                            document.getElementById("status").innerHTML="该还款项已完成";
+                            alert(data.info);
+                        }
+                        else{
+                            alert(data.info);
+                        }
+                    }
+                }
+            });
+        } 
+    }
+} 
+
+function clickrenewal(){ 
+    document.getElementById("renewal_area").style.display="block";
+} 
+
+</script>
+
+<h2>还款项</h2>
+    <label> 还款日期：{{repayitem.repaydate}}</label>
+    <label> 还款金额：{{repayitem.repaymoney}}</label>
+    <label> 所属合同编号：<a href="/contract/{{repayitem.thiscontract.id}}">{{repayitem.thiscontract.number}}</a></label>
+    <label>合同金额：{{repayitem.thiscontract.money}}</label>
+    <label>合同日期：{{repayitem.thiscontract.startdate}}到{{repayitem.thiscontract.enddate}}</label>
+    <label>所买产品：<a href="/product/{{repayitem.thiscontract.thisproduct.id}}">{{repayitem.thiscontract.thisproduct.name}}</a></label>
+    <div id="status">
+    {%ifequal repayitem.status 1%}
+    <button onclick="repay({{repayitem.id}})">还款</button><br />
+    {%ifnotequal repayitem.repaytype 1%}
+    <button onclick="clickrenewal()">续签</button>
+    <div id="renewal_area" style="display:none;">
+    <input id="renewal_num" type="text" placeholder="续签合同号" />
+    <button onclick="renewal({{repayitem.id}})">提交续签</button>
+    </div>
+    {%endifnotequal%}
+    {%else%}
+    该还款项已完成
+    {%endifequal%}
+    </div>
+        
+{% endblock %}
