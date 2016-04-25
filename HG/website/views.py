@@ -367,7 +367,7 @@ def statusrepayitem(req,type_id):
             if type_id == '1': #还款
                 if not checkjurisdiction(req,"还款确认"):
                     a["info"] = "对不起您没有还款权限"
-                    
+            
                 elif thisitem.status==1:
                     a["message"] = "true"
                     a["info"] = "还款成功"
@@ -380,6 +380,8 @@ def statusrepayitem(req,type_id):
                     if a["message"]=="true":
                         thisitem.status = 2
                         thisitem.save()
+                        thislog = loginfo(info="repay with id=%d" % (thisitem.id),time=str(datetime.datetime.now()),thisuser=req.user)
+                        thislog.save()
             elif type_id == '2':
                 if not checkjurisdiction(req,"到期续单"):
                     a["info"] = "对不起您没有续单权限"
@@ -398,6 +400,13 @@ def statusrepayitem(req,type_id):
                                 a["info"] = "还有款项没有还清"
                                 a["message"] = "false"
                                 break
+                        if a["message"]=="true":
+                            thisitem.status = 3
+                            thisitem.save()
+                            thisitem.thiscontract.renewal_id = renewal_con[0].id
+                            thisitem.thiscontract.save()
+                            thislog = loginfo(info="renew contract %d with id=%d" % (thisitem.thiscontract.id,thisitem.thiscontract.renewal_id),time=str(datetime.datetime.now()),thisuser=req.user)
+                            thislog.save()
         else:
             a["info"] = "没有该还款项"
         jsonstr = json.dumps(a,ensure_ascii=False)
@@ -573,11 +582,13 @@ def lastcheck(req):
         status = req.POST.get("status","")
         
         cons = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate,status=2)
-        print fromdate,todate
+        #print fromdate,todate
         if status=='2':
             for con in cons:
                 con.status = 4
                 con.save()
                 CreateRepayItem(con) 
+        thislog = loginfo(info="lastcheck contracts from %s to %s" % (fromdate,todate),time=str(datetime.datetime.now()),thisuser=req.user)
+        thislog.save()
         a = {'user':req.user}
         return render_to_response("home.html",a)
