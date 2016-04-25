@@ -61,7 +61,7 @@ margin-right: auto;
                 </tr>
                 <tr>
                     <th>产品</th>
-                    <td>{{contract.thisproduct.name}}</td>
+                    <td><a href="/product/{{contract.thisproduct.id}}">{{contract.thisproduct.name}}</a></td>
                 </tr>
                 <tr>
                     <th>开始日期</th>
@@ -81,7 +81,7 @@ margin-right: auto;
         <form action="/checkcontract" method="post" onsubmit="return makesure()" 
 		<input type="hidden" id="contractid" name="contractid" placeholder="合同id" value={{contract.id}}>
             <p class="form-actions" >
-			  <input type="radio" name="status" value="2" checked="checked"/>审核通过<br />
+			  <input type="radio" name="status" value="2" checked="checked"/>审核通过&nbsp;&nbsp;&nbsp;<br />
 				&nbsp;<input type="radio" name="status" value="1" />审核不通过<br />
                 <input type="submit" value="提交" class="btn btn-primary">
             </p>
