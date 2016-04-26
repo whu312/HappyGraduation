@@ -319,9 +319,9 @@ def checkcontract(req):
 		a["contract"] = thiscontract
 		return render_to_response("checkcontract.html",a)
 	if req.method == 'POST':
-		id = req.POST.get("contractid",'')
-		print "id",id
-		thiscontract = contract.objects.get(id = int(id))
+		contractid = req.POST.get("contractid",'')
+		print "id",contractid
+		thiscontract = contract.objects.get(id = int(contractid))
 		newstatus = int(req.POST.get('status',''))
 		print newstatus
 		if newstatus == 2:
@@ -630,6 +630,7 @@ def lastcheck(req):
         
         cons = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate,status=2)
         #print fromdate,todate
+        print status,':',fromdate,todate
         if status=='2':
             for con in cons:
                 con.status = 4

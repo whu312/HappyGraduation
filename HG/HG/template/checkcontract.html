@@ -78,12 +78,12 @@ margin-right: auto;
             </tbody>
         </table>
 		<div class="check" >
-        <form action="/checkcontract" method="post" onsubmit="return makesure()" 
-		<input type="hidden" id="contractid" name="contractid" placeholder="合同id" value={{contract.id}}>
+            <form action="/checkcontract" method="post" onsubmit="return makesure()">
+		    <input type="hidden" id="contractid" name="contractid" value={{contract.id}} />
             <p class="form-actions" >
 			  <input type="radio" name="status" value="2" checked="checked"/>审核通过&nbsp;&nbsp;&nbsp;<br />
 				&nbsp;<input type="radio" name="status" value="1" />审核不通过<br />
-                <input type="submit" value="提交" class="btn btn-primary">
+                <input type="submit" value="提交" class="btn btn-primary" />
             </p>
 
             </form>
