@@ -94,14 +94,21 @@ history.back(-1);
     {%ifequal repayitem.status 1%}
     <button onclick="repay({{repayitem.id}})">还款</button><br />
     {%ifnotequal repayitem.repaytype 1%}
-    <button onclick="clickrenewal()">续签</button>
-    <div id="renewal_area" style="display:none;">
-    <input id="renewal_num" type="text" placeholder="续签合同号" />
-    <button onclick="renewal({{repayitem.id}})">提交续签</button>
-    </div>
+    <form action="/renewalcontract/{{repayitem_id}}" method="get">
+    <input type="submit" value="续签" />
+    </form>
     {%endifnotequal%}
-    {%else%}
-    该还款项已完成
+    {%endifequal%}
+    {%ifequal repayitem.status 3%}
+    <label>该还款项已续签</label>
+    <button onclick="repay({{repayitem.id}})">还款</button><br />
+    
+    {%endifequal%}
+    {%ifequal repayitem.status 2%}
+    <label>该还款项已完成</label>
+    {%endifequal%}
+    {%ifequal repayitem.status 4%}
+    <label>该还款项已完成</label>
     {%endifequal%}
     </div>
      <br></br>

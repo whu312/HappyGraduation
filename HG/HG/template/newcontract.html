@@ -7,6 +7,9 @@
     <div class="new">
         <h1>欢迎使用理财管理查询系统</h1>
     </div>
+    {%if repayitem_id%}
+    对合同<a href="/contract/{{onecontract.id}}">{{onecontract.number}}</a>的续签
+    {%endif%}
     {% if create_succ %}
         <div class="alert alert-error">
             <button type="button" class="close" data-dismiss="alert">×</button>
@@ -38,7 +41,10 @@
             {%for item in managers%}
             <option value='{{item.id}}'>{{item.name}}</option>
             {%endfor%}
-            <select>
+            </select>
+            {%if repayitem_id%}
+            <input name="repayitem_id" style="display:none;" value={{repayitem_id}} />
+            {%endif%}
             <p class="form-actions">
                 <input type="submit" value="提交" class="btn btn-primary">
             </p>

@@ -109,11 +109,6 @@ function clickrenewal(item_id){
     </form>
 </div>
     <div class="container">
-    <div id="renewal_area" style="display:none;">
-        <input id="renewal_num" type="text" placeholder="续签合同号" />
-        <input id="tmpitem_id" style="display:none;" />
-        <button onclick="renewal({{type_id}})">提交续签</button>
-    </div>
       <table class="table">
         <thead>
           <tr>
@@ -134,11 +129,14 @@ function clickrenewal(item_id){
                 {%ifequal item.status 1%}
                 <button onclick="repay({{item.id}},{{type_id}})">还款</button>
                 {%ifequal item.repaytype 2%}
-                <button onclick="clickrenewal({{item.id}})">续签</button>
+                <a href="/renewalcontract/{{item.id}}"><button>续签</button></a>
                 {%endifequal%}
                 {%ifequal item.repaytype 3%}
-                <button onclick="clickrenewal({{item.id}})">续签</button>
+                <a href="/renewalcontract/{{item.id}}"><button>续签</button></a>
                 {%endifequal%}
+                {%endifequal%}
+                {%ifequal item.status 3%}
+                <button onclick="repay({{item.id}},{{type_id}})">还款</button>
                 {%endifequal%}
                 </div>
             </td>

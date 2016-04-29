@@ -37,8 +37,7 @@ def repayplan(req):
         for item in daymap:
             for elem in daymap[item]:
                 cnt = float(elem.repaymoney)
-                if elem.status==3:
-                    cnt -= float(elem.thiscontract.money)
+                
                 if not item in dayinfo:
                     dayinfo[item] = [0,0,0,0,0,0]
                 dayinfo[item][0] += 1
@@ -91,42 +90,59 @@ def dayrepay(req,onedate):
     a["totalrepay"] = totalrepay
     return render_to_response("dayrepay.html",a)
 
+def getitems(req):
+    fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+    todate = req.GET.get("todate",str(datetime.date.today()))
+        
+    field_id = int(req.GET.get("field_id","-1"))
+    party_id = int(req.GET.get("party_id","-1"))
+    bigparty_id = int(req.GET.get("bigparty_id","-1"))
+    manager_id = int(req.GET.get("manager_id","-1"))
+    items = []
+    if manager_id != -1:
+        items = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate,thismanager_id=manager_id)
+    elif party_id != -1:
+        ms = manager.objects.filter(thisparty_id=party_id)
+        for m in ms:
+            items.extend(contract.objects.filter(startdate__gte=fromdate,
+                startdate__lte=todate,thismanager_id=m.id))
+    elif bigparty_id != -1:
+        ps = party.objects.filter(thisbigparty_id=bigparty_id)
+        for p in ps:
+            ms = manager.objects.filter(thisparty_id=p.id)
+            for m in ms:
+                items.extend(contract.objects.filter(startdate__gte=fromdate,
+                    startdate__lte=todate,thismanager_id=m.id))
+    elif field_id != -1:
+        bps = bigparty.objects.filter(thisfield_id=field_id)
+        for bp in bps:
+            ps = party.objects.filter(thisbigparty_id=bp.id)
+            for p in ps:
+                ms = manager.objects.filter(thisparty_id=p.id)
+                for m in ms:
+                    items.extend(contract.objects.filter(startdate__gte=fromdate,
+                        startdate__lte=todate,thismanager_id=m.id))
+    else:
+        items = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate)
+        
+    return items
+
 @checkauth
 def intocnt(req,a={},type_id=0):
     if not checkjurisdiction(req,"进账统计"):
         a = {'user':req.user}
         return render_to_response("jur.html",a)
     if req.method == "GET":
-        fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
-        todate = req.GET.get("todate",str(datetime.date.today()))
-        #if fromdate=="": fromdate = "1976-10-11"
-        #if todate=="": todate="2050-10-11"
-        field_id = int(req.GET.get("field_id","-1"))
-        party_id = int(req.GET.get("party_id","-1"))
-        manager_id = int(req.GET.get("manager_id","-1"))
-        items = []
-        if manager_id != -1:
-            items = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate,thismanager_id=manager_id)
-        elif party_id != -1:
-            ms = manager.objects.filter(thisparty_id=party_id)
-            for m in ms:
-                items.extend(contract.objects.filter(startdate__gte=fromdate,
-                    startdate__lte=todate,thismanager_id=m.id))
-        elif field_id != -1:
-            ps = party.objects.filter(thisfield_id=field_id)
-            for p in ps:
-                ms = manager.objects.filter(thisparty_id=p.id)
-                for m in ms:
-                    items.extend(contract.objects.filter(startdate__gte=fromdate,
-                        startdate__lte=todate,thismanager_id=m.id))
-        else:
-            items = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate)
+        
+        items = getitems(req)
         totalmoney = 0.0
         for item in items:
             totalmoney += float(item.money)
         #a = {"user":req.user}
         a["totalmoney"] = "%.02f" % totalmoney
         a["cnt"] = len(items)
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+        todate = req.GET.get("todate",str(datetime.date.today()))
         a["fromdate"] = fromdate
         a["todate"] = todate
         if type_id==0:
@@ -135,12 +151,31 @@ def intocnt(req,a={},type_id=0):
             return render_to_response("intocnt.html",a)
         jsonstr = json.dumps(a,ensure_ascii=False)
         return HttpResponse(jsonstr,content_type='application/javascript')
-    
+   
+@checkauth
+def getbigparties(req,which_type):
+    if req.method == "GET":
+        field_id = req.GET.get("field_id","")
+        bps = bigparty.objects.filter(thisfield_id=int(field_id))
+        a = {"message":"true"}
+        plist = []
+        for bp in bps:
+            plist.append((bp.id,bp.name))
+        a["bigparties"] = plist
+        if which_type=="yearintocnt":
+            return yearintocnt(req,a,1)
+        elif which_type=="intocnt":
+            return intocnt(req,a,1)
+        elif which_type=="repaycnt":
+            return repaycnt(req,a,1)
+        elif which_type=="waitrepay":
+            return waitrepay(req,a,1)
+
 @checkauth
 def getparties(req,which_type):
     if req.method == "GET":
-        field_id = req.GET.get("field_id","")
-        ps = party.objects.filter(thisfield_id=int(field_id))
+        bigparty_id = req.GET.get("bigparty_id","")
+        ps = party.objects.filter(thisbigparty_id=int(bigparty_id))
         a = {"message":"true"}
         plist = []
         for p in ps:
@@ -187,36 +222,15 @@ def getpersoncnt(req,which_type):
         elif which_type=="waitrepay":
             return waitrepay(req,a,1)
     
+
+
 @checkauth
 def yearintocnt(req,a={},type_id=0):
     if not checkjurisdiction(req,"年化进账统计"):
         a = {'user':req.user}
         return render_to_response("jur.html",a)
     if req.method == "GET":
-        fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
-        todate = req.GET.get("todate",str(datetime.date.today()))
-        #if fromdate=="": fromdate = "1976-10-11"
-        #if todate=="": todate="2050-10-11"
-        field_id = int(req.GET.get("field_id","-1"))
-        party_id = int(req.GET.get("party_id","-1"))
-        manager_id = int(req.GET.get("manager_id","-1"))
-        items = []
-        if manager_id != -1:
-            items = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate,thismanager_id=manager_id)
-        elif party_id != -1:
-            ms = manager.objects.filter(thisparty_id=party_id)
-            for m in ms:
-                items.extend(contract.objects.filter(startdate__gte=fromdate,
-                    startdate__lte=todate,thismanager_id=m.id))
-        elif field_id != -1:
-            ps = party.objects.filter(thisfield_id=field_id)
-            for p in ps:
-                ms = manager.objects.filter(thisparty_id=p.id)
-                for m in ms:
-                    items.extend(contract.objects.filter(startdate__gte=fromdate,
-                        startdate__lte=todate,thismanager_id=m.id))
-        else:
-            items = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate)
+        items = getitems(req)
         totalmoney = 0.0
         for item in items:
             if item.thisproduct.closedtype == 'm':
@@ -224,6 +238,8 @@ def yearintocnt(req,a={},type_id=0):
             elif item.thisproduct.closedtype == 'd':
                 totalmoney += 365*float(item.money)/item.thisproduct.closedperiod
         #a = {"user":req.user}
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+        todate = req.GET.get("todate",str(datetime.date.today()))
         a["totalmoney"] = "%.02f" % totalmoney
         a["cnt"] = len(items)
         a["fromdate"] = fromdate
@@ -247,6 +263,7 @@ def repaycnt(req,a={},type_id=0):
         #if fromdate=="": fromdate = "1976-10-11"
         #if todate=="": todate="2050-10-11"
         field_id = int(req.GET.get("field_id","-1"))
+        bigparty_id = int(req.GET.get("bigparty_id","-1"))
         party_id = int(req.GET.get("party_id","-1"))
         manager_id = int(req.GET.get("manager_id","-1"))
         
@@ -260,19 +277,20 @@ def repaycnt(req,a={},type_id=0):
             for item in items:    
                 if item.thiscontract.thismanager.thisparty.id == party_id:
                     anslist.append(item)
+        elif bigparty_id != -1:
+            for item in items:    
+                if item.thiscontract.thismanager.thisparty.thisbigparty.id == bigparty_id:
+                    anslist.append(item)
         elif field_id != -1:
             for item in items:    
-                if item.thiscontract.thismanager.thisparty.thisfield.id == field_id:
+                if item.thiscontract.thismanager.thisparty.thisbigparty.thisfield.id == field_id:
                     anslist.append(item)
         else:
             anslist = items
             
         totalmoney = 0.0
         for item in anslist:
-            if item.status==3:
-                totalmoney += float(item.repaymoney)-float(item.thiscontract.money)
-            else:
-                totalmoney += float(item.repaymoney)
+            totalmoney += float(item.repaymoney)
         a["totalmoney"] = "%.02f" % totalmoney
         a["cnt"] = len(anslist)
         a["fromdate"] = fromdate
@@ -293,6 +311,7 @@ def waitrepay(req,a={},type_id=0):
     if req.method == "GET":
         field_id = int(req.GET.get("field_id","-1"))
         party_id = int(req.GET.get("party_id","-1"))
+        bigparty_id = int(req.GET.get("bigparty_id","-1"))
         manager_id = int(req.GET.get("manager_id","-1"))
         anslist = []
         items = repayitem.objects.filter(status=1)
@@ -304,9 +323,13 @@ def waitrepay(req,a={},type_id=0):
             for item in items:    
                 if item.thiscontract.thismanager.thisparty.id == party_id:
                     anslist.append(item)
+        elif bigparty_id != -1:
+            for item in items:    
+                if item.thiscontract.thismanager.thisparty.thisbigparty.id == bigparty_id:
+                    anslist.append(item)
         elif field_id != -1:
-            for item in items:
-                if item.thiscontract.thismanager.thisparty.thisfield.id == field_id:
+            for item in items:    
+                if item.thiscontract.thismanager.thisparty.thisbigparty.thisfield.id == field_id:
                     anslist.append(item)
         else:
             anslist = items

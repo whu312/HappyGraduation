@@ -73,7 +73,8 @@ def newcontract(req):
             manager_id = req.POST.get('manager_id','')
             thiscontract = contract(number=number,client_name=client_name,client_idcard=client_idcard,
                     bank=bank,bank_card=bank_card,money=money,thisproduct_id=int(product_id),startdate=startdate,
-                    enddate=enddate,status=1,thismanager_id=int(manager_id),renewal_id=-1,operator_id=req.user.id)
+                    enddate=enddate,status=1,thismanager_id=int(manager_id),renewal_father_id=-1,
+                    renewal_son_id=-1,operator_id=req.user.id)
             thiscontract.save()
             thislog = loginfo(info="new contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
             thislog.save()
@@ -136,12 +137,37 @@ def newfield(req):
 
 @csrf_exempt
 @checkauth
-def newparty(req):
+def newbigparty(req):
     a = {'user':req.user}
     if not checkjurisdiction(req,"团队管理"):
         return render_to_response("jur.html",a)
     
     a["fields"] = field.objects.all()
+    if req.method == "GET":
+        form = NewPartyForm()
+        a["form"] = form
+        return render_to_response("newbigparty.html",a)
+    elif req.method == "POST":
+        form = NewPartyForm(req.POST)
+        a["form"] = form
+        if form.is_valid():
+            name = req.POST.get("name",'')
+            field_id = req.POST.get("field_id",'')
+            thisparty = bigparty(name=name,thisfield_id=field_id)
+            thisparty.save()
+            a["create_succ"] = True
+            return render_to_response("newbigparty.html",a)
+        else:
+            return render_to_response("newbigparty.html",a)
+
+@csrf_exempt
+@checkauth
+def newparty(req):
+    a = {'user':req.user}
+    if not checkjurisdiction(req,"团队管理"):
+        return render_to_response("jur.html",a)
+    
+    a["bigparties"] = bigparty.objects.all()
     if req.method == "GET":
         form = NewPartyForm()
         a["form"] = form
@@ -151,8 +177,8 @@ def newparty(req):
         a["form"] = form
         if form.is_valid():
             name = req.POST.get("name",'')
-            field_id = req.POST.get("field_id",'')
-            thisparty = party(name=name,thisfield_id=field_id)
+            bigparty_id = req.POST.get("bigparty_id",'')
+            thisparty = party(name=name,thisbigparty_id=bigparty_id)
             thisparty.save()
             a["create_succ"] = True
             return render_to_response("newparty.html",a)
@@ -378,11 +404,17 @@ def queryrepayitems(req,type_id):
                         repaytype__gte=2,status__exact=1)
         elif type_id=="3":
             if contract_id != -1:
-                items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,
-                        thiscontract_id__exact=contract_id,repaytype__gte=2,status__exact=1)
+                items = list(repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,
+                        thiscontract_id__exact=contract_id,status__exact=1))
+                tmpitem = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,
+                        thiscontract_id__exact=contract_id,status__exact=3)
+                items.extend(list(tmpitem))
             elif contract_number=="":
-                items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,
-                        status__exact=1)
+                items = list(repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,
+                        status__exact=3))
+                tmpitem = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,status__exact=1)
+                items.extend(list(tmpitem))
+                
         a["repayitems"] = sorted(items,cmp=item_compare)
         a["type_id"] = type_id
         a["fromdate"] = fromdate
@@ -414,7 +446,7 @@ def statusrepayitem(req,type_id):
                 if not checkjurisdiction(req,"还款确认"):
                     a["info"] = "对不起您没有还款权限"
             
-                elif thisitem.status==1:
+                elif thisitem.status==1 or thisitem.status==3:
                     a["message"] = "true"
                     a["info"] = "还款成功"
                     restitems = repayitem.objects.filter(thiscontract_id=thisitem.thiscontract.id,repaydate__lt=thisitem.repaydate)
@@ -424,7 +456,7 @@ def statusrepayitem(req,type_id):
                             a["message"] = "false"
                             break
                     if a["message"]=="true":
-                        thisitem.status = 2
+                        thisitem.status += 1
                         thisitem.save()
                         thislog = loginfo(info="repay with id=%d" % (thisitem.id),time=str(datetime.datetime.now()),thisuser=req.user)
                         thislog.save()
@@ -617,7 +649,13 @@ def lastcheck(req):
         a = {'user':req.user}
         totalmoney = 0.0
         for con in cons:
-            totalmoney += float(con.money)
+            addmoney = 0.0
+            if con.renewal_father_id!=-1:
+                father_contract = contract.objects.filter(id=int(con.renewal_father_id))[0]
+                if float(con.money)>float(father_contract.money):
+                    totalmoney += float(con.money) - float(father_contract.money)
+            else:
+                totalmoney += float(con.money)
         a["cons"] = cons
         a["totalmoney"] = totalmoney
         a["fromdate"] = fromdate
@@ -649,3 +687,72 @@ def queryproducts(req):
     products = product.objects.all()
     a["products"] = products
     return render_to_response("products.html",a)
+
+@csrf_exempt
+@checkauth
+def renewalcontract(req,repayitem_id):
+    a = {'user':req.user}
+    a["repayitem_id"] = repayitem_id
+    a["onecontract"] = repayitem.objects.filter(id=int(repayitem_id))[0].thiscontract
+    if not checkjurisdiction(req,"到期续单"):
+        return render_to_response("jur.html",a)
+    a['products'] = product.objects.all()
+    a['managers'] = manager.objects.all()
+    form = NewContractForm()
+    a["form"] = form
+    if req.method == 'GET':
+        return render_to_response("newcontract.html",a)
+    
+    elif req.method == 'POST':
+        form = NewContractForm(req.POST)
+        a["form"] = form
+        if form.is_valid():
+            number = req.POST.get('number','')
+            client_name = req.POST.get('client_name','')
+            client_idcard = req.POST.get('client_idcard','')
+            bank = req.POST.get('bank','')
+            bank_card = req.POST.get("bank_card",'')
+            product_id = req.POST.get("product_id",'')
+            money = req.POST.get('money','')
+            startdate = req.POST.get('startdate','')
+            enddate = req.POST.get("enddate",'')
+            manager_id = req.POST.get('manager_id','')
+            thisrepayitem_id = req.POST.get('repayitem_id','-1')
+            if thisrepayitem_id=="-1":
+                thiscontract = contract(number=number,client_name=client_name,client_idcard=client_idcard,
+                        bank=bank,bank_card=bank_card,money=money,thisproduct_id=int(product_id),startdate=startdate,
+                        enddate=enddate,status=1,thismanager_id=int(manager_id),renewal_father_id=-1,renewal_son_id=-1,operator_id=req.user.id)
+                thiscontract.save()
+                thislog = loginfo(info="new contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
+                thislog.save()
+            else:
+                thisrepayitem = repayitem.objects.filter(id=int(thisrepayitem_id))[0]
+                father_contract = thisrepayitem.thiscontract
+                thiscontract = contract(number=number,client_name=client_name,client_idcard=client_idcard,
+                        bank=bank,bank_card=bank_card,money=money,thisproduct_id=int(product_id),startdate=startdate,
+                        enddate=enddate,status=1,thismanager_id=int(manager_id),renewal_father_id=father_contract.id,renewal_son_id=-1,
+                        operator_id=req.user.id)
+                thiscontract.save()
+                father_contract.renewal_son_id = thiscontract.id
+                thisrepayitem.status = 3
+                #warnning
+                if float(father_contract.money)<=float(thiscontract.money):
+                    thisrepayitem.repaymoney = str(float(thisrepayitem.repaymoney) - float(father_contract.money))
+                else:
+                    thisrepayitem.repaymoney = str(float(thisrepayitem.repaymoney) - float(thiscontract.money))
+    
+                thisrepayitem.save()
+                thislog = loginfo(info="renewal contract %d with id=%d" % (father_contract.id,thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
+                thislog.save()
+                
+                a["repayitem"] = thisrepayitem
+                return render_to_response("repayitem.html",a)
+                
+            a["create_succ"] = True
+            return render_to_response("newcontract.html",a)
+        else:
+
+            a["form"] = form
+            return render_to_response('newcontract.html', a)
+
+            return render_to_response('newcontract.html', RequestContext(req, a))

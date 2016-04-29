@@ -74,6 +74,18 @@ history.back(-1);
 					<td>全部审核通过</td>
 					{%endifequal%}
                 </tr>
+                {%ifnotequal contract.renewal_father_id -1%}
+                <tr>
+                    <th>续签自</th>
+                    <td><a href="/contract/{{contract.renewal_father_id}}">上一次合同</a></td>
+                </tr>
+                {%endifnotequal%}
+                {%ifnotequal contract.renewal_son_id -1%}
+                <tr>
+                    <th>续签了</th>
+                    <td><a href="/contract/{{contract.renewal_son_id}}">下一次合同</a></td>
+                </tr>
+                {%endifnotequal%}
             </tbody>
         </table>
 		<br></br>

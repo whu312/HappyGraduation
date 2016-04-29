@@ -6,6 +6,7 @@
     <div class="new">
         <h1>欢迎使用理财管理查询系统</h1>
     </div>
+    <a href="/newparty">小团管理</a>
     {% if create_succ %}
         <div class="alert alert-error">
             <button type="button" class="close" data-dismiss="alert">×</button>
@@ -16,9 +17,9 @@
         <form class="form-horizontal" action="" method="post">
             {% csrf_token %}
             {{ form|as_bootstrap:"horizontal" }}
-            <label class="control-label">所属大团队</label>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<select name="bigparty_id">
-            {% for item in bigparties%}
+            <label class="control-label">所属职场</label>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<select name="field_id">
+            {% for item in fields%}
             <option value='{{item.id}}'>{{item.name}}</option>
             {%endfor%}
             </select>

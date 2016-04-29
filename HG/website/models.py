@@ -23,9 +23,12 @@ class field(models.Model):
     name = models.CharField(max_length = 128)
     address = models.CharField(max_length = 128)
     tel = models.CharField(max_length = 128)
-class party(models.Model):
+class bigparty(models.Model):
     name = models.CharField(max_length = 128)
     thisfield = models.ForeignKey(field)
+class party(models.Model):
+    name = models.CharField(max_length = 128)
+    thisbigparty = models.ForeignKey(bigparty)
 class manager(models.Model):
     name = models.CharField(max_length = 128)
     tel = models.CharField(max_length = 32)
@@ -43,7 +46,8 @@ class contract(models.Model):
     enddate = models.CharField(max_length = 32)
     status = models.IntegerField()
     thismanager = models.ForeignKey(manager)
-    renewal_id = models.IntegerField()
+    renewal_father_id = models.IntegerField()
+    renewal_son_id = models.IntegerField()
     operator = models.ForeignKey(User) 
 class repayitem(models.Model):
     repaydate = models.CharField(max_length = 32)
