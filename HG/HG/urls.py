@@ -42,6 +42,7 @@ urlpatterns = [
     url(r'^newmanager$', newmanager),
     url(r'^newproduct$', newproduct),
     url(r'^product/([0-9]+)/$',showproduct),
+    url(r'^products$',queryproducts),
     url(r'^settings$', userctl),
     url(r'^queryrepayitems/([0-9]+)/$', queryrepayitems),
     url(r'^deleteuser$', deleteuser),

@@ -8,6 +8,11 @@ function makesure(){
     return r;
 }
 </script>
+<script>
+function back(){
+history.back(-1);
+}
+</script>
 <style>
 
 .check{
@@ -84,9 +89,9 @@ margin-right: auto;
 			  <input type="radio" name="status" value="2" checked="checked"/>审核通过&nbsp;&nbsp;&nbsp;<br />
 				&nbsp;<input type="radio" name="status" value="1" />审核不通过<br />
                 <input type="submit" value="提交" class="btn btn-primary" />
-            </p>
-
+                </p>
             </form>
+            <input type="submit" value="返回" class="btn btn-primary" onclick="back()" />
 		</div>
             </div>
       

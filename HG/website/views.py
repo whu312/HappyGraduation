@@ -640,3 +640,12 @@ def lastcheck(req):
         thislog.save()
         a = {'user':req.user}
         return render_to_response("home.html",a)
+    
+@checkauth
+def queryproducts(req):
+    a = {'user':req.user}
+    if not checkjurisdiction(req,"产品管理"):
+        return render_to_response("jur.html",a)
+    products = product.objects.all()
+    a["products"] = products
+    return render_to_response("products.html",a)

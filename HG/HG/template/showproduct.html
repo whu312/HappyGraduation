@@ -10,7 +10,7 @@ margin-right: auto;
 </style>
 <script>
 function back(){
-window.open("/querycontracts",'_parent')
+history.back(-1);
 }
 </script>
 <div class="right">
@@ -38,7 +38,7 @@ window.open("/querycontracts",'_parent')
                 <tr>
                     <th>返款周期</th>
                     <td>{{product.repaycycle.name}}</td>
-                </tr
+                </tr>
             </tbody>
         </table>
 		<br></br>
