@@ -62,5 +62,6 @@ urlpatterns = [
     url(r'^waitrepay$', waitrepay),
     url(r'^lastcheck$', lastcheck),
     url(r'^repayitem/([0-9]+)$', getrepayitem),
+    url(r'^construct$', getconstruct),
     #url(r'^product/([0-9]+)$', getproduct),
 ]

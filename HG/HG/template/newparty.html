@@ -2,6 +2,11 @@
 
 {% block center %}
 {% load bootstrap_toolkit %}
+<script>
+function back(){
+history.back(-1);
+}
+</script>
 <div class="right">
     <div class="new">
         <h1>欢迎使用理财管理查询系统</h1>
@@ -24,11 +29,12 @@
             </select>
             <p class="form-actions">
                 <input type="submit" value="提交" class="btn btn-primary">
+                <button class="btn btn-primary" onclick="back()">返回</button>
             </p>
         </form>
-    </div>
-    
-<div>
+            
+        </div>
+</div>
 
 
 {% endblock %}

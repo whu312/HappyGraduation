@@ -757,8 +757,28 @@ def renewalcontract(req,repayitem_id):
             a["create_succ"] = True
             return render_to_response("newcontract.html",a)
         else:
-
             a["form"] = form
             return render_to_response('newcontract.html', a)
 
-            return render_to_response('newcontract.html', RequestContext(req, a))
+@checkauth
+def getconstruct(req):
+    if req.method == "GET":
+        fields = field.objects.all()
+        anslist = []
+        for onefield in fields:
+            bplist = []
+            bigparties = bigparty.objects.filter(thisfield_id=onefield.id)
+            for bp in bigparties:
+                plist = []
+                parties = party.objects.filter(thisbigparty_id=bp.id)
+                for p in parties:
+                    mlist = []
+                    managers = manager.objects.filter(thisparty_id=p.id)
+                    for m in managers:
+                        mlist.append(m.name)
+                    plist.append((p.name,mlist))
+                bplist.append((bp.name,plist))
+            anslist.append((onefield.name,bplist))
+        a = {'user':req.user}
+        a["res"] = anslist
+        return render_to_response('construct.html', a)
