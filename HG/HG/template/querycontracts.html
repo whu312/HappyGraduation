@@ -60,7 +60,7 @@ text-align:center;
 <h2>合同查询</h2>
 <div class="input-append" >
  <form class="form-horizontal" action="/querycontracts" method="post">
-    <input type="text" class="span2 search-query" name="number" placeholder="按合同编号查询">
+    <input type="text" class="span2 search-query" name="number" placeholder="按合同编号、客户姓名查询" style="width:218px">
         <input type="submit" class="btn" value = "Search">
 </form>
 </div>
@@ -99,7 +99,9 @@ text-align:center;
             <td>{{contract.thismanager.name}}</td>
 			<td>
 			{% ifequal user.id contract.operator_id %}
+			{% ifnotequal contract.status 4 %}
 			<input type="button" value="修改"  style="width:40px; height:20px; margin:0px;padding:0px;" onclick="alter({{contract.id}})">
+			{% endifnotequal %}
 			{% endifequal %}
 			{% ifequal  contract.status 1 %}
 			<input type="button" value="审核" style="width:40px; height:20px; margin:0px;padding:0px;" onclick="check({{contract.id}})">
