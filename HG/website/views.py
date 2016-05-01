@@ -628,8 +628,14 @@ def querycontracts(req):
         return render_to_response("querycontracts.html",a)
     if req.method == 'POST':
         a = {'user':req.user}
+        contracts = []
         number = req.POST.get("number",'')
-        contracts = contract.objects.filter(number=number)
+        contractbynum = contract.objects.filter(number=number)
+        contractbyname = contract.objects.filter(client_name=number)
+        if contractbynum.count() == 0:
+            contracts = contractbyname            
+        else :
+            contracts = contractbynum
         a['contract_size'] = contracts.count() 
         a['contracts'] = contracts
         a['curpage'] = 1
