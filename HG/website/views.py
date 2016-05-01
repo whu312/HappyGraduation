@@ -776,3 +776,57 @@ def getconstruct(req):
         a = {'user':req.user}
         a["res"] = anslist
         return render_to_response('construct.html', a)
+
+@csrf_exempt
+@checkauth
+def ajust(req,type_id):
+    if req.method == "GET":
+        a = {'user':req.user}
+        if type_id=="1":
+            a["bps"] = bigparty.objects.all()
+            a["fields"] = field.objects.all()
+            return render_to_response('ajustbigparty.html', a)
+        elif type_id=="2":
+            a["ps"] = party.objects.all()
+            a["bps"] = bigparty.objects.all()
+            return render_to_response('ajustparty.html', a)
+        elif type_id=="3":
+            a["ps"] = party.objects.all()
+            a["ms"] = manager.objects.all()
+            return render_to_response('ajustmanager.html', a)
+        else:
+            return render_to_response('home.html', a)
+    elif req.method == "POST":
+        a = {}
+        if type_id=="1":
+            bigparty_id = req.POST.get("bigparty_id","")
+            field_id = req.POST.get("field_id","")
+            if bigparty_id!="" and field_id!="":
+                thisbp = bigparty.objects.filter(id=int(bigparty_id))[0]
+                thisbp.thisfield_id = int(field_id)
+                thisbp.save()
+                a["message"] = "true"
+            jsonstr = json.dumps(a,ensure_ascii=False)
+            return HttpResponse(jsonstr,content_type='application/javascript')
+        elif type_id=="2":
+            bigparty_id = req.POST.get("bigparty_id","")
+            party_id = req.POST.get("party_id","")
+            if bigparty_id!="" and party_id!="":
+                thisp = party.objects.filter(id=int(party_id))[0]
+                thisp.thisbigparty_id = int(bigparty_id)
+                thisp.save()
+                a["message"] = "true"
+            jsonstr = json.dumps(a,ensure_ascii=False)
+            return HttpResponse(jsonstr,content_type='application/javascript')
+        elif type_id=="3":
+            party_id = req.POST.get("party_id","")
+            manager_id = req.POST.get("manager_id","")
+            if party_id!="" and manager_id!="":
+                thism = manager.objects.filter(id=int(manager_id))[0]
+                thism.thisparty_id = int(party_id)
+                thism.save()
+                a["message"] = "true"
+            jsonstr = json.dumps(a,ensure_ascii=False)
+            return HttpResponse(jsonstr,content_type='application/javascript')
+        else:
+            return render_to_response('home.html', a)

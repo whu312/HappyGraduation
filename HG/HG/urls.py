@@ -63,5 +63,6 @@ urlpatterns = [
     url(r'^lastcheck$', lastcheck),
     url(r'^repayitem/([0-9]+)$', getrepayitem),
     url(r'^construct$', getconstruct),
+    url(r'^ajust/([0-9]+)/$', ajust),
     #url(r'^product/([0-9]+)$', getproduct),
 ]
