@@ -80,7 +80,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'HG',
         'USER': 'root',
-        'PASSWORD': '123456',
+        'PASSWORD': 'loyoen',
         'HOST': '127.0.0.1',
     }
 }
@@ -121,5 +121,9 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+SESSION_COOKIE_AGE=60*30
 
 STATIC_URL = '/static/'
