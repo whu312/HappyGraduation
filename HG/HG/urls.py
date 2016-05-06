@@ -19,6 +19,7 @@ import settings
 from website.views import *
 from website.users import *
 from website.statistics import *
+from website.newadd import *
 
 urlpatterns = [
     url(r'^cleanall$', cleanall),
@@ -47,6 +48,7 @@ urlpatterns = [
     url(r'^products$',queryproducts),
     url(r'^settings$', userctl),
     url(r'^queryrepayitems/([0-9]+)/$', queryrepayitems),
+    url(r'^outputfile/([0-9]+)/$', outputfile),
     url(r'^deleteuser$', deleteuser),
     url(r'^passwd$', passwd),
     url(r'^log$', getlog),
