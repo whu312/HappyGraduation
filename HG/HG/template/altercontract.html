@@ -53,6 +53,12 @@ float:left;
 				<br /><br />
                 <label class="control-label">开户行</label><input type="text" id="bank" name="bank" placeholder="开户行" value={{contract.bank}}>
 				<br /><br />
+                <label class="control-label">收款支行</label><input type="text" id="subbranch" name="subbranch" placeholder="收款支行" value={{contract.subbranch}}>
+				<br /><br />
+                <label class="control-label">收款省/直辖市</label><input type="text" id="province" name="province" placeholder="省/直辖市" value={{contract.province}}>
+				<br /><br />
+                <label class="control-label">收款市/县</label><input type="text" id="city" name="city" placeholder="市/县" value={{contract.city}}>
+				<br /><br />
 			   <label class="control-label">银行卡号</label><input type="text" id="bank_card" name="bank_card" placeholder="银行卡号" value={{contract.bank_card}}>
 				<br /><br />
                 <label class="control-label">金额</label><input type="text" id="money" name="money" placeholder="金额" value={{contract.money}}>
@@ -79,6 +85,8 @@ float:left;
             <option value='{{item.id}}'>{{item.name}}</option>
             {%endfor%}
             </select>
+            <br /><br />
+                <label class="control-label">备注</label><input type="text" id="comment" name="comment" placeholder="备注" value={{contract.comment}}>
             <p class="form-actions">
                 <input type="submit" value="提交" class="btn btn-primary">
                 <button class="btn btn-primary" onclick="back()">返回</button>

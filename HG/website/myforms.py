@@ -104,6 +104,36 @@ class NewContractForm(forms.Form):
             }
         ),
     )
+    subbranch = forms.CharField(
+        required=True,
+        label=u"支行",
+        error_messages={'required': u'请输入银行支行'},
+        widget=forms.TextInput(
+            attrs={
+                'placeholder':u"支行",
+            }
+        ),
+    )
+    province = forms.CharField(
+        required=True,
+        label=u"收款省/直辖市",
+        error_messages={'required': u'请输入收款省/直辖市'},
+        widget=forms.TextInput(
+            attrs={
+                'placeholder':u"省/直辖市",
+            }
+        ),
+    )
+    city = forms.CharField(
+        required=True,
+        label=u"收款市/县",
+        error_messages={'required': u'请输入收款市县'},
+        widget=forms.TextInput(
+            attrs={
+                'placeholder':u"收款市县",
+            }
+        ),
+    )
     bank_card = forms.CharField(
         required=True,
         label=u"银行卡号",
@@ -124,9 +154,43 @@ class NewContractForm(forms.Form):
             }
         ),
     )
+    startdate = forms.CharField(
+        required=True,
+        label=u"开始日期",
+        error_messages={'required': u'请输入开始日期'},
+        widget=forms.TextInput(
+            attrs={
+                "onClick":"WdatePicker()",
+            }
+        ),
+    )
+    enddate = forms.CharField(
+        required=True,
+        label=u"截止日期",
+        error_messages={'required': u'请输入截止日期'},
+        widget=forms.TextInput(
+            attrs={
+                "onClick":"WdatePicker()",
+            }
+        ),
+    )
+    comment = forms.CharField(
+        required=False,
+        label=u"备注",
+        error_messages={'required': u'请输入备注'},
+        widget=forms.TextInput(
+            attrs={
+                'placeholder':u"备注",
+            }
+        ),
+    )
     def clean(self):
         if not self.is_valid():
             raise forms.ValidationError(u"所有项都为必填项")
+        elif len(self.cleaned_data['number']) <> 10:
+            raise forms.ValidationError(u"合同号要求10位")
+        elif len(self.cleaned_data['client_idcard']) <> 18:
+            raise forms.ValidationError(u"请输入正确的身份证号")
         else:
             cleaned_data = super(NewContractForm, self).clean()
         return cleaned_data

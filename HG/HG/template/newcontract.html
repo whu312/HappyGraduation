@@ -16,6 +16,12 @@
             <h4>成功!</h4>保存成功
         </div>
     {% endif %}
+    {% if number_err %}
+        <div class="alert alert-error">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            <h4>失败!</h4>合同号已存在
+        </div>
+    {% endif %}
     <div class="newcontract">
         <div class="well">
         <form class="form-horizontal" action="" method="post">
@@ -28,14 +34,7 @@
             {%endfor%}
             <select>
             <br /><br />
-            <label class="control-label">开始日期</label>
-            &nbsp;&nbsp;&nbsp;&nbsp;
-            <input id="dateS" name="startdate" onClick="WdatePicker()">
-            <br /><br />
-            <label class="control-label">截至日期</label>
-            &nbsp;&nbsp;&nbsp;&nbsp;
-            <input id="dateE" name="enddate" onClick="WdatePicker()">
-            <br /><br />
+            
             <label class="control-label">理财顾问</label>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<select name="manager_id">
             {%for item in managers%}
@@ -45,6 +44,7 @@
             {%if repayitem_id%}
             <input name="repayitem_id" style="display:none;" value={{repayitem_id}} />
             {%endif%}
+           
             <p class="form-actions">
                 <input type="submit" value="提交" class="btn btn-primary">
             </p>

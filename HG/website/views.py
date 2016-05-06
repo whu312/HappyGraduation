@@ -43,6 +43,12 @@ def addcycle(req):
 def index(req):
     a = {'user':req.user}
     return render_to_response("home.html",a)
+      
+def checkinput(number):
+    ans = contract.objects.filter(number=number)
+    if len(ans)>0:
+        return False
+    return True
 
 @csrf_exempt
 @checkauth
@@ -62,17 +68,25 @@ def newcontract(req):
         a["form"] = form
         if form.is_valid():
             number = req.POST.get('number','')
+            if checkinput(number) == False:
+                a["number_err"] = True
+                return render_to_response('newcontract.html', a)
+            
             client_name = req.POST.get('client_name','')
             client_idcard = req.POST.get('client_idcard','')
             bank = req.POST.get('bank','')
             bank_card = req.POST.get("bank_card",'')
+            subbranch = req.POST.get("subbranch",'')
+            province = req.POST.get("province",'')
+            city = req.POST.get("city",'')
             product_id = req.POST.get("product_id",'')
             money = req.POST.get('money','')
             startdate = req.POST.get('startdate','')
             enddate = req.POST.get("enddate",'')
             manager_id = req.POST.get('manager_id','')
+            comment = req.POST.get("comment",'')
             thiscontract = contract(number=number,client_name=client_name,client_idcard=client_idcard,
-                    bank=bank,bank_card=bank_card,money=money,thisproduct_id=int(product_id),startdate=startdate,
+                    bank=bank,bank_card=bank_card,subbranch=subbranch,province=province,city=city,comment=comment,money=money,thisproduct_id=int(product_id),startdate=startdate,
                     enddate=enddate,status=1,thismanager_id=int(manager_id),renewal_father_id=-1,
                     renewal_son_id=-1,operator_id=req.user.id)
             thiscontract.save()
@@ -83,12 +97,8 @@ def newcontract(req):
             a["create_succ"] = True
             return render_to_response("newcontract.html",a)
         else:
-
             a["form"] = form
             return render_to_response('newcontract.html', a)
-
-            return render_to_response('newcontract.html', RequestContext(req, a))
-
 
 @csrf_exempt
 @checkauth
@@ -296,6 +306,12 @@ def altercontract(req):
 		thiscontract.number = req.POST.get("number",'')
 		thiscontract.bank = req.POST.get("bank",'')
 		thiscontract.bank_card = req.POST.get("bank_card",'')
+        
+		thiscontract.subbranch = req.POST.get("subbranch",'')
+		thiscontract.province = req.POST.get("province",'')
+		thiscontract.city = req.POST.get("city",'')
+		thiscontract.comment = req.POST.get("comment",'')
+        
 		thiscontract.money = req.POST.get("money",'')
 		thiscontract.client_name = req.POST.get("client_name",'')
 		thiscontract.client_idcard = req.POST.get("client_idcard",'')

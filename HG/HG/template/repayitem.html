@@ -94,7 +94,7 @@ history.back(-1);
     {%ifequal repayitem.status 1%}
     <button onclick="repay({{repayitem.id}})">还款</button><br />
     {%ifnotequal repayitem.repaytype 1%}
-    <form action="/renewalcontract/{{repayitem_id}}" method="get">
+    <form action="/renewalcontract/{{repayitem.id}}" method="get">
     <input type="submit" value="续签" />
     </form>
     {%endifnotequal%}
