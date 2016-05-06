@@ -30,6 +30,7 @@ urlpatterns = [
     url(r'^login$', login),
     url(r'^logout$', logout),
     url(r'^newcontract$', newcontract),
+    url(r'^checknumber$', checknumber),
     url(r'^statuscontract$', statuscontract),
     url(r'^statusrepayitem/([0-9]+)/$', statusrepayitem),
     url(r'^renewalcontract/([0-9]+)/$', renewalcontract),

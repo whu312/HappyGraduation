@@ -338,6 +338,27 @@ def showcontract(req,contract_id):
 		a["contract"] = thiscontract
 		return render_to_response("showcontract.html",a)
 
+
+
+@csrf_exempt
+@checkauth
+def checknumber(req):
+    thiscontract = None
+    result = 0
+    if req.POST.has_key('number'):
+        number = req.POST['number']
+        thiscontract = contract.objects.filter(number = number)
+    if thiscontract:
+        print "yeah"
+        result = 1 
+        result = json.dumps(result)
+    else:
+        result = 0
+        result = json.dumps(result)
+    return HttpResponse(result, content_type='application/javascript')
+
+
+
 @csrf_exempt
 @checkauth
 def showproduct(req,product_id):

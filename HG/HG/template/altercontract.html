@@ -3,9 +3,28 @@
 {% block center %}
 <script language="JavaScript" type="text/javascript" src="http://www.my97.net/dp/My97DatePicker/WdatePicker.js"></script>
 <script type="text/javascript" src="http://code.jquery.com/jquery-latest.js"></script>
-<script type="application/javascript">
+<script>
 function back(){
 history.back(-1);
+}
+
+function checknumber(){
+	var number = $("#number").val();
+	$.ajax({
+		type:"POST" ,
+		url:"/checknumber",
+		data:"number=" + number ,
+		cache: false,
+		success: function(result){
+		if(result == 1)
+		{
+			$("#number_tip").html("该合同号已存在！"); 
+		
+		}
+		}
+		
+		})
+
 }
 
 RuleCheck2 = function (string) {  
@@ -41,9 +60,9 @@ float:left;
        {% endif %}
     <div class="checkcontract">
         <div class="well">  
-            <form class="form-horizontal" action="/altercontract" method="post">
+            <form class="form-horizontal" onsubmit="checknumber()" action="/altercontract" method="post">
 				<input type="hidden" id="contractid" name="contractid" placeholder="合同id" value={{contract.id}}>
-                <label class="control-label">合同编号</label><input type="text" id="number" name="number" placeholder="合同编号" style="float:left" value={{contract.number}}><div id="number_tip" style=" float:left;color:#c00; font-weight:bold; font-size:18px">  </div>  
+                <label class="control-label">合同编号</label><input type="text" onblur="checknumber()" id="number" name="number" placeholder="合同编号" style="float:left" value={{contract.number}}><div id="number_tip" style=" float:left;color:#c00; font-weight:bold; font-size:18px">  </div>  
 				<br /><br />
                 <label class="control-label">姓名</label><input type="text" id="client_name" name="client_name" placeholder="姓名" value={{contract.client_name}}>
 				
@@ -88,7 +107,7 @@ float:left;
             <br /><br />
                 <label class="control-label">备注</label><input type="text" id="comment" name="comment" placeholder="备注" value={{contract.comment}}>
             <p class="form-actions">
-                <input type="submit" value="提交" class="btn btn-primary">
+                <input type="submit" value="提交"  class="btn btn-primary">&nbsp;&nbsp;&nbsp;
                 <button class="btn btn-primary" onclick="back()">返回</button>
             </p>
 
@@ -109,7 +128,8 @@ float:left;
             {  
                 $("#number_tip").html("请输入10位合同编号！");  
             };  
-        };  
+        }; 
+		 
     }); 
 	
 	$("#client_idcard").blur("blur",function(){  
