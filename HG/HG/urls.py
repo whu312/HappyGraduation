@@ -22,6 +22,7 @@ from website.statistics import *
 from website.newadd import *
 
 urlpatterns = [
+    url(r'^admin/', admin.site.urls),
     url(r'^cleanall$', cleanall),
     url(r'^html$', testhtml),
     url(r'^test$', test),
