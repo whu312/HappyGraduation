@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_exempt
 from deal import *
 from users import *
 import json
-
+from newadd import *
 ONE_PAGE_NUM = 5
 # Create your views here.
 
@@ -386,52 +386,15 @@ def queryrepayitems(req,type_id):
     if not checkjurisdiction(req,"还款查询"):
         return render_to_response("jur.html",a)
     
-    def item_compare(x,y):
-        if y.repaydate>x.repaydate:
-            return 1
-        elif y.repaydate<x.repaydate:
-            return -1
-        return 0
+    
     if req.method == "GET":
         fromdate = req.GET.get("fromdate",str(datetime.date.today()))
         todate = req.GET.get("todate",str(datetime.date.today()+datetime.timedelta(7))) #下一周
         contract_number = req.GET.get("contract_id","")
         
-        items = [] 
-        try:
-            contract_id = contract.objects.filter(number=contract_number)[0].id
-        except:
-            contract_id = -1
-        if type_id=="1" or type_id=='4':
-            if contract_id != -1:
-                try:
-                    items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,
-                            thiscontract_id__exact=contract_id)
-                except:
-                    items = []
-            elif contract_number=="":
-                items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate)
-        elif type_id=="2":
-            if contract_id != -1:
-                items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,
-                        thiscontract_id__exact=contract_id,repaytype__gte=2,status__exact=1)
-            elif contract_number=="":
-                items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,
-                        repaytype__gte=2,status__exact=1)
-        elif type_id=="3":
-            if contract_id != -1:
-                items = list(repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,
-                        thiscontract_id__exact=contract_id,status__exact=1))
-                tmpitem = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,
-                        thiscontract_id__exact=contract_id,status__exact=3)
-                items.extend(list(tmpitem))
-            elif contract_number=="":
-                items = list(repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,
-                        status__exact=3))
-                tmpitem = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,status__exact=1)
-                items.extend(list(tmpitem))
+        sorteditems = filterRepayItems(fromdate,todate,contract_number,type_id) 
                 
-        a["repayitems"] = sorted(items,cmp=item_compare)
+        a["repayitems"] = sorteditems
         a["type_id"] = type_id
         a["fromdate"] = fromdate
         a["todate"] = todate
