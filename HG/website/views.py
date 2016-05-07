@@ -305,8 +305,10 @@ def altercontract(req):
 		id = req.POST.get("contractid",'')
 		thiscontract = contract.objects.get(id = int(id))
 		thisnumber = req.POST.get("number",'')
-		isexit = contract.objects.filter(number = thisnumber)
-		if not isexit:
+        
+        isexit = contract.objects.filter(number = thisnumber)
+        ###
+        if thiscontract.number == thisnumber or len(isexit)==0:
 			thiscontract.number = req.POST.get("number",'')
 			thiscontract.bank = req.POST.get("bank",'')
 			thiscontract.bank_card = req.POST.get("bank_card",'')
@@ -328,40 +330,14 @@ def altercontract(req):
 			a["create_succ"] = True
 			a["contract"] = thiscontract
 			return render_to_response("altercontract.html",a)
-		else:
-			newcontract = copy.deepcopy(thiscontract)
-			#newcontract = thiscontract
-			newcontract.bank = req.POST.get("bank",'')
-			newcontract.bank_card = req.POST.get("bank_card",'')
-			newcontract.subbranch = req.POST.get("subbranch",'')
-			newcontract.province = req.POST.get("province",'')
-			newcontract.city = req.POST.get("city",'')
-			newcontract.comment = req.POST.get("comment",'')  
-			newcontract.money = req.POST.get("money",'')
-			newcontract.client_name = req.POST.get("client_name",'')
-			newcontract.client_idcard = req.POST.get ("client_idcard",'')
-			newcontract.product_id = req.POST.get("product_id",'')
-			newcontract.startdate = req.POST.get('startdate','')
-			newcontract.enddate = req.POST.get("enddate",'')
-			newcontract.manager_id = req.POST.get('manager_id','')
-			#newcontract.save()
-			print type(thiscontract),type(newcontract)
-			print newcontract.client_name,newcontract.money
-			print thiscontract.client_name,thiscontract.money
-			print newcontract is thiscontract
-			if newcontract == thiscontract:
-				print "same"
-				a = {'user':req.user}
-				a["create_succ"] = False
-				a["contract"] = thiscontract
-				return render_to_response("altercontract.html",a)
-			else :
-				print "not same"
-				a = {'user':req.user}
-				a["create_succ"] = True
-				a["contract"] = newcontract
-				return render_to_response("altercontract.html",a)
-
+        else:
+			a["create_succ"] = False
+			a["contract"] = thiscontract
+			return render_to_response("altercontract.html",a)
+            
+        ###
+        
+        
 @csrf_exempt
 @checkauth
 def showcontract(req,contract_id):
