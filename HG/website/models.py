@@ -52,7 +52,7 @@ class contract(models.Model):
     thismanager = models.ForeignKey(manager)
     renewal_father_id = models.IntegerField()
     renewal_son_id = models.IntegerField()
-    operator = models.ForeignKey(User) 
+    operator = models.ForeignKey(User)
 class repayitem(models.Model):
     repaydate = models.CharField(max_length = 32)
     repaymoney = models.CharField(max_length = 128)
