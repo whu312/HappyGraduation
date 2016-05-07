@@ -26,7 +26,25 @@ function checknumber(){
 		})
 
 }
+function checknum(){
+	var number = $("#number").val();
+	if(RuleCheck2(number)){
+	return true;
+	}
+	else{
+	return false;
+	}
+}
 
+function checkcard(){
+	var card = $("#client_idcard").val(); 
+	if(RuleCheck1(card)){
+	return true;
+	}
+	else{
+	return false;
+	}
+}
 RuleCheck2 = function (string) {  
     var pattern = /^\d{10}$/;  
     if (pattern.test(string)) {  
@@ -58,9 +76,15 @@ float:left;
             <h4>成功!</h4>修改成功
         </div>
        {% endif %}
+	   	   {% ifequal create_succ False %}
+        <div class="alert alert-error">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            <h4>修改失败!</h4>合同号已存在！
+        </div>
+       {% endifequal %}
     <div class="checkcontract">
         <div class="well">  
-            <form class="form-horizontal" onsubmit="checknumber()" action="/altercontract" method="post">
+            <form class="form-horizontal"  onsubmit= " return checknum()&&checkcard();" action="/altercontract" method="post">
 				<input type="hidden" id="contractid" name="contractid" placeholder="合同id" value={{contract.id}}>
                 <label class="control-label">合同编号</label><input type="text" onblur="checknumber()" id="number" name="number" placeholder="合同编号" style="float:left" value={{contract.number}}><div id="number_tip" style=" float:left;color:#c00; font-weight:bold; font-size:18px">  </div>  
 				<br /><br />

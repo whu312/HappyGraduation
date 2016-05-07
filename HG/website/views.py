@@ -303,30 +303,35 @@ def altercontract(req):
 	if req.method == "POST":
 		id = req.POST.get("contractid",'')
 		thiscontract = contract.objects.get(id = int(id))
-		thiscontract.number = req.POST.get("number",'')
-		thiscontract.bank = req.POST.get("bank",'')
-		thiscontract.bank_card = req.POST.get("bank_card",'')
-        
-		thiscontract.subbranch = req.POST.get("subbranch",'')
-		thiscontract.province = req.POST.get("province",'')
-		thiscontract.city = req.POST.get("city",'')
-		thiscontract.comment = req.POST.get("comment",'')
-        
-		thiscontract.money = req.POST.get("money",'')
-		thiscontract.client_name = req.POST.get("client_name",'')
-		thiscontract.client_idcard = req.POST.get("client_idcard",'')
-		thiscontract.product_id = req.POST.get("product_id",'')
-		thiscontract.startdate = req.POST.get('startdate','')
-		thiscontract.enddate = req.POST.get("enddate",'')
-		thiscontract.manager_id = req.POST.get('manager_id','')
-		thiscontract.save()
-		
-		thislog = loginfo(info="alter contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
-		thislog.save()
-		a = {'user':req.user}
-		a["create_succ"] = True
-		a["contract"] = thiscontract
-		return render_to_response("altercontract.html",a)
+		thisnumber = req.POST.get("number",'')
+		isexit = contract.objects.filter(number = thisnumber)
+		if not isexit:
+			thiscontract.number = req.POST.get("number",'')
+			thiscontract.bank = req.POST.get("bank",'')
+			thiscontract.bank_card = req.POST.get("bank_card",'')
+			thiscontract.subbranch = req.POST.get("subbranch",'')
+			thiscontract.province = req.POST.get("province",'')
+			thiscontract.city = req.POST.get("city",'')
+			thiscontract.comment = req.POST.get("comment",'')  
+			thiscontract.money = req.POST.get("money",'')
+			thiscontract.client_name = req.POST.get("client_name",'')
+			thiscontract.client_idcard = req.POST.get("client_idcard",'')
+			thiscontract.product_id = req.POST.get("product_id",'')
+			thiscontract.startdate = req.POST.get('startdate','')
+			thiscontract.enddate = req.POST.get("enddate",'')
+			thiscontract.manager_id = req.POST.get('manager_id','')
+			thiscontract.save()
+			thislog = loginfo(info="alter contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
+			thislog.save()
+			a = {'user':req.user}
+			a["create_succ"] = True
+			a["contract"] = thiscontract
+			return render_to_response("altercontract.html",a)
+		else:
+			a = {'user':req.user}
+			a["create_succ"] = False
+			a["contract"] = thiscontract
+			return render_to_response("altercontract.html",a)
 
 @csrf_exempt
 @checkauth
