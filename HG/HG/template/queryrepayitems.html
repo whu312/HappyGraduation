@@ -100,8 +100,18 @@ function setcontract_id()
     document.getElementById("hidden_id").value = c_id;
 }
 </script>
-
+{%ifequal type_id "1"%}
 <h2>还款查询</h2>
+{%endifequal%}
+{%ifequal type_id "2"%}
+<h2>到期续单</h2>
+{%endifequal%}
+{%ifequal type_id "3"%}
+<h2>还款确认</h2>
+{%endifequal%}
+{%ifequal type_id "4"%}
+<h2>全部还款查询</h2>
+{%endifequal%}
 <div class="input-append" >
     <form action="/queryrepayitems/{{type_id}}" method="get">
     起始日期
@@ -111,12 +121,14 @@ function setcontract_id()
     <input  id="input_id" type="text" name="contract_id" placeholder="合同编号">
     <input type="submit" value="Search">
     </form>
+    {%ifequal type_id "3"%}
     <form action="/outputfile/{{type_id}}" method="get" target="_blank" onsubmit="setcontract_id()">
     <input name="fromdate" style="display:none;" value={{fromdate}}>
     <input name="todate" style="display:none;" value={{todate}}>
     <input id="hidden_id" style="display:none;" type="text" name="contract_id" placeholder="合同编号">
     <input type="submit" value="导出excel">
     </form>
+    {%endifequal%}
 </div>
     <div class="container">
       <table class="table">
