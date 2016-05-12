@@ -387,6 +387,27 @@ def showproduct(req,product_id):
 		a["product"] = thisproduct
 		return render_to_response("showproduct.html",a)
 
+
+@csrf_exempt
+@checkauth
+def terminatecon(req):
+	a = {'user':req.user}
+	if req.method =='GET':
+		contractid = req.GET.get("contractid",'')
+		thiscontract = contract.objects.get(id = int(contractid))
+		a["contract"] = thiscontract
+		return render_to_response("terminatecon.html",a)
+	if req.method == 'POST':
+		contractid = req.POST.get("contractid",'')
+		thiscomment = req.POST.get("comment",'')
+		thiscontract = contract.objects.get(id = int(contractid))
+		thiscontract.status = -1
+		thiscontract.comment = thiscomment
+		thiscontract.save()
+		thislog = loginfo(info="terminate contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
+		thislog.save()
+		return render_to_response("querycontracts.html",a)
+
 @csrf_exempt
 @checkauth
 def checkcontract(req):
@@ -401,7 +422,6 @@ def checkcontract(req):
 		return render_to_response("checkcontract.html",a)
 	if req.method == 'POST':
 		contractid = req.POST.get("contractid",'')
-		print "id",contractid
 		thiscontract = contract.objects.get(id = int(contractid))
 		newstatus = int(req.POST.get('status',''))
 		if newstatus == 2:
