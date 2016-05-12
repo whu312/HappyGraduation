@@ -298,9 +298,12 @@ def altercontract(req):
 	a['managers'] = manager.objects.all()
 	if req.method == "GET":
 		contractid = req.GET.get("contractid",'')
-		thiscontract = contract.objects.get(id = int(contractid))
-		a["contract"] = thiscontract
-		return render_to_response("altercontract.html",a)
+        try:
+			thiscontract = contract.objects.get(id = int(contractid))
+			a["contract"] = thiscontract
+			return render_to_response("altercontract.html",a)
+        except:
+			return render_to_response("home.html",a)
 	if req.method == "POST":
 		id = req.POST.get("contractid",'')
 		thiscontract = contract.objects.get(id = int(id))
@@ -323,6 +326,7 @@ def altercontract(req):
 			thiscontract.startdate = req.POST.get('startdate','')
 			thiscontract.enddate = req.POST.get("enddate",'')
 			thiscontract.manager_id = req.POST.get('manager_id','')
+			thiscontract.status = 1
 			thiscontract.save()
 			thislog = loginfo(info="alter contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
 			thislog.save()
@@ -396,10 +400,8 @@ def checkcontract(req):
 		print "id",contractid
 		thiscontract = contract.objects.get(id = int(contractid))
 		newstatus = int(req.POST.get('status',''))
-		print newstatus
 		if newstatus == 2:
 			thiscontract.status = newstatus
-		print thiscontract.status
 		thiscontract.save()
 		thislog = loginfo(info="check contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
 		thislog.save()
