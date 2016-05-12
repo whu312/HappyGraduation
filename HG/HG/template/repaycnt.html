@@ -46,18 +46,6 @@ function getbigpartylist(field_id){
             }
          }
     }); 
-    if(document.getElementById("field_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-        document.getElementById("party").innerHTML = "";
-        document.getElementById("bigparty").innerHTML = "";
-    }
-    if(document.getElementById("bigparty_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-        document.getElementById("party").innerHTML = "";
-    }
-    if(document.getElementById("party_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-    }
 }
 function getpartylist(bigparty_id){
     if(bigparty_id=="-1"){
@@ -90,22 +78,10 @@ function getpartylist(bigparty_id){
             }
          }
     }); 
-    if(document.getElementById("field_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-        document.getElementById("party").innerHTML = "";
-        document.getElementById("bigparty").innerHTML = "";
-    }
-    if(document.getElementById("bigparty_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-        document.getElementById("party").innerHTML = "";
-    }
-    if(document.getElementById("party_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-    }
 }
 
 function getmanagerlist(party_id){
-    if(party=="-1"){
+    if(party_id=="-1"){
         document.getElementById("manager").innerHTML = "";
     }
     var fromdate = document.getElementById("fromdate").value;
@@ -134,18 +110,6 @@ function getmanagerlist(party_id){
             }
          }
     }); 
-    if(document.getElementById("field_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-        document.getElementById("party").innerHTML = "";
-        document.getElementById("bigparty").innerHTML = "";
-    }
-    if(document.getElementById("bigparty_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-        document.getElementById("party").innerHTML = "";
-    }
-    if(document.getElementById("party_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-    }
 }
 
 
@@ -168,18 +132,6 @@ function getpersoncnt(manager_id){
             }
          }
     });
-   if(document.getElementById("field_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-        document.getElementById("party").innerHTML = "";
-        document.getElementById("bigparty").innerHTML = "";
-    }
-    if(document.getElementById("bigparty_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-        document.getElementById("party").innerHTML = "";
-    }
-    if(document.getElementById("party_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-    }
 }
 
 </script>

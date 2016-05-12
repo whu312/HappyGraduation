@@ -19,12 +19,10 @@ function getbigpartylist(field_id){
         document.getElementById("bigparty").innerHTML = "";
         document.getElementById("party").innerHTML = "";
         document.getElementById("manager").innerHTML = "";
-    }    
-    var fromdate = document.getElementById("fromdate").value;
-    var todate = document.getElementById("todate").value;
+    }
     $.ajax({
         type: "GET",
-        data: "field_id="+field_id+"&fromdate="+fromdate+"&todate="+todate,
+        data: "field_id="+field_id,
         url: "/getbigparties/waitrepay",
         dataType: "json",
         cache: false,
@@ -33,7 +31,7 @@ function getbigpartylist(field_id){
             {
                 if(Trim()=='true'){
                     if(field_id!="-1"){
-                        var partystr = "大团<select id='party_select' name='bigparty_id' onchange='getpartylist(this.options[this.options.selectedIndex].value)'><option value='-1' selected>--</option>";
+                        var partystr = "大团<select id='bigparty_select' name='bigparty_id' onchange='getpartylist(this.options[this.options.selectedIndex].value)'><option value='-1' selected>--</option>";
                         for(var i=0;i<data.bigparties.length;i++){
                             partystr += "<option value='"+data.bigparties[i][0]+"'>"+data.bigparties[i][1]+"</option>";
                         }
@@ -46,29 +44,15 @@ function getbigpartylist(field_id){
             }
          }
     }); 
-    if(document.getElementById("field_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-        document.getElementById("party").innerHTML = "";
-        document.getElementById("bigparty").innerHTML = "";
-    }
-    if(document.getElementById("bigparty_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-        document.getElementById("party").innerHTML = "";
-    }
-    if(document.getElementById("party_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-    }
 }
 function getpartylist(bigparty_id){
     if(bigparty_id=="-1"){
         document.getElementById("party").innerHTML = "";
         document.getElementById("manager").innerHTML = "";
     }    
-    var fromdate = document.getElementById("fromdate").value;
-    var todate = document.getElementById("todate").value;
     $.ajax({
         type: "GET",
-        data: "bigparty_id="+bigparty_id+"&fromdate="+fromdate+"&todate="+todate,
+        data: "bigparty_id="+bigparty_id,
         url: "/getparties/waitrepay",
         dataType: "json",
         cache: false,
@@ -90,29 +74,15 @@ function getpartylist(bigparty_id){
             }
          }
     }); 
-    if(document.getElementById("field_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-        document.getElementById("party").innerHTML = "";
-        document.getElementById("bigparty").innerHTML = "";
-    }
-    if(document.getElementById("bigparty_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-        document.getElementById("party").innerHTML = "";
-    }
-    if(document.getElementById("party_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-    }
 }
 
 function getmanagerlist(party_id){
-    if(party=="-1"){
+    if(party_id=="-1"){
         document.getElementById("manager").innerHTML = "";
     }
-    var fromdate = document.getElementById("fromdate").value;
-    var todate = document.getElementById("todate").value;
     $.ajax({
         type: "GET",
-        data: "party_id="+party_id+"&fromdate="+fromdate+"&todate="+todate,
+        data: "party_id="+party_id,
         url: "/getmanagers/waitrepay",
         dataType: "json",
         cache: false,
@@ -134,27 +104,13 @@ function getmanagerlist(party_id){
             }
          }
     }); 
-    if(document.getElementById("field_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-        document.getElementById("party").innerHTML = "";
-        document.getElementById("bigparty").innerHTML = "";
-    }
-    if(document.getElementById("bigparty_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-        document.getElementById("party").innerHTML = "";
-    }
-    if(document.getElementById("party_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-    }
 }
 
 
 function getpersoncnt(manager_id){
-    var fromdate = document.getElementById("fromdate").value;
-    var todate = document.getElementById("todate").value;
     $.ajax({
         type: "GET",
-        data: "manager_id="+manager_id+"&fromdate="+fromdate+"&todate="+todate,
+        data: "manager_id="+manager_id,
         url: "/getpersoncnt/waitrepay",
         dataType: "json",
         cache: false,
@@ -168,18 +124,6 @@ function getpersoncnt(manager_id){
             }
          }
     });
-   if(document.getElementById("field_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-        document.getElementById("party").innerHTML = "";
-        document.getElementById("bigparty").innerHTML = "";
-    }
-    if(document.getElementById("bigparty_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-        document.getElementById("party").innerHTML = "";
-    }
-    if(document.getElementById("party_select").value=="-1"){
-        document.getElementById("manager").innerHTML = "";
-    }
 }
 
 </script>
@@ -187,11 +131,6 @@ function getpersoncnt(manager_id){
 
 <h2>待收统计</h2>
 <div class="input-append" >
-    起始日期
-    <input id="fromdate" value={{fromdate}} name="fromdate" onClick="WdatePicker()">
-    终止日期
-    <input id="todate" value={{todate}} name="todate" onClick="WdatePicker()">
-    <br />
     <p id="field">职场
     <select id="field_select" name="field_id" onchange="getbigpartylist(this.options[this.options.selectedIndex].value)">
         <option value="-1" selected>--</option>

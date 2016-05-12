@@ -14,7 +14,7 @@ from deal import *
 from users import *
 import json
 from newadd import *
-ONE_PAGE_NUM = 5
+ONE_PAGE_NUM = 10
 # Create your views here.
 
 def testhtml(req):
