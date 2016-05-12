@@ -399,10 +399,17 @@ def terminatecon(req):
 		thiscomment = req.POST.get("comment",'')
 		thiscontract = contract.objects.get(id = int(contractid))
 		thiscontract.status = -1
-		thiscontract.comment = thiscomment
+		thiscontract.comment += "    "+thiscomment
 		thiscontract.save()
 		thislog = loginfo(info="terminate contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
 		thislog.save()
+        
+		items = repayitem.objects.filter(thiscontract_id=thiscontract.id)
+		for item in items:
+			item.status = -1
+			item.save()
+        
+        
 		allcount = contract.objects.count()
 		thispage = 1
 		startpos = ((thispage-1)*ONE_PAGE_NUM if (thispage-1)*ONE_PAGE_NUM<allcount else allcount)
