@@ -750,6 +750,9 @@ def renewalcontract(req,repayitem_id):
             else:
                 thisrepayitem = repayitem.objects.filter(id=int(thisrepayitem_id))[0]
                 father_contract = thisrepayitem.thiscontract
+                if father_contract.renewal_son_id!=-1:
+                    a["renewal_err"] = True
+                    return render_to_response("newcontract.html",a)
                 thiscontract = contract(number=number,client_name=client_name,client_idcard=client_idcard,
                         bank=bank,bank_card=bank_card,money=money,thisproduct_id=int(product_id),startdate=startdate,
                         enddate=enddate,status=1,thismanager_id=int(manager_id),renewal_father_id=father_contract.id,renewal_son_id=-1,
