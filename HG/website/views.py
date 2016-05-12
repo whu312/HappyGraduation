@@ -759,6 +759,7 @@ def renewalcontract(req,repayitem_id):
                         operator_id=req.user.id)
                 thiscontract.save()
                 father_contract.renewal_son_id = thiscontract.id
+                father_contract.save()
                 thisrepayitem.status = 3
                 #warnning
                 if float(father_contract.money)<=float(thiscontract.money):
