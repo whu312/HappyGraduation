@@ -302,20 +302,18 @@ def altercontract(req):
 	a['managers'] = manager.objects.all()
 	if req.method == "GET":
 		contractid = req.GET.get("contractid",'')
-        try:
+		try:
 			thiscontract = contract.objects.get(id = int(contractid))
 			a["contract"] = thiscontract
 			return render_to_response("altercontract.html",a)
-        except:
+		except:
 			return render_to_response("home.html",a)
 	if req.method == "POST":
 		id = req.POST.get("contractid",'')
 		thiscontract = contract.objects.get(id = int(id))
 		thisnumber = req.POST.get("number",'')
-        
-        isexit = contract.objects.filter(number = thisnumber)
-        ###
-        if thiscontract.number == thisnumber or len(isexit)==0:
+		isexit = contract.objects.filter(number = thisnumber)
+		if thiscontract.number == thisnumber or len(isexit)==0:
 			thiscontract.number = req.POST.get("number",'')
 			thiscontract.bank = req.POST.get("bank",'')
 			thiscontract.bank_card = req.POST.get("bank_card",'')
@@ -343,7 +341,6 @@ def altercontract(req):
 			a["contract"] = thiscontract
 			return render_to_response("altercontract.html",a)
             
-        ###
         
         
 @csrf_exempt
