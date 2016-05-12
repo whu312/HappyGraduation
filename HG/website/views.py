@@ -214,6 +214,10 @@ def newmanager(req):
             name = req.POST.get("name",'')
             tel = req.POST.get("tel",'')
             number = req.POST.get("number",'')
+            if len(manager.objects.filter(number=number))>0:
+                a["number_err"] = True
+                return render_to_response('newmanager.html', a)
+            
             party_id = req.POST.get("party_id","")
             thismanager = manager(name=name,tel=tel,number=number,thisparty_id=party_id)
             thismanager.save()
