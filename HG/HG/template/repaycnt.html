@@ -33,7 +33,7 @@ function getbigpartylist(field_id){
             {
                 if(Trim()=='true'){
                     if(field_id!="-1"){
-                        var partystr = "大团<select id='party_select' name='bigparty_id' onchange='getpartylist(this.options[this.options.selectedIndex].value)'><option value='-1' selected>--</option>";
+                        var partystr = "大团<select id='bigparty_select' name='bigparty_id' onchange='getpartylist(this.options[this.options.selectedIndex].value)'><option value='-1' selected>--</option>";
                         for(var i=0;i<data.bigparties.length;i++){
                             partystr += "<option value='"+data.bigparties[i][0]+"'>"+data.bigparties[i][1]+"</option>";
                         }
@@ -134,15 +134,35 @@ function getpersoncnt(manager_id){
     });
 }
 
+function datechange(){
+    if(document.getElementById("manager_select"))
+    {
+        getpersoncnt(document.getElementById("manager_select").value);
+    }
+    else if(document.getElementById("party_select"))
+    {
+        getmanagerlist(document.getElementById("party_select").value);
+    }
+    else if(document.getElementById("bigparty_select"))
+    {
+        getpartylist(document.getElementById("bigparty_select").value);
+    }
+    else if(document.getElementById("field_select"))
+    {
+        getbigpartylist(document.getElementById("field_select").value);
+    }
+}
+
 </script>
 
 
 <h2>返款统计</h2>
 <div class="input-append" >
     起始日期
-    <input id="fromdate" value={{fromdate}} name="fromdate" onClick="WdatePicker()">
+    <input id="fromdate" value={{fromdate}} onblur="datechange()" name="fromdate" onClick="WdatePicker()">
     终止日期
-    <input id="todate" value={{todate}} name="todate" onClick="WdatePicker()">
+    <input id="todate" value={{todate}} onblur="datechange()" name="todate" onClick="WdatePicker()">
+    <button class="btn">确定</button>
     <br />
     <p id="field">职场
     <select id="field_select" name="field_id" onchange="getbigpartylist(this.options[this.options.selectedIndex].value)">

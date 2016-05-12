@@ -31,11 +31,11 @@ def filterRepayItems(fromdate,todate,contract_number,type_id):
         if contract_id != -1:
             try:
                 items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,
-                        thiscontract_id__exact=contract_id)
+                        thiscontract_id__exact=contract_id,status__gte=-1)
             except:
                 items = []
         elif contract_number=="":
-            items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate)
+            items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,status__gte=-1)
     elif type_id=="2":
         if contract_id != -1:
             items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,

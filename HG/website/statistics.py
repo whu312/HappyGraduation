@@ -24,7 +24,7 @@ def repayplan(req):
         todate = req.GET.get("todate",str(datetime.date.today()+datetime.timedelta(7))) #未来一周
         if fromdate=="": fromdate = "1976-10-11"
         if todate=="": todate="2050-10-11"
-        items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate)
+        items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,status__gt=-1)
         daymap = {}
         for item in items:
             if item.repaydate in daymap:
@@ -70,7 +70,7 @@ def dayrepay(req,onedate):
     
     if req.method == "POST":
         return
-    items = repayitem.objects.filter(repaydate__exact=onedate)
+    items = repayitem.objects.filter(repaydate__exact=onedate,status__gt=-1)
     totalrepay = [0,0,0,0,0,0]
     for elem in items:
         cnt = float(elem.repaymoney)
@@ -100,19 +100,19 @@ def getitems(req):
     manager_id = int(req.GET.get("manager_id","-1"))
     items = []
     if manager_id != -1:
-        items = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate,thismanager_id=manager_id)
+        items = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate,thismanager_id=manager_id,status__gt=-1)
     elif party_id != -1:
         ms = manager.objects.filter(thisparty_id=party_id)
         for m in ms:
             items.extend(contract.objects.filter(startdate__gte=fromdate,
-                startdate__lte=todate,thismanager_id=m.id))
+                startdate__lte=todate,thismanager_id=m.id,status__gt=-1))
     elif bigparty_id != -1:
         ps = party.objects.filter(thisbigparty_id=bigparty_id)
         for p in ps:
             ms = manager.objects.filter(thisparty_id=p.id)
             for m in ms:
                 items.extend(contract.objects.filter(startdate__gte=fromdate,
-                    startdate__lte=todate,thismanager_id=m.id))
+                    startdate__lte=todate,thismanager_id=m.id,status__gt=-1))
     elif field_id != -1:
         bps = bigparty.objects.filter(thisfield_id=field_id)
         for bp in bps:
@@ -121,9 +121,9 @@ def getitems(req):
                 ms = manager.objects.filter(thisparty_id=p.id)
                 for m in ms:
                     items.extend(contract.objects.filter(startdate__gte=fromdate,
-                        startdate__lte=todate,thismanager_id=m.id))
+                        startdate__lte=todate,thismanager_id=m.id,status__gt=-1))
     else:
-        items = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate)
+        items = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate,status__gt=-1)
         
     return items
 
@@ -268,7 +268,7 @@ def repaycnt(req,a={},type_id=0):
         manager_id = int(req.GET.get("manager_id","-1"))
         
         anslist = []
-        items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate)
+        items = repayitem.objects.filter(repaydate__gte=fromdate,repaydate__lte=todate,status__gt=-1)
         if manager_id != -1:
             for item in items:    
                 if item.thiscontract.thismanager.id == manager_id:
@@ -314,7 +314,8 @@ def waitrepay(req,a={},type_id=0):
         bigparty_id = int(req.GET.get("bigparty_id","-1"))
         manager_id = int(req.GET.get("manager_id","-1"))
         anslist = []
-        items = repayitem.objects.filter(status=1)
+        items = list(repayitem.objects.filter(status=1))
+        items.extend(list(repayitem.objects.filter(status=3)))
         if manager_id != -1:
             for item in items:    
                 if item.thiscontract.thismanager.id == manager_id:
