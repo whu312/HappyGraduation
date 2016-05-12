@@ -403,6 +403,14 @@ def terminatecon(req):
 		thiscontract.save()
 		thislog = loginfo(info="terminate contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
 		thislog.save()
+		allcount = contract.objects.count()
+		thispage = 1
+		startpos = ((thispage-1)*ONE_PAGE_NUM if (thispage-1)*ONE_PAGE_NUM<allcount else allcount)
+		endpos = (thispage*ONE_PAGE_NUM if thispage*ONE_PAGE_NUM<allcount else allcount)
+		contracts = contract.objects.all()[startpos:endpos]
+		a['curpage'] = thispage
+		a['allpage'] = (allcount-1)/ONE_PAGE_NUM + 1
+		a['contracts'] = contracts
 		return render_to_response("querycontracts.html",a)
 
 @csrf_exempt
