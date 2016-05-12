@@ -302,20 +302,18 @@ def altercontract(req):
 	a['managers'] = manager.objects.all()
 	if req.method == "GET":
 		contractid = req.GET.get("contractid",'')
-        try:
+		try:
 			thiscontract = contract.objects.get(id = int(contractid))
 			a["contract"] = thiscontract
 			return render_to_response("altercontract.html",a)
-        except:
+		except:
 			return render_to_response("home.html",a)
 	if req.method == "POST":
 		id = req.POST.get("contractid",'')
 		thiscontract = contract.objects.get(id = int(id))
 		thisnumber = req.POST.get("number",'')
-        
-        isexit = contract.objects.filter(number = thisnumber)
-        ###
-        if thiscontract.number == thisnumber or len(isexit)==0:
+		isexit = contract.objects.filter(number = thisnumber)
+		if thiscontract.number == thisnumber or len(isexit)==0:
 			thiscontract.number = req.POST.get("number",'')
 			thiscontract.bank = req.POST.get("bank",'')
 			thiscontract.bank_card = req.POST.get("bank_card",'')
@@ -343,7 +341,6 @@ def altercontract(req):
 			a["contract"] = thiscontract
 			return render_to_response("altercontract.html",a)
             
-        ###
         
         
 @csrf_exempt
@@ -387,6 +384,35 @@ def showproduct(req,product_id):
 		a["product"] = thisproduct
 		return render_to_response("showproduct.html",a)
 
+
+@csrf_exempt
+@checkauth
+def terminatecon(req):
+	a = {'user':req.user}
+	if req.method =='GET':
+		contractid = req.GET.get("contractid",'')
+		thiscontract = contract.objects.get(id = int(contractid))
+		a["contract"] = thiscontract
+		return render_to_response("terminatecon.html",a)
+	if req.method == 'POST':
+		contractid = req.POST.get("contractid",'')
+		thiscomment = req.POST.get("comment",'')
+		thiscontract = contract.objects.get(id = int(contractid))
+		thiscontract.status = -1
+		thiscontract.comment = thiscomment
+		thiscontract.save()
+		thislog = loginfo(info="terminate contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
+		thislog.save()
+		allcount = contract.objects.count()
+		thispage = 1
+		startpos = ((thispage-1)*ONE_PAGE_NUM if (thispage-1)*ONE_PAGE_NUM<allcount else allcount)
+		endpos = (thispage*ONE_PAGE_NUM if thispage*ONE_PAGE_NUM<allcount else allcount)
+		contracts = contract.objects.all()[startpos:endpos]
+		a['curpage'] = thispage
+		a['allpage'] = (allcount-1)/ONE_PAGE_NUM + 1
+		a['contracts'] = contracts
+		return render_to_response("querycontracts.html",a)
+
 @csrf_exempt
 @checkauth
 def checkcontract(req):
@@ -401,7 +427,6 @@ def checkcontract(req):
 		return render_to_response("checkcontract.html",a)
 	if req.method == 'POST':
 		contractid = req.POST.get("contractid",'')
-		print "id",contractid
 		thiscontract = contract.objects.get(id = int(contractid))
 		newstatus = int(req.POST.get('status',''))
 		if newstatus == 2:

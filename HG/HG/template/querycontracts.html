@@ -28,6 +28,13 @@ function check(var1){
  window.open(url,'_self');
 
 }
+function terminate(var1){
+ var id = var1;
+ var url = "";
+ url = 'terminatecon?contractid='+id;
+ window.open(url,'_self');
+
+}
 
 function rollback(var1){
  var id = var1;
@@ -99,9 +106,15 @@ text-align:center;
             <td>{{contract.thismanager.name}}</td>
 			<td>
 			{% ifequal user.id contract.operator_id %}
-			{% ifnotequal contract.status 4 %}
+			{% ifequal contract.status 1 %}
 			<input type="button" value="修改"  style="width:40px; height:20px; margin:0px;padding:0px;" onclick="alter({{contract.id}})">
-			{% endifnotequal %}
+			{% endifequal %}
+			{% ifequal contract.status 2 %}
+			<input type="button" value="修改"  style="width:40px; height:20px; margin:0px;padding:0px;" onclick="alter({{contract.id}})">
+			{% endifequal %}
+			{% endifequal %}
+			{% ifequal contract.status 4 %}
+			<input type="button" value="终止"  style="width:40px; height:20px; margin:0px;padding:0px;" onclick="terminate({{contract.id}})">
 			{% endifequal %}
 			{% ifequal  contract.status 1 %}
 			<input type="button" value="审核" style="width:40px; height:20px; margin:0px;padding:0px;" onclick="check({{contract.id}})">
