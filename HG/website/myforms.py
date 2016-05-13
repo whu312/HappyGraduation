@@ -94,6 +94,16 @@ class NewContractForm(forms.Form):
             }
         ),
     )
+    address = forms.CharField(
+        required=True,
+        label=u"客户地址",
+        error_messages={'required': u'请输入客户地址'},
+        widget=forms.TextInput(
+            attrs={
+                'placeholder':u"家庭地址",
+            }
+        ),
+    )
     bank = forms.CharField(
         required=True,
         label=u"开户行",
@@ -171,6 +181,16 @@ class NewContractForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 "onClick":"WdatePicker()",
+            }
+        ),
+    )
+    factorage = forms.CharField(
+        required=True,
+        label=u"手续费",
+        error_messages={'required': u'请输入手续费'},
+        widget=forms.TextInput(
+            attrs={
+                'placeholder':u"手续费",
             }
         ),
     )

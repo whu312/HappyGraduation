@@ -93,6 +93,8 @@ float:left;
 				<br /><br />
 			   <label class="control-label">身份证号</label><input type="text" style="float:left" id="client_idcard" name="client_idcard" placeholder="身份证号" value={{contract.client_idcard}}>
 			   <div id="idcard_tip" style=" float:left;color:#c00; font-weight:bold; font-size:18px">  </div>  
+               <br /><br />
+                <label class="control-label">客户地址</label><input type="text" id="address" name="address" placeholder="家庭地址" value={{contract.address}}>
 				<br /><br />
                 <label class="control-label">开户行</label><input type="text" id="bank" name="bank" placeholder="开户行" value={{contract.bank}}>
 				<br /><br />
@@ -129,7 +131,11 @@ float:left;
             {%endfor%}
             </select>
             <br /><br />
-                <label class="control-label">备注</label><input type="text" id="comment" name="comment" placeholder="备注" value={{contract.comment}}>
+            <label class="control-label">手续费</label>
+            <input type="text" id="factorage" name="factorage" placeholder="手续费" value={{contract.factorage}}>
+            <br /><br />
+            <label class="control-label">备注</label>
+            <input type="text" id="comment" name="comment" placeholder="备注" value={{contract.comment}}>
             <p class="form-actions">
                 <input type="submit" value="提交"  class="btn btn-primary">&nbsp;&nbsp;&nbsp;
                 <button class="btn btn-primary" onclick="back()">返回</button>

@@ -75,6 +75,7 @@ def newcontract(req):
             
             client_name = req.POST.get('client_name','')
             client_idcard = req.POST.get('client_idcard','')
+            address = req.POST.get('address','')
             bank = req.POST.get('bank','')
             bank_card = req.POST.get("bank_card",'')
             subbranch = req.POST.get("subbranch",'')
@@ -85,11 +86,12 @@ def newcontract(req):
             startdate = req.POST.get('startdate','')
             enddate = req.POST.get("enddate",'')
             manager_id = req.POST.get('manager_id','')
+            factorage = req.POST.get('factorage','')
             comment = req.POST.get("comment",'')
-            thiscontract = contract(number=number,client_name=client_name,client_idcard=client_idcard,
-                    bank=bank,bank_card=bank_card,subbranch=subbranch,province=province,city=city,comment=comment,money=money,thisproduct_id=int(product_id),startdate=startdate,
-                    enddate=enddate,status=1,thismanager_id=int(manager_id),renewal_father_id=-1,
-                    renewal_son_id=-1,operator_id=req.user.id)
+            thiscontract = contract(number=number,client_name=client_name,client_idcard=client_idcard,address=address,
+                    bank=bank,bank_card=bank_card,subbranch=subbranch,province=province,city=city,factorage=factorage,
+                    comment=comment,money=money,thisproduct_id=int(product_id),startdate=startdate,enddate=enddate,status=1,
+                    thismanager_id=int(manager_id),renewal_father_id=-1,renewal_son_id=-1,operator_id=req.user.id)
             thiscontract.save()
             thislog = loginfo(info="new contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
             thislog.save()
@@ -320,10 +322,12 @@ def altercontract(req):
 			thiscontract.subbranch = req.POST.get("subbranch",'')
 			thiscontract.province = req.POST.get("province",'')
 			thiscontract.city = req.POST.get("city",'')
+			thiscontract.factorage = req.POST.get("factorage",'')  
 			thiscontract.comment = req.POST.get("comment",'')  
 			thiscontract.money = req.POST.get("money",'')
 			thiscontract.client_name = req.POST.get("client_name",'')
 			thiscontract.client_idcard = req.POST.get("client_idcard",'')
+			thiscontract.address = req.POST.get("address",'')
 			thiscontract.product_id = req.POST.get("product_id",'')
 			thiscontract.startdate = req.POST.get('startdate','')
 			thiscontract.enddate = req.POST.get("enddate",'')
