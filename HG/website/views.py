@@ -389,6 +389,8 @@ def showproduct(req,product_id):
 @checkauth
 def terminatecon(req):
 	a = {'user':req.user}
+	if not checkjurisdiction(req,"合同终止"):
+		return render_to_response("jur.html",a)
 	if req.method =='GET':
 		contractid = req.GET.get("contractid",'')
 		thiscontract = contract.objects.get(id = int(contractid))
