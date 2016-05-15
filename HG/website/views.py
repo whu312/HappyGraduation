@@ -299,51 +299,65 @@ def getlog(req):
 @csrf_exempt
 @checkauth
 def altercontract(req):
-	a = {'user':req.user}
-	a['products'] = product.objects.all()
-	a['managers'] = manager.objects.all()
-	if req.method == "GET":
-		contractid = req.GET.get("contractid",'')
-		try:
-			thiscontract = contract.objects.get(id = int(contractid))
-			a["contract"] = thiscontract
-			return render_to_response("altercontract.html",a)
-		except:
-			return render_to_response("home.html",a)
-	if req.method == "POST":
-		id = req.POST.get("contractid",'')
-		thiscontract = contract.objects.get(id = int(id))
-		thisnumber = req.POST.get("number",'')
-		isexit = contract.objects.filter(number = thisnumber)
-		if thiscontract.number == thisnumber or len(isexit)==0:
-			thiscontract.number = req.POST.get("number",'')
-			thiscontract.bank = req.POST.get("bank",'')
-			thiscontract.bank_card = req.POST.get("bank_card",'')
-			thiscontract.subbranch = req.POST.get("subbranch",'')
-			thiscontract.province = req.POST.get("province",'')
-			thiscontract.city = req.POST.get("city",'')
-			thiscontract.factorage = req.POST.get("factorage",'')  
-			thiscontract.comment = req.POST.get("comment",'')  
-			thiscontract.money = req.POST.get("money",'')
-			thiscontract.client_name = req.POST.get("client_name",'')
-			thiscontract.client_idcard = req.POST.get("client_idcard",'')
-			thiscontract.address = req.POST.get("address",'')
-			thiscontract.product_id = req.POST.get("product_id",'')
-			thiscontract.startdate = req.POST.get('startdate','')
-			thiscontract.enddate = req.POST.get("enddate",'')
-			thiscontract.manager_id = req.POST.get('manager_id','')
-			thiscontract.status = 1
-			thiscontract.save()
-			thislog = loginfo(info="alter contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
-			thislog.save()
-			a = {'user':req.user}
-			a["create_succ"] = True
-			a["contract"] = thiscontract
-			return render_to_response("altercontract.html",a)
+    a = {'user':req.user}
+    a['products'] = product.objects.all()
+    a['managers'] = manager.objects.all()
+    if req.method == "GET":
+        contractid = req.GET.get("contractid",'')
+        try:
+            thiscontract = contract.objects.get(id = int(contractid))
+            a["contract"] = thiscontract
+            return render_to_response("altercontract.html",a)
+        except:
+            return render_to_response("home.html",a)
+    if req.method == "POST":
+        id = req.POST.get("contractid",'')
+        thiscontract = contract.objects.get(id = int(id))
+        thisnumber = req.POST.get("number",'')
+        isexit = contract.objects.filter(number = thisnumber)
+        if thiscontract.number == thisnumber or len(isexit)==0:
+            thiscontract.number = req.POST.get("number",'')
+            thiscontract.bank = req.POST.get("bank",'')
+            thiscontract.bank_card = req.POST.get("bank_card",'')
+            thiscontract.subbranch = req.POST.get("subbranch",'')
+            thiscontract.province = req.POST.get("province",'')
+            thiscontract.city = req.POST.get("city",'')
+            thiscontract.factorage = req.POST.get("factorage",'')  
+            thiscontract.comment = req.POST.get("comment",'')  
+			
+            tmpmoney = req.POST.get("money",'')
+            if thiscontract.money != tmpmoney and thiscontract.renewal_father_id!=-1:
+                father_contract = contract.objects.get(id=int(thiscontract.renewal_father_id))
+                thisrepayitem = repayitem.objects.filter(thiscontract_id=father_contract.id,repaytype__gte=2)[0]
+                #warnning
+                float(thiscontract.money)-float(tmpmoney)
+                if float(father_contract.money)<=float(tmpmoney):
+                    if float(father_contract.money)>float(thiscontract.money):
+                        thisrepayitem.repaymoney = str(float(thisrepayitem.repaymoney) + float(thiscontract.money) - float(father_contract.money))
+                else:
+                    thisrepayitem.repaymoney = str(float(thisrepayitem.repaymoney) + float(thiscontract.money) - float(tmpmoney))
+                thisrepayitem.save()
+            thiscontract.money = tmpmoney
+            
+            thiscontract.client_name = req.POST.get("client_name",'')
+            thiscontract.client_idcard = req.POST.get("client_idcard",'')
+            thiscontract.address = req.POST.get("address",'')
+            thiscontract.product_id = req.POST.get("product_id",'')
+            thiscontract.startdate = req.POST.get('startdate','')
+            thiscontract.enddate = req.POST.get("enddate",'')
+            thiscontract.manager_id = req.POST.get('manager_id','')
+            thiscontract.status = 1
+            thiscontract.save()
+            thislog = loginfo(info="alter contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
+            thislog.save()
+            a = {'user':req.user}
+            a["create_succ"] = True
+            a["contract"] = thiscontract
+            return render_to_response("altercontract.html",a)
         else:
-			a["create_succ"] = False
-			a["contract"] = thiscontract
-			return render_to_response("altercontract.html",a)
+            a["create_succ"] = False
+            a["contract"] = thiscontract
+            return render_to_response("altercontract.html",a)
             
         
         
@@ -768,20 +782,32 @@ def renewalcontract(req,repayitem_id):
         a["form"] = form
         if form.is_valid():
             number = req.POST.get('number','')
+            if checkinput(number) == False:
+                a["number_err"] = True
+                return render_to_response('newcontract.html', a)
+            
             client_name = req.POST.get('client_name','')
             client_idcard = req.POST.get('client_idcard','')
+            address = req.POST.get('address','')
             bank = req.POST.get('bank','')
             bank_card = req.POST.get("bank_card",'')
+            subbranch = req.POST.get("subbranch",'')
+            province = req.POST.get("province",'')
+            city = req.POST.get("city",'')
             product_id = req.POST.get("product_id",'')
             money = req.POST.get('money','')
             startdate = req.POST.get('startdate','')
             enddate = req.POST.get("enddate",'')
             manager_id = req.POST.get('manager_id','')
+            factorage = req.POST.get('factorage','')
+            comment = req.POST.get("comment",'')
             thisrepayitem_id = req.POST.get('repayitem_id','-1')
+            
             if thisrepayitem_id=="-1":
-                thiscontract = contract(number=number,client_name=client_name,client_idcard=client_idcard,
-                        bank=bank,bank_card=bank_card,money=money,thisproduct_id=int(product_id),startdate=startdate,
-                        enddate=enddate,status=1,thismanager_id=int(manager_id),renewal_father_id=-1,renewal_son_id=-1,operator_id=req.user.id)
+                thiscontract = contract(number=number,client_name=client_name,client_idcard=client_idcard,address=address,
+                    bank=bank,bank_card=bank_card,subbranch=subbranch,province=province,city=city,factorage=factorage,
+                    comment=comment,money=money,thisproduct_id=int(product_id),startdate=startdate,enddate=enddate,status=1,
+                    thismanager_id=int(manager_id),renewal_father_id=-1,renewal_son_id=-1,operator_id=req.user.id)
                 thiscontract.save()
                 thislog = loginfo(info="new contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
                 thislog.save()
@@ -791,10 +817,11 @@ def renewalcontract(req,repayitem_id):
                 if father_contract.renewal_son_id!=-1:
                     a["renewal_err"] = True
                     return render_to_response("newcontract.html",a)
-                thiscontract = contract(number=number,client_name=client_name,client_idcard=client_idcard,
-                        bank=bank,bank_card=bank_card,money=money,thisproduct_id=int(product_id),startdate=startdate,
-                        enddate=enddate,status=1,thismanager_id=int(manager_id),renewal_father_id=father_contract.id,renewal_son_id=-1,
-                        operator_id=req.user.id)
+                
+                thiscontract = contract(number=number,client_name=client_name,client_idcard=client_idcard,address=address,
+                    bank=bank,bank_card=bank_card,subbranch=subbranch,province=province,city=city,factorage=factorage,
+                    comment=comment,money=money,thisproduct_id=int(product_id),startdate=startdate,enddate=enddate,status=1,
+                    thismanager_id=int(manager_id),renewal_father_id=father_contract.id,renewal_son_id=-1,operator_id=req.user.id)
                 thiscontract.save()
                 father_contract.renewal_son_id = thiscontract.id
                 father_contract.save()

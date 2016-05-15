@@ -135,7 +135,7 @@ margin-right: auto;
             {%endifequal%}
             {%ifequal repayitem.status 3%}
             <label>该还款项已续签</label>
-            <button onclick="repay({{repayitem.id}})">还款</button><br />
+            <button class="btn btn-primary" onclick="repay({{repayitem.id}})">还款</button><br />
     
             {%endifequal%}
             {%ifequal repayitem.status 2%}

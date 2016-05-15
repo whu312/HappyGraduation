@@ -53,8 +53,24 @@ margin-right: auto;
                     <td>{{contract.client_idcard}}  </td>
                 </tr>
                 <tr>
+                    <th>客户地址</th>
+                    <td>{{contract.address}}  </td>
+                </tr>
+                <tr>
                     <th>开户行</th>
                     <td>{{contract.bank}}</td>
+                </tr>
+                 <tr>
+                    <th>收款支行</th>
+                    <td>{{contract.subbranch}}</td>
+                </tr>
+                <tr>
+                    <th>收款省/直辖市</th>
+                    <td>{{contract.province}}</td>
+                </tr>
+                <tr>
+                    <th>收款市/县</th>
+                    <td>{{contract.city}}</td>
                 </tr>
                 <tr>
                     <th>银行卡号</th>
@@ -79,6 +95,14 @@ margin-right: auto;
                 <tr>
                     <th>理财顾问</th>
                     <td>{{contract.thismanager.name}}</td>
+                </tr>
+                <tr>
+                    <th>手续费</th>
+                    <td>{{contract.factorage}}</td>
+                </tr>
+                <tr>
+                    <th>备注</th>
+                    <td>{{contract.comment}}</td>
                 </tr>
             </tbody>
         </table>
