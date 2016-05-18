@@ -139,6 +139,9 @@ def newfield(req):
         a["form"] = form
         if form.is_valid():
             name = req.POST.get("name",'')
+            if len(field.objects.filter(name=name))>0:
+                a["name_err"] = True
+                return render_to_response('newfield.html', a)
             address = req.POST.get("address",'')
             tel = req.POST.get("tel","")
             thisfield = field(name=name,address=address,tel=tel)
@@ -165,6 +168,9 @@ def newbigparty(req):
         a["form"] = form
         if form.is_valid():
             name = req.POST.get("name",'')
+            if len(bigparty.objects.filter(name=name))>0:
+                a["name_err"] = True
+                return render_to_response('newbigparty.html', a)
             field_id = req.POST.get("field_id",'')
             thisparty = bigparty(name=name,thisfield_id=field_id)
             thisparty.save()
@@ -190,6 +196,9 @@ def newparty(req):
         a["form"] = form
         if form.is_valid():
             name = req.POST.get("name",'')
+            if len(party.objects.filter(name=name))>0:
+                a["name_err"] = True
+                return render_to_response('newparty.html', a)
             bigparty_id = req.POST.get("bigparty_id",'')
             thisparty = party(name=name,thisbigparty_id=bigparty_id)
             thisparty.save()
