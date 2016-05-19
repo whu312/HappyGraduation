@@ -52,6 +52,10 @@ def test(req):
             mylimit = 2**31-1
             oneuser = users(name=name,username=name,jurisdiction=mylimit,thisuser=user)
             oneuser.save()
+        else:
+            mylimit = 2**31-1
+            oneuser = users(name=name,username=name,jurisdiction=mylimit,thisuser=userexist[0])
+            oneuser.save()
         return HttpResponse("add user ok")
 
 @csrf_exempt
