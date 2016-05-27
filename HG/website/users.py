@@ -157,13 +157,17 @@ def passwd(request):
         form = ChangepwdForm(request.POST)
         if form.is_valid():
             username = request.user.username
-            oldpassword = request.POST.get('oldpsw', '')
+            oldpassword = request.POST.get('oldpassword', '')
+            print username
+            print oldpassword
             user = auth.authenticate(username=username, password=oldpassword)
+            print user
+            print user.is_active
             if user is not None and user.is_active:
-                newpassword = request.POST.get('newpsw1', '')
+                newpassword = request.POST.get('newpassword1', '')
                 user.set_password(newpassword)
                 user.save()
-                return render_to_response('passwd.html', RequestContext(request,{'changepwd_success':True,"user":request.user}))
+                return render_to_response('passwd.html', RequestContext(request,{'form': form,'changepwd_success':True,"user":request.user}))
             else:
                 return render_to_response('passwd.html', RequestContext(request, {'form': form,'oldpassword_is_wrong':True,"user":request.user}))
         else:
