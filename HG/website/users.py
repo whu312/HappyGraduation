@@ -137,10 +137,18 @@ def deleteuser(req):
     a = {'user':req.user}
     if req.method == 'POST':
         user_id = req.POST.get("user_id","")
-        thisuser = users.objects.filter(thisuser_id=int(user_id))[0]
-        curuser = thisuser.thisuser
-        thisuser.delete()
-        curuser.delete()
+        try:
+            thisuser = users.objects.filter(id=int(user_id))[0]
+        except:
+            pass
+        try:
+            curuser = thisuser.thisuser
+        except:
+            curuser = None
+        if thisuser:
+            thisuser.delete()
+        if curuser:
+            curuser.delete()
         return render_to_response('home.html', a)
 
 @csrf_exempt
