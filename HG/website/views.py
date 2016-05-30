@@ -351,15 +351,15 @@ def altercontract(req):
             thiscontract.client_name = req.POST.get("client_name",'')
             thiscontract.client_idcard = req.POST.get("client_idcard",'')
             thiscontract.address = req.POST.get("address",'')
-            thiscontract.product_id = req.POST.get("product_id",'')
+            thiscontract.thisproduct_id = int(req.POST.get("product_id",''))
             thiscontract.startdate = req.POST.get('startdate','')
             thiscontract.enddate = req.POST.get("enddate",'')
-            thiscontract.manager_id = req.POST.get('manager_id','')
+            thiscontract.thismanager_id = int(req.POST.get('manager_id',''))
             thiscontract.status = 1
             thiscontract.save()
             thislog = loginfo(info="alter contract with id=%d" % (thiscontract.id),time=str(datetime.datetime.now()),thisuser=req.user)
             thislog.save()
-            a = {'user':req.user}
+            #a = {'user':req.user}
             a["create_succ"] = True
             a["contract"] = thiscontract
             return render_to_response("altercontract.html",a)

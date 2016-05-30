@@ -1,0 +1,113 @@
+﻿{% extends 'base.html' %}
+
+{% block center %}
+<link href="static/css/bootstrap.css" rel="stylesheet" type="text/css" />
+<script>
+function GoTo(var1){
+ var PageNo=document.getElementById("PageNo").value;
+ if (PageNo <= var1){
+ var url = "";
+ url = 'querycontracts?page='+PageNo;
+ window.open(url, '_self');
+}
+else{
+ window.alert('请输入正确页码');
+}
+}
+function alter(var1){
+ var id = var1;
+ var url = "";
+ url = 'altercontract?contractid='+id;
+ window.open(url,'_self');
+
+}
+function check(var1){
+ var id = var1;
+ var url = "";
+ url = 'checkcontract?contractid='+id;
+ window.open(url,'_self');
+
+}
+function terminate(var1){
+ var id = var1;
+ var url = "";
+ url = 'terminatecon?contractid='+id;
+ window.open(url,'_self');
+
+}
+
+function rollback(var1){
+ var id = var1;
+ var url = "";
+ url = 'rollbackcontract?contractid='+id;
+ window.open(url,'_self');
+
+}
+function count(var1){
+var num = var1;
+if(num == 0){
+window.alert("没有相关合同！请重新输入");
+}
+
+}
+
+</script>
+<style>
+.input-append{
+text-align:center;
+margin-left:auto; 
+margin-right:auto;
+}
+.fenye{
+text-align:center;
+}
+</style>
+
+<body onload="count({{contract_size}})">
+<h2>合同修改</h2>
+    <div class="container">
+   
+      <table class="table">
+        <thead>
+          <tr>
+            <th>合同编号</th>
+            <th>姓名</th>
+            <th>身份证号</th>
+            <th>开户行</th>
+            <th>银行卡号</th>
+            <th>产品</th>
+            <th>金额</th>
+            <th>签约日</th>
+            <th>到期日</th>
+            <th>理财顾问</th>
+			<th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+
+
+        {%for contract in contracts%}
+        <tr>
+            <td><a href="/contract/{{contract.id}}">{{contract.number}}</a></td>
+            <td>{{contract.client_name}}</td>
+            <td>{{contract.client_idcard}}</td>
+		    <td>{{contract.bank}}</td>
+			<td>{{contract.bank_card}}</td>
+            <td><a href="/product/{{contract.thisproduct.id}}">{{contract.thisproduct.name}}</a></td>
+			<td>{{contract.money}}</td>
+			<td>{{contract.startdate}}</td>
+			<td>{{contract.enddate}}</td>
+            <td>{{contract.thismanager.name}}</td>
+			<td>
+			<input type="button" value="修改"  style="width:40px; height:20px; margin:0px;padding:0px;" onclick="alter({{contract.id}})">
+            </td>
+        </tr>
+        {%endfor%}
+        </tbody>
+      </table>
+    </div>
+
+</body>
+</html>
+        
+{% endblock %}

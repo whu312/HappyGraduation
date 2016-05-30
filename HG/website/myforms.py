@@ -416,3 +416,18 @@ class NewUserForm(forms.Form):
         else:
             cleaned_data = super(NewUserForm, self).clean()
         return cleaned_data
+    
+class ChangeJurForm(forms.Form):
+    jur = forms.MultipleChoiceField(
+        required=True,
+        label=u"权限",
+        error_messages={'required': u'请选择权限'},
+        choices=getjurtuple(jurlist), 
+        widget=forms.CheckboxSelectMultiple(),
+    )
+    def clean(self):
+        if not self.is_valid():
+            raise forms.ValidationError(u"所有项都为必填项")
+        else:
+            cleaned_data = super(ChangeJurForm, self).clean()
+        return cleaned_data

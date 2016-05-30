@@ -108,3 +108,47 @@ def outputfile(req,type_id):
         response['Content-Type'] = 'application/octet-stream'
         response['Content-Disposition'] = 'attachment;filename="{0}"'.format("转账数据.xls")
         return response
+    
+@csrf_exempt
+@checkauth
+def changejur(req):
+    if req.method == "GET":
+        a = {'user':req.user}
+    if not checkjurisdiction(req,"账户管理"):
+        return render_to_response("jur.html",a)
+    a = {'user':req.user}
+    a['users'] = users.objects.all()
+    if req.method == 'GET':
+        form = ChangeJurForm()
+        a["form"] = form
+        return render_to_response('changejur.html', a)
+    else:
+        form = ChangeJurForm(req.POST)
+        if form.is_valid():
+            user_id = req.POST.get("user_id","")
+            thisuser = users.objects.filter(id=int(user_id))
+            if not thisuser:
+                return render_to_response("home.html",a)
+            check_list = req.POST.getlist("jur")
+            jur = 0
+            for item in check_list:
+                jur += int(item)
+            thisuser = thisuser[0]
+            thisuser.jurisdiction = jur
+            thisuser.save()
+            a["change_succ"] = "true"
+            a["form"] = form
+            return render_to_response('changejur.html', a)
+        else:
+            a["form"] = form
+            return render_to_response('changejur.html', a)
+        
+@checkauth
+def changecon(req):
+    a = {'user':req.user}
+    if not checkjurisdiction(req,"新增合同"):
+        return render_to_response("jur.html",a)
+    if req.method == "GET":
+        allc = contract.objects.filter(operator_id=req.user.id,status__lte=2,status__gte=1)
+        a["contracts"] = allc
+        return render_to_response("changecon.html",a)
