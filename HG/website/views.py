@@ -59,7 +59,7 @@ def newcontract(req):
         return render_to_response("jur.html",a)
 
     a['products'] = product.objects.all()
-    a['managers'] = sorted(manager.objects.all(),key=lambda onem:onem.name)
+    a['managers'] = manager.objects.raw("select * from website_manager order by convert(name USING gbk)")#order_by("name")
     form = NewContractForm()
     a["form"] = form
     if req.method == 'GET':
@@ -297,8 +297,7 @@ def getlog(req):
             allcount += 1
         startpos = ((thispage-1)*ONE_PAGE_NUM if (thispage-1)*ONE_PAGE_NUM<allcount else allcount)
         endpos = (thispage*ONE_PAGE_NUM if thispage*ONE_PAGE_NUM<allcount else allcount)
-        alllog = list(loginfo.objects.all())
-        alllog.reverse()
+        alllog = loginfo.objects.order_by("-time")
         logs = alllog[startpos:endpos]
 
         a['curpage'] = thispage
@@ -311,7 +310,7 @@ def getlog(req):
 def altercontract(req):
     a = {'user':req.user}
     a['products'] = product.objects.all()
-    a['managers'] = manager.objects.all()
+    a['managers'] = manager.objects.raw("select * from website_manager order by convert(name USING gbk)")#order_by("name")
     if req.method == "GET":
         contractid = req.GET.get("contractid",'')
         try:
