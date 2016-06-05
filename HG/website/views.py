@@ -59,7 +59,7 @@ def newcontract(req):
         return render_to_response("jur.html",a)
 
     a['products'] = product.objects.all()
-    a['managers'] = manager.objects.all()
+    a['managers'] = sorted(manager.objects.all(),key=lambda onem:onem.name)
     form = NewContractForm()
     a["form"] = form
     if req.method == 'GET':
@@ -295,11 +295,12 @@ def getlog(req):
         allcount = 0
         for log in loginfo.objects.all():
             allcount += 1
-        print allcount
         startpos = ((thispage-1)*ONE_PAGE_NUM if (thispage-1)*ONE_PAGE_NUM<allcount else allcount)
         endpos = (thispage*ONE_PAGE_NUM if thispage*ONE_PAGE_NUM<allcount else allcount)
-        logs = loginfo.objects.all()[startpos:endpos]
-        print logs.count()
+        alllog = list(loginfo.objects.all())
+        alllog.reverse()
+        logs = alllog[startpos:endpos]
+
         a['curpage'] = thispage
         a['allpage'] = (allcount-1)/ONE_PAGE_NUM + 1
         a['logs'] = logs
@@ -315,8 +316,11 @@ def altercontract(req):
         contractid = req.GET.get("contractid",'')
         try:
             thiscontract = contract.objects.get(id = int(contractid))
-            a["contract"] = thiscontract
-            return render_to_response("altercontract.html",a)
+            if thiscontract.status == 1:
+                a["contract"] = thiscontract
+                return render_to_response("altercontract.html",a)
+            else:
+                return render_to_response("home.html",a)
         except:
             return render_to_response("home.html",a)
     if req.method == "POST":
