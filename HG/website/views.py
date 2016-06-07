@@ -18,7 +18,13 @@ ONE_PAGE_NUM = 10
 # Create your views here.
 
 def testhtml(req):
-    return render_to_response("searchcontract.html")
+    repayitem.objects.all().delete()
+    allc = contract.objects.all()
+    for c in allc:
+        if c.status==4:
+            c.status=2
+            c.save()
+    return render_to_response("home.html")
     
 def cleanall(req):
     repayitem.objects.all().delete()
