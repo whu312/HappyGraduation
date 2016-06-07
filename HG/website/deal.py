@@ -15,7 +15,6 @@ def CreateRepayItem(onecontract):
     thisproduct = onecontract.thisproduct
     repaycycle = thisproduct.repaycycle
     intmoney = float(onecontract.money)
-    print "into",repaycycle.cycletype
     if repaycycle.cycletype == 1: #once
         if thisproduct.closedtype == 'm':
             totalmoney = intmoney + intmoney*float(thisproduct.rate)/1200*thisproduct.closedperiod
@@ -53,6 +52,4 @@ def CreateRepayItem(onecontract):
             lastmoney = intmoney + intmoney*float(thisproduct.rate)/36500*days
             monthrepayitem = repayitem(repaydate=str(thisdate),repaymoney=str(lastmoney),repaytype=2,
                 status=1,thiscontract=onecontract)
-            monthrepayitem.save()
-            
-    
+            monthrepayitem.save() 

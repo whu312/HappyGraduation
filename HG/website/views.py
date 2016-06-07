@@ -394,7 +394,6 @@ def checknumber(req):
         number = req.POST['number']
         thiscontract = contract.objects.filter(number = number)
     if thiscontract:
-        print "yeah"
         result = 1 
         result = json.dumps(result)
     else:
@@ -599,11 +598,9 @@ def checkcontracts(req):
             for con in contract.objects.all():
                 if con.status == 1:
                     allcount += 1
-            print allcount
             startpos = ((thispage-1)*ONE_PAGE_NUM if (thispage-1)*ONE_PAGE_NUM<allcount else allcount)
             endpos = (thispage*ONE_PAGE_NUM if thispage*ONE_PAGE_NUM<allcount else allcount)
             contracts = contract.objects.filter(status = 1)[startpos:endpos]
-            print contracts.count()
         else:
             contracts = contract.objects.filter(number=number)
         a['curpage'] = thispage
@@ -640,7 +637,6 @@ def rollbackcontracts(req):
             for con in contract.objects.all():
                 if con.status == 2 :
                     allcount += 1
-            print allcount
             startpos = ((thispage-1)*ONE_PAGE_NUM if (thispage-1)*ONE_PAGE_NUM<allcount else allcount)
             endpos = (thispage*ONE_PAGE_NUM if thispage*ONE_PAGE_NUM<allcount else allcount)
             contracts = contract.objects.filter(status = 2)[startpos:endpos]
@@ -656,7 +652,6 @@ def rollbackcontract(req):
 	a = {'user':req.user}
 	if req.method == 'GET':
 		contractid = req.GET.get("contractid",'')
-		print "he",contractid
 		thiscontract = contract.objects.get(id = int(contractid))
 		a["contract"] = thiscontract
 		return render_to_response("rollbackcontract.html",a)
@@ -754,7 +749,6 @@ def lastcheck(req):
         
         cons = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate,status=2)
         #print fromdate,todate
-        print status,':',fromdate,todate
         if status=='2':
             for con in cons:
                 con.status = 4
