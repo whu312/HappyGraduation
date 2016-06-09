@@ -152,3 +152,11 @@ def changecon(req):
         allc = contract.objects.filter(operator_id=req.user.id,status__lte=2,status__gte=1)
         a["contracts"] = allc
         return render_to_response("changecon.html",a)
+    
+@checkauth
+def showmanager(req,mid):
+    a = {'user':req.user}
+    if req.method == "GET":
+        allc = contract.objects.filter(thismanager_id=int(mid))
+        a["contracts"] = allc
+        return render_to_response("manager_contract.html",a)

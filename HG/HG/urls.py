@@ -71,5 +71,6 @@ urlpatterns = [
     url(r'^ajust/([0-9]+)/$', ajust),
     url(r'^changejur$', changejur),
     url(r'^changecon$', changecon),
+    url(r'^manager/([0-9]+)/$',showmanager),
     #url(r'^product/([0-9]+)$', getproduct),
 ]
