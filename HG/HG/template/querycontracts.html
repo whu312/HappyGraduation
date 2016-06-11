@@ -103,7 +103,7 @@ text-align:center;
 			<td>{{contract.money}}</td>
 			<td>{{contract.startdate}}</td>
 			<td>{{contract.enddate}}</td>
-            <td><a href="/manager/{{contract.thismanager.id}}/">{{contract.thismanager.name}}</a></td>
+            <td>{{contract.thismanager.name}}</td>
 			<td>
 			{% ifequal user.id contract.operator_id %}
 			{% ifequal contract.status 1 %}

@@ -872,7 +872,7 @@ def getconstruct(req):
                     mlist = []
                     managers = manager.objects.filter(thisparty_id=p.id)
                     for m in managers:
-                        mlist.append(m.name)
+                        mlist.append(m)
                     plist.append((p.name,mlist))
                 bplist.append((bp.name,plist))
             anslist.append((onefield.name,bplist))
