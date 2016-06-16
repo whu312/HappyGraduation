@@ -859,6 +859,9 @@ def renewalcontract(req,repayitem_id):
 
 @checkauth
 def getconstruct(req):
+    a = {'user':req.user}
+    if not checkjurisdiction(req,"人员结构"):
+        return render_to_response("jur.html",a)
     if req.method == "GET":
         fields = field.objects.all()
         anslist = []
