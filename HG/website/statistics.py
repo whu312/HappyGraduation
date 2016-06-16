@@ -45,12 +45,12 @@ def repayplan(req):
                 totalrepay[0] += 1
                 dayinfo[item][1] += cnt
                 totalrepay[1] += cnt
-                if elem.status==1:
+                if elem.status==1 or elem.status==3:
                     dayinfo[item][4] += 1
                     totalrepay[4] += 1
                     dayinfo[item][5] += cnt
                     totalrepay[5] += cnt
-                else:
+                elif elem.status==2 or elem.status==4 :
                     dayinfo[item][2] += 1
                     totalrepay[2] += 1
                     dayinfo[item][3] += cnt
