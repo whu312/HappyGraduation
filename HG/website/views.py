@@ -287,7 +287,7 @@ def getproduct(req,product_id):
         thisproduct = thisproduct[0]
     a["product"] = thisproduct
     return render_to_response("product.html",a)
-
+@csrf_exempt
 @checkauth
 def getlog(req):
     a = {'user':req.user}
@@ -319,7 +319,15 @@ def getlog(req):
         a['allpage'] = (allcount-1)/ONE_PAGE_NUM + 1
         a['logs'] = logs
         return render_to_response("log.html",a)
-
+    if req.method == 'POST':
+        logs = []
+        number = req.POST.get("number",'')
+        alllogs = loginfo.objects.filter(info__endswith="="+number).order_by("-time")
+        a['logs'] = alllogs
+        a['curpage'] = 1
+        a['allpage'] = 1
+        return render_to_response("log.html",a)
+    
 @csrf_exempt
 @checkauth
 def altercontract(req):
