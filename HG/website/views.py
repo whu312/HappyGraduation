@@ -49,6 +49,7 @@ def addcycle(req):
 @checkauth
 def index(req):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     return render_to_response("home.html",a)
       
 def checkinput(number):
@@ -61,6 +62,7 @@ def checkinput(number):
 @checkauth
 def newcontract(req):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"新增合同"):
         return render_to_response("jur.html",a)
 
@@ -133,6 +135,7 @@ def statuscontract(req):
 @checkauth
 def newfield(req):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"职场管理"):
         return render_to_response("jur.html",a)
     
@@ -161,6 +164,7 @@ def newfield(req):
 @checkauth
 def newbigparty(req):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"团队管理"):
         return render_to_response("jur.html",a)
     
@@ -189,6 +193,7 @@ def newbigparty(req):
 @checkauth
 def newparty(req):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"团队管理"):
         return render_to_response("jur.html",a)
     
@@ -216,6 +221,7 @@ def newparty(req):
 @checkauth
 def newmanager(req):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"经理管理"):
         return render_to_response("jur.html",a)
     
@@ -246,6 +252,7 @@ def newmanager(req):
 @checkauth
 def newproduct(req):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"产品管理"):
         return render_to_response("jur.html",a)
     
@@ -274,6 +281,7 @@ def newproduct(req):
 @checkauth
 def getproduct(req,product_id):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     thisproduct = product.objects.filter(id=int(product_id))
     if thisproduct:
         thisproduct = thisproduct[0]
@@ -283,6 +291,7 @@ def getproduct(req,product_id):
 @checkauth
 def getlog(req):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"系统日志"):
         return render_to_response("jur.html",a)
     if req.method == "GET":
@@ -315,6 +324,7 @@ def getlog(req):
 @checkauth
 def altercontract(req):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     a['products'] = product.objects.all()
     a['managers'] = manager.objects.raw("select * from website_manager order by convert(name USING gbk)")#order_by("name")
     if req.method == "GET":
@@ -383,6 +393,7 @@ def altercontract(req):
 @checkauth
 def showcontract(req,contract_id):
 	a = {'user':req.user}
+	a["indexlist"] = getindexlist(req)
 	if req.method == 'GET':
 		contractid = contract_id
 		thiscontract = contract.objects.get(id = int(contractid))
@@ -413,6 +424,7 @@ def checknumber(req):
 @checkauth
 def showproduct(req,product_id):
 	a = {'user':req.user}
+	a["indexlist"] = getindexlist(req)
 	if req.method == 'GET':
 		productid = product_id
 		thisproduct = product.objects.get(id = int(productid))
@@ -424,6 +436,7 @@ def showproduct(req,product_id):
 @checkauth
 def terminatecon(req):
 	a = {'user':req.user}
+	a["indexlist"] = getindexlist(req)
 	if not checkjurisdiction(req,"合同终止"):
 		return render_to_response("jur.html",a)
 	if req.method =='GET':
@@ -461,6 +474,7 @@ def terminatecon(req):
 @checkauth
 def checkcontract(req):
 	a = {'user':req.user}
+	a["indexlist"] = getindexlist(req)
 	if not checkjurisdiction(req,"合同审核"):
 		return render_to_response("jur.html",a)
 	if req.method == 'GET':
@@ -489,6 +503,7 @@ def checkcontract(req):
 @checkauth
 def queryrepayitems(req,type_id):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"还款查询"):
         return render_to_response("jur.html",a)
     
@@ -509,6 +524,7 @@ def queryrepayitems(req,type_id):
 @checkauth
 def getrepayitem(req,item_id):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"还款查询"):
         return render_to_response("jur.html",a)
     if req.method == "GET":
@@ -579,6 +595,7 @@ def statusrepayitem(req,type_id):
 @checkauth
 def checkcontracts(req):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"合同审核"):
         return render_to_response("jur.html",a)
     
@@ -618,6 +635,7 @@ def checkcontracts(req):
 @checkauth
 def rollbackcontracts(req):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"审核回退"):
         return render_to_response("jur.html",a)
     
@@ -656,6 +674,7 @@ def rollbackcontracts(req):
 @checkauth
 def rollbackcontract(req):
 	a = {'user':req.user}
+	a["indexlist"] = getindexlist(req)
 	if req.method == 'GET':
 		contractid = req.GET.get("contractid",'')
 		thiscontract = contract.objects.get(id = int(contractid))
@@ -675,6 +694,7 @@ def rollbackcontract(req):
 @checkauth
 def querycontracts(req):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"合同查询"):
         return render_to_response("jur.html",a)
     
@@ -691,7 +711,6 @@ def querycontracts(req):
         except ValueError:
             number = ""
         contracts = []
-        a = {'user':req.user}
         if pagetype == 'pagedown':
             thispage += 1
         elif pagetype == 'pageup':
@@ -708,7 +727,6 @@ def querycontracts(req):
         a['contracts'] = contracts
         return render_to_response("querycontracts.html",a)
     if req.method == 'POST':
-        a = {'user':req.user}
         contracts = []
         number = req.POST.get("number",'')
         contractbynum = contract.objects.filter(number=number)
@@ -727,6 +745,7 @@ def querycontracts(req):
 @checkauth
 def lastcheck(req):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"最终审核"):
         return render_to_response("jur.html",a)
     if req.method == "GET":
@@ -768,6 +787,7 @@ def lastcheck(req):
 @checkauth
 def queryproducts(req):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"产品管理"):
         return render_to_response("jur.html",a)
     products = product.objects.all()
@@ -778,6 +798,7 @@ def queryproducts(req):
 @checkauth
 def renewalcontract(req,repayitem_id):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     a["repayitem_id"] = repayitem_id
     a["onecontract"] = repayitem.objects.filter(id=int(repayitem_id))[0].thiscontract
     if not checkjurisdiction(req,"到期续单"):
@@ -860,6 +881,7 @@ def renewalcontract(req,repayitem_id):
 @checkauth
 def getconstruct(req):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"人员结构"):
         return render_to_response("jur.html",a)
     if req.method == "GET":
@@ -879,7 +901,6 @@ def getconstruct(req):
                     plist.append((p.name,mlist))
                 bplist.append((bp.name,plist))
             anslist.append((onefield.name,bplist))
-        a = {'user':req.user}
         a["res"] = anslist
         return render_to_response('construct.html', a)
 
@@ -888,6 +909,7 @@ def getconstruct(req):
 def ajust(req,type_id):
     if req.method == "GET":
         a = {'user':req.user}
+        a["indexlist"] = getindexlist(req)
         if type_id=="1":
             a["bps"] = bigparty.objects.all()
             a["fields"] = field.objects.all()

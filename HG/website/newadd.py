@@ -60,6 +60,7 @@ def filterRepayItems(fromdate,todate,contract_number,type_id):
 @checkauth
 def outputfile(req,type_id):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"还款查询"):
         return render_to_response("jur.html",a)
     
@@ -112,11 +113,11 @@ def outputfile(req,type_id):
 @csrf_exempt
 @checkauth
 def changejur(req):
-    if req.method == "GET":
-        a = {'user':req.user}
+    a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"账户管理"):
         return render_to_response("jur.html",a)
-    a = {'user':req.user}
+    
     a['users'] = users.objects.all()
     if req.method == 'GET':
         form = ChangeJurForm()
@@ -146,6 +147,7 @@ def changejur(req):
 @checkauth
 def changecon(req):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"新增合同"):
         return render_to_response("jur.html",a)
     if req.method == "GET":
@@ -156,6 +158,7 @@ def changecon(req):
 @checkauth
 def showmanager(req,mid):
     a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
     if req.method == "GET":
         allc = contract.objects.filter(thismanager_id=int(mid))
         a["contracts"] = allc
