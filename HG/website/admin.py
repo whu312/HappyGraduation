@@ -13,7 +13,8 @@ class ManagerAdmin(admin.ModelAdmin):
     search_fields=("number","name")
     
 class RepayitemAdmin(admin.ModelAdmin):
-    list_display=("repaydate","repaymoney")
+    list_display=("id","repaydate","repaymoney")
+    search_fields=("id","repaydate")
     
 class FieldAdmin(admin.ModelAdmin):
     list_display=("name","address","tel")
