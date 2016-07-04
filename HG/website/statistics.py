@@ -355,9 +355,9 @@ def outputmanagerYear(req):
         for item in items:
             incnt = 0.0
             if item.thisproduct.closedtype == 'm':
-                incnt += 12*float(item.money)/item.thisproduct.closedperiod
+                incnt += float(item.money)*item.thisproduct.closedperiod/12
             elif item.thisproduct.closedtype == 'd':
-                incnt += 365*float(item.money)/item.thisproduct.closedperiod
+                incnt += float(item.money)*item.thisproduct.closedperiod/365
             if item.thismanager.id in ansmap:
                 ansmap[item.thismanager.id][0] += incnt
             else:
