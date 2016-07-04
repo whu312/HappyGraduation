@@ -77,8 +77,8 @@ def dayrepay(req,onedate):
     totalrepay = [0,0,0,0,0,0]
     for elem in items:
         cnt = float(elem.repaymoney)
-        if elem.status==3:
-            cnt -= float(elem.thiscontract.money)
+        #if elem.status==3:
+        #    cnt -= float(elem.thiscontract.money)
         totalrepay[0] += 1
         totalrepay[1] += cnt
         if elem.status==1:
