@@ -76,5 +76,12 @@ urlpatterns = [
     url(r'^outmanagerYear$',outputmanagerYear),
     url(r'^renewalRate$',renewalRate),
     url(r'^outrenewalRate$',outputrenewalRate),
+    url(r'^renewalCnt$',renewalCnt),
+    url(r'^outrenewalCnt$',outrenewalCnt),
+    url(r'^cashCnt$',cashCnt),
+    url(r'^daycashCnt/([0-9]{4}-[0-9]{2}-[0-9]{2})$', daycashCnt),
+    url(r'^managercashCnt$',managercashCnt),
+    url(r'^managercashDetail/([0-9]+)/$',managercashDetail),
+    #url(r'^outrenewalCnt$',outrenewalCnt),
     #url(r'^product/([0-9]+)$', getproduct),
 ]

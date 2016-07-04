@@ -272,6 +272,107 @@ def getpersoncnt(req,which_type):
             return waitrepay(req,a,1)
     
 @checkauth
+def renewalCnt(req):
+    a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
+    if not checkjurisdiction(req,"续单统计"):
+        return render_to_response("jur.html",a)
+    if req.method == "GET":
+        anslist = []
+        items = GetEnddateItems(req)
+        for item in items:
+            if item.renewal_son_id!=-1:
+                renewc = contract.objects.filter(id=item.renewal_son_id)[0]
+                tmplist = [item,"是",renewc.money,renewc.thisproduct.name]
+                anslist.append(tmplist)
+            else:
+                tmplist = [item,"否","",""]
+                anslist.append(tmplist)
+        
+        anslist = sorted(anslist,key=lambda asd:asd[0].enddate)
+        a["items"] = anslist
+        
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+        todate = req.GET.get("todate",str(datetime.date.today()))
+        a["fromdate"] = fromdate
+        a["todate"] = todate
+        a["fields"] = field.objects.all()
+        fid = req.GET.get("field_id","-1")
+        a["fid"] = int(fid)
+        if fid!="-1":
+            bps = bigparty.objects.filter(thisfield_id=int(fid))
+            a["bigparty"] = True
+            a["bigparties"] = bps
+            bpid = req.GET.get("bigparty_id","-1")
+            a["bpid"] = int(bpid)
+            if bpid!="-1":
+                ps = party.objects.filter(thisbigparty_id=int(bpid))
+                a["party"] = True
+                a["parties"] = ps
+                pid = req.GET.get("party_id","-1")
+                a["pid"] = int(pid)
+                if pid!="-1":
+                    ms = manager.objects.filter(thisparty_id=int(pid))
+                    a["manager"] = True
+                    a["managers"] = ms
+                    mid = req.GET.get("manager_id","-1")
+                    a["mid"] = int(mid)
+                    
+        return render_to_response("renewalCnt.html",a)
+
+@checkauth
+def outrenewalCnt(req):
+    def file_iterator(file_name, chunk_size=512):
+        with open(file_name,"rb") as f:
+            while True:
+                c = f.read(chunk_size)
+                if c:
+                    yield c
+                else:
+                    break
+    def writefile(items):
+        w = Workbook()
+        ws = w.add_sheet('sheet1')
+        titles = [u"合同号",u"客户名",u"产品",u"金额",u"到期日",u"客户经理",u"是否续签",u"续签金额",u"续签产品"]
+        for i in range(0,len(titles)):
+            ws.write(0,i,titles[i])
+        for i in range(0,len(items)):
+            ws.write(i+1,0,items[i][0].number)
+            ws.write(i+1,1,items[i][0].client_name)
+            ws.write(i+1,2,items[i][0].thisproduct.name)
+            ws.write(i+1,3,items[i][0].money)
+            ws.write(i+1,4,items[i][0].enddate)
+            ws.write(i+1,5,items[i][0].thismanager.name)
+            ws.write(i+1,6,items[i][1])
+            ws.write(i+1,7,items[i][2])
+            ws.write(i+1,8,items[i][3])
+            
+        filename = ".//tmpfolder//" + str(datetime.datetime.now()).split(" ")[1].replace(":","").replace(".","") + ".xls"
+        w.save(filename)
+        return filename
+    if not checkjurisdiction(req,"经理统计"):
+        return render_to_response("jur.html",a)
+    if req.method == "GET":
+        anslist = []
+        items = GetEnddateItems(req)
+        for item in items:
+            if item.renewal_son_id!=-1:
+                renewc = contract.objects.filter(id=item.renewal_son_id)[0]
+                tmplist = [item,u"是",renewc.money,renewc.thisproduct.name]
+                anslist.append(tmplist)
+            else:
+                tmplist = [item,u"否",u"",u""]
+                anslist.append(tmplist)
+        anslist = sorted(anslist,key=lambda asd:asd[0].enddate)
+        
+        the_file_name = writefile(anslist)
+        response = StreamingHttpResponse(file_iterator(the_file_name))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment;filename="{0}"'.format("年化进账统计.xls")
+        return response
+
+
+@checkauth
 def managerYear(req):
     a = {'user':req.user}
     a["indexlist"] = getindexlist(req)
@@ -612,3 +713,169 @@ def outputrenewalRate(req):
         response['Content-Disposition'] = 'attachment;filename="{0}"'.format("续签率.xls")
         return response
     
+@csrf_exempt
+@checkauth
+def cashCnt(req):
+    a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
+    if not checkjurisdiction(req,"兑付统计"):
+        return render_to_response("jur.html",a)
+    if req.method == "GET":
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()))
+        todate = req.GET.get("todate",str(datetime.date.today()+datetime.timedelta(7))) #未来一周
+        cs = contract.objects.filter(enddate__gte=fromdate,enddate__lte=todate,status__gt=-1,renewal_son_id=-1)
+        daymap = {}
+        for item in cs:
+            if item.enddate in daymap:
+                daymap[item.enddate][0] += 1
+                daymap[item.enddate][1] += float(item.money)
+            else:
+                daymap[item.enddate] = [1,float(item.money)]
+        tmplist = sorted(daymap.iteritems(),key=lambda asd:asd[0])
+        a["items"] = tmplist
+        a["fromdate"] = fromdate
+        a["todate"] = todate
+        return render_to_response("dateCashCnt.html",a)       
+    
+@csrf_exempt
+@checkauth
+def daycashCnt(req,onedate):
+    def file_iterator(file_name, chunk_size=512):
+        with open(file_name,"rb") as f:
+            while True:
+                c = f.read(chunk_size)
+                if c:
+                    yield c
+                else:
+                    break
+    def writefile(items):
+        w = Workbook()
+        ws = w.add_sheet('sheet1')
+        titles = [u"到期日期",u"客户名",u"本金金额",u"理财经理",u"合同编号"]
+        for i in range(0,len(titles)):
+            ws.write(0,i,titles[i])
+        for i in range(0,len(items)):
+            ws.write(i+1,0,items[i].enddate)
+            ws.write(i+1,1,items[i].client_name)
+            ws.write(i+1,2,items[i].money)
+            ws.write(i+1,3,items[i].thismanager.name)
+            ws.write(i+1,4,items[i].number)
+        filename = ".//tmpfolder//" + str(datetime.datetime.now()).split(" ")[1].replace(":","").replace(".","") + ".xls"
+        w.save(filename)
+        return filename
+    
+    a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
+    if not checkjurisdiction(req,"兑付统计"):
+        return render_to_response("jur.html",a)
+    items = contract.objects.filter(enddate=onedate,status__gt=-1,renewal_son_id=-1)
+    if req.method == "POST":
+        the_file_name = writefile(items)
+        response = StreamingHttpResponse(file_iterator(the_file_name))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment;filename="{0}"'.format("日期兑付表.xls")
+        return response
+    if req.method == "GET":
+        a["items"] = items
+        a["day"] = onedate
+        return render_to_response("daycashCnt.html",a)
+   
+@checkauth
+def managercashCnt(req):
+    a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
+    if not checkjurisdiction(req,"兑付统计"):
+        return render_to_response("jur.html",a)
+    if req.method == "GET":
+        ansmap = {}
+        items = GetEnddateItems(req)
+        for item in items:
+            if item.renewal_son_id!=-1:
+                continue
+            if item.thismanager.id in ansmap:
+                ansmap[item.thismanager.id][0] += 1
+                ansmap[item.thismanager.id][1] += float(item.money)
+            else:
+                ansmap[item.thismanager.id] = [1,float(item.money),item.thismanager]
+        
+        tmplist = sorted(ansmap.iteritems(),key=lambda asd:asd[1][1],reverse=True)
+        a["items"] = tmplist
+        
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+        todate = req.GET.get("todate",str(datetime.date.today()))
+        a["fromdate"] = fromdate
+        a["todate"] = todate
+        a["fields"] = field.objects.all()
+        fid = req.GET.get("field_id","-1")
+        a["fid"] = int(fid)
+        if fid!="-1":
+            bps = bigparty.objects.filter(thisfield_id=int(fid))
+            a["bigparty"] = True
+            a["bigparties"] = bps
+            bpid = req.GET.get("bigparty_id","-1")
+            a["bpid"] = int(bpid)
+            if bpid!="-1":
+                ps = party.objects.filter(thisbigparty_id=int(bpid))
+                a["party"] = True
+                a["parties"] = ps
+                pid = req.GET.get("party_id","-1")
+                a["pid"] = int(pid)
+                if pid!="-1":
+                    ms = manager.objects.filter(thisparty_id=int(pid))
+                    a["manager"] = True
+                    a["managers"] = ms
+                    mid = req.GET.get("manager_id","-1")
+                    a["mid"] = int(mid)
+                    
+        return render_to_response("managercashCnt.html",a)
+    
+@csrf_exempt
+@checkauth
+def managercashDetail(req,m_id):
+    def file_iterator(file_name, chunk_size=512):
+        with open(file_name,"rb") as f:
+            while True:
+                c = f.read(chunk_size)
+                if c:
+                    yield c
+                else:
+                    break
+    def writefile(items):
+        w = Workbook()
+        ws = w.add_sheet('sheet1')
+        titles = [u"到期日期",u"客户名",u"本金金额",u"理财经理",u"合同编号"]
+        for i in range(0,len(titles)):
+            ws.write(0,i,titles[i])
+        for i in range(0,len(items)):
+            ws.write(i+1,0,items[i].enddate)
+            ws.write(i+1,1,items[i].client_name)
+            ws.write(i+1,2,items[i].money)
+            ws.write(i+1,3,items[i].thismanager.name)
+            ws.write(i+1,4,items[i].number)
+        filename = ".//tmpfolder//" + str(datetime.datetime.now()).split(" ")[1].replace(":","").replace(".","") + ".xls"
+        w.save(filename)
+        return filename
+    
+    a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
+    if not checkjurisdiction(req,"兑付统计"):
+        return render_to_response("jur.html",a)
+    if req.method == "GET":
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()))
+        todate = req.GET.get("todate",str(datetime.date.today()+datetime.timedelta(7))) #未来一周
+        items = contract.objects.filter(enddate__gte=fromdate,enddate__lte=todate,status__gt=-1,renewal_son_id=-1,thismanager_id=int(m_id))
+        a["fromdate"] = fromdate
+        a["todate"] = todate
+        a["items"] = items
+        a["mid"] = m_id
+        return render_to_response("managercashDetail.html",a)
+            
+    if req.method == "POST":
+        fromdate = req.POST.get("fromdate",str(datetime.date.today()))
+        todate = req.POST.get("todate",str(datetime.date.today()+datetime.timedelta(7))) #未来一周
+        items = contract.objects.filter(enddate__gte=fromdate,enddate__lte=todate,status__gt=-1,renewal_son_id=-1,thismanager_id=int(m_id))
+        the_file_name = writefile(items)
+        response = StreamingHttpResponse(file_iterator(the_file_name))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment;filename="{0}"'.format("人员兑付表.xls")
+        return response
