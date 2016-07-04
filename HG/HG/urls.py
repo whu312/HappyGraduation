@@ -72,5 +72,9 @@ urlpatterns = [
     url(r'^changejur$', changejur),
     url(r'^changecon$', changecon),
     url(r'^manager/([0-9]+)/$',showmanager),
+    url(r'^managerYear$',managerYear),
+    url(r'^outmanagerYear$',outputmanagerYear),
+    url(r'^renewalRate$',renewalRate),
+    url(r'^outrenewalRate$',outputrenewalRate),
     #url(r'^product/([0-9]+)$', getproduct),
 ]

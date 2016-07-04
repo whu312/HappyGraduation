@@ -11,6 +11,8 @@ import re
 from django.views.decorators.csrf import csrf_exempt
 from users import *
 import json
+from django.http import StreamingHttpResponse
+from pyExcelerator import *
 
 @csrf_exempt
 @checkauth
@@ -127,6 +129,43 @@ def getitems(req):
         
     return items
 
+def GetEnddateItems(req):
+    fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+    todate = req.GET.get("todate",str(datetime.date.today()))
+        
+    field_id = int(req.GET.get("field_id","-1"))
+    party_id = int(req.GET.get("party_id","-1"))
+    bigparty_id = int(req.GET.get("bigparty_id","-1"))
+    manager_id = int(req.GET.get("manager_id","-1"))
+    items = []
+    if manager_id != -1:
+        items = contract.objects.filter(enddate__gte=fromdate,enddate__lte=todate,thismanager_id=manager_id,status__gt=-1)
+    elif party_id != -1:
+        ms = manager.objects.filter(thisparty_id=party_id)
+        for m in ms:
+            items.extend(contract.objects.filter(enddate__gte=fromdate,
+                enddate__lte=todate,thismanager_id=m.id,status__gt=-1))
+    elif bigparty_id != -1:
+        ps = party.objects.filter(thisbigparty_id=bigparty_id)
+        for p in ps:
+            ms = manager.objects.filter(thisparty_id=p.id)
+            for m in ms:
+                items.extend(contract.objects.filter(enddate__gte=fromdate,
+                    enddate__lte=todate,thismanager_id=m.id,status__gt=-1))
+    elif field_id != -1:
+        bps = bigparty.objects.filter(thisfield_id=field_id)
+        for bp in bps:
+            ps = party.objects.filter(thisbigparty_id=bp.id)
+            for p in ps:
+                ms = manager.objects.filter(thisparty_id=p.id)
+                for m in ms:
+                    items.extend(contract.objects.filter(enddate__gte=fromdate,
+                        enddate__lte=todate,thismanager_id=m.id,status__gt=-1))
+    else:
+        items = contract.objects.filter(enddate__gte=fromdate,enddate__lte=todate,status__gt=-1)
+        
+    return items
+
 @checkauth
 def intocnt(req,a={},type_id=0):
     if not checkjurisdiction(req,"进账统计"):
@@ -134,7 +173,6 @@ def intocnt(req,a={},type_id=0):
         a["indexlist"] = getindexlist(req)
         return render_to_response("jur.html",a)
     if req.method == "GET":
-        
         items = getitems(req)
         totalmoney = 0.0
         for item in items:
@@ -155,7 +193,7 @@ def intocnt(req,a={},type_id=0):
         return HttpResponse(jsonstr,content_type='application/javascript')
    
 @checkauth
-def getbigparties(req,which_type):
+def getbigparties(req,which_type='0'):
     if req.method == "GET":
         field_id = req.GET.get("field_id","")
         bps = bigparty.objects.filter(thisfield_id=int(field_id))
@@ -164,6 +202,9 @@ def getbigparties(req,which_type):
         for bp in bps:
             plist.append((bp.id,bp.name))
         a["bigparties"] = plist
+        if which_type=='0':
+            jsonstr = json.dumps(a,ensure_ascii=False)
+            return HttpResponse(jsonstr,content_type='application/javascript')
         if which_type=="yearintocnt":
             return yearintocnt(req,a,1)
         elif which_type=="intocnt":
@@ -174,7 +215,7 @@ def getbigparties(req,which_type):
             return waitrepay(req,a,1)
 
 @checkauth
-def getparties(req,which_type):
+def getparties(req,which_type='0'):
     if req.method == "GET":
         bigparty_id = req.GET.get("bigparty_id","")
         ps = party.objects.filter(thisbigparty_id=int(bigparty_id))
@@ -183,6 +224,9 @@ def getparties(req,which_type):
         for p in ps:
             plist.append((p.id,p.name))
         a["parties"] = plist
+        if which_type=='0':
+            jsonstr = json.dumps(a,ensure_ascii=False)
+            return HttpResponse(jsonstr,content_type='application/javascript')
         if which_type=="yearintocnt":
             return yearintocnt(req,a,1)
         elif which_type=="intocnt":
@@ -193,7 +237,7 @@ def getparties(req,which_type):
             return waitrepay(req,a,1)
 
 @checkauth
-def getmanagers(req,which_type):
+def getmanagers(req,which_type='0'):
     if req.method == "GET":
         party_id = req.GET.get("party_id","")
         ms = manager.objects.filter(thisparty_id=int(party_id))
@@ -202,6 +246,9 @@ def getmanagers(req,which_type):
         for m in ms:
             mlist.append((m.id,m.name))
         a["managers"] = mlist
+        if which_type=='0':
+            jsonstr = json.dumps(a,ensure_ascii=False)
+            return HttpResponse(jsonstr,content_type='application/javascript')
         if which_type=="yearintocnt":
             return yearintocnt(req,a,1)
         elif which_type=="intocnt":
@@ -224,7 +271,106 @@ def getpersoncnt(req,which_type):
         elif which_type=="waitrepay":
             return waitrepay(req,a,1)
     
+@checkauth
+def managerYear(req):
+    a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
+    if not checkjurisdiction(req,"经理统计"):
+        return render_to_response("jur.html",a)
+    if req.method == "GET":
+        ansmap = {}
+        items = getitems(req)
+        for item in items:
+            incnt = 0.0
+            if item.thisproduct.closedtype == 'm':
+                incnt += 12*float(item.money)/item.thisproduct.closedperiod
+            elif item.thisproduct.closedtype == 'd':
+                incnt += 365*float(item.money)/item.thisproduct.closedperiod
+            if item.thismanager.id in ansmap:
+                ansmap[item.thismanager.id][0] += incnt
+            else:
+                ansmap[item.thismanager.id] = [incnt,item.thismanager]
+        
+        tmplist = sorted(ansmap.iteritems(),key=lambda asd:asd[1][0],reverse=True)
+        a["myearin"] = tmplist
+        
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+        todate = req.GET.get("todate",str(datetime.date.today()))
+        a["fromdate"] = fromdate
+        a["todate"] = todate
+        a["fields"] = field.objects.all()
+        fid = req.GET.get("field_id","-1")
+        a["fid"] = int(fid)
+        if fid!="-1":
+            bps = bigparty.objects.filter(thisfield_id=int(fid))
+            a["bigparty"] = True
+            a["bigparties"] = bps
+            bpid = req.GET.get("bigparty_id","-1")
+            a["bpid"] = int(bpid)
+            if bpid!="-1":
+                ps = party.objects.filter(thisbigparty_id=int(bpid))
+                a["party"] = True
+                a["parties"] = ps
+                pid = req.GET.get("party_id","-1")
+                a["pid"] = int(pid)
+                if pid!="-1":
+                    ms = manager.objects.filter(thisparty_id=int(pid))
+                    a["manager"] = True
+                    a["managers"] = ms
+                    mid = req.GET.get("manager_id","-1")
+                    a["mid"] = int(mid)
+                    
+        return render_to_response("managerYear.html",a)
 
+@checkauth
+def outputmanagerYear(req):
+    def file_iterator(file_name, chunk_size=512):
+        with open(file_name,"rb") as f:
+            while True:
+                c = f.read(chunk_size)
+                if c:
+                    yield c
+                else:
+                    break
+    def writefile(items):
+        w = Workbook()
+        ws = w.add_sheet('sheet1')
+        titles = [u"职场",u"大团",u"小团",u"经理",u"年化业绩"]
+        for i in range(0,len(titles)):
+            ws.write(0,i,titles[i])
+        for i in range(0,len(items)):
+            ws.write(i+1,0,items[i][1][1].thisparty.thisbigparty.thisfield.name)
+            ws.write(i+1,1,items[i][1][1].thisparty.thisbigparty.name)
+            ws.write(i+1,2,items[i][1][1].thisparty.name)
+            ws.write(i+1,3,items[i][1][1].name)
+            ws.write(i+1,4,"%.02f" % (items[i][1][0]))
+        filename = ".//tmpfolder//" + str(datetime.datetime.now()).split(" ")[1].replace(":","").replace(".","") + ".xls"
+        w.save(filename)
+        return filename
+    if not checkjurisdiction(req,"经理统计"):
+        return render_to_response("jur.html",a)
+    if req.method == "GET":
+        ansmap = {}
+        items = getitems(req)
+        for item in items:
+            incnt = 0.0
+            if item.thisproduct.closedtype == 'm':
+                incnt += 12*float(item.money)/item.thisproduct.closedperiod
+            elif item.thisproduct.closedtype == 'd':
+                incnt += 365*float(item.money)/item.thisproduct.closedperiod
+            if item.thismanager.id in ansmap:
+                ansmap[item.thismanager.id][0] += incnt
+            else:
+                ansmap[item.thismanager.id] = [incnt,item.thismanager]
+        
+        tmplist = sorted(ansmap.iteritems(),key=lambda asd:asd[1][0],reverse=True)
+        
+        the_file_name = writefile(tmplist)
+        response = StreamingHttpResponse(file_iterator(the_file_name))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment;filename="{0}"'.format("年化进账统计.xls")
+        return response
+        
 
 @checkauth
 def yearintocnt(req,a={},type_id=0):
@@ -355,3 +501,114 @@ def waitrepay(req,a={},type_id=0):
             return render_to_response("waitrepay.html",a)
         jsonstr = json.dumps(a,ensure_ascii=False)
         return HttpResponse(jsonstr,content_type='application/javascript')
+    
+@checkauth
+def renewalRate(req):
+    a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
+    if not checkjurisdiction(req,"经理统计"):
+        return render_to_response("jur.html",a)
+    if req.method == "GET":
+        ansmap = {}
+        items = GetEnddateItems(req)
+        ansmap = {}
+        for item in items:
+            if item.renewal_son_id!=-1:
+                newc = contract.objects.filter(id=item.renewal_son_id)[0]
+                if item.thismanager.id in ansmap:
+                    ansmap[item.thismanager.id][0] += float(newc.money)
+                    ansmap[item.thismanager.id][1] += float(item.money)
+                else:
+                    ansmap[item.thismanager.id] = [float(newc.money),float(item.money),item.thismanager]
+            else:
+                if item.thismanager.id in ansmap:
+                    ansmap[item.thismanager.id][1] += float(item.money)
+                else:
+                    ansmap[item.thismanager.id] = [0.0,float(item.money),item.thismanager]
+        for item in ansmap:
+            ansmap[item][0] = ansmap[item][0]/ansmap[item][1]
+        tmplist = sorted(ansmap.iteritems(),key=lambda asd:asd[1][0],reverse=True)
+        a["renewalRate"] = tmplist
+        
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+        todate = req.GET.get("todate",str(datetime.date.today()))
+        a["fromdate"] = fromdate
+        a["todate"] = todate
+        a["fields"] = field.objects.all()
+        fid = req.GET.get("field_id","-1")
+        a["fid"] = int(fid)
+        if fid!="-1":
+            bps = bigparty.objects.filter(thisfield_id=int(fid))
+            a["bigparty"] = True
+            a["bigparties"] = bps
+            bpid = req.GET.get("bigparty_id","-1")
+            a["bpid"] = int(bpid)
+            if bpid!="-1":
+                ps = party.objects.filter(thisbigparty_id=int(bpid))
+                a["party"] = True
+                a["parties"] = ps
+                pid = req.GET.get("party_id","-1")
+                a["pid"] = int(pid)
+                if pid!="-1":
+                    ms = manager.objects.filter(thisparty_id=int(pid))
+                    a["manager"] = True
+                    a["managers"] = ms
+                    mid = req.GET.get("manager_id","-1")
+                    a["mid"] = int(mid)
+                    
+        return render_to_response("renewalRate.html",a)
+    
+@checkauth
+def outputrenewalRate(req):
+    def file_iterator(file_name, chunk_size=512):
+        with open(file_name,"rb") as f:
+            while True:
+                c = f.read(chunk_size)
+                if c:
+                    yield c
+                else:
+                    break
+    def writefile(items):
+        w = Workbook()
+        ws = w.add_sheet('sheet1')
+        titles = [u"职场",u"大团",u"小团",u"经理",u"续签率"]
+        for i in range(0,len(titles)):
+            ws.write(0,i,titles[i])
+        for i in range(0,len(items)):
+            ws.write(i+1,0,items[i][1][2].thisparty.thisbigparty.thisfield.name)
+            ws.write(i+1,1,items[i][1][2].thisparty.thisbigparty.name)
+            ws.write(i+1,2,items[i][1][2].thisparty.name)
+            ws.write(i+1,3,items[i][1][2].name)
+            ws.write(i+1,4,"%.02f" % (items[i][1][0]))
+        filename = ".//tmpfolder//" + str(datetime.datetime.now()).split(" ")[1].replace(":","").replace(".","") + ".xls"
+        w.save(filename)
+        return filename
+    if not checkjurisdiction(req,"经理统计"):
+        return render_to_response("jur.html",a)
+    if req.method == "GET":
+        ansmap = {}
+        items = GetEnddateItems(req)
+        ansmap = {}
+        for item in items:
+            if item.renewal_son_id!=-1:
+                newc = contract.objects.filter(id=item.renewal_son_id)[0]
+                if item.thismanager.id in ansmap:
+                    ansmap[item.thismanager.id][0] += float(newc.money)
+                    ansmap[item.thismanager.id][1] += float(item.money)
+                else:
+                    ansmap[item.thismanager.id] = [float(newc.money),float(item.money),item.thismanager]
+            else:
+                if item.thismanager.id in ansmap:
+                    ansmap[item.thismanager.id][1] += float(item.money)
+                else:
+                    ansmap[item.thismanager.id] = [0.0,float(item.money),item.thismanager]
+        for item in ansmap:
+            ansmap[item][0] = ansmap[item][0]/ansmap[item][1]
+        tmplist = sorted(ansmap.iteritems(),key=lambda asd:asd[1][0],reverse=True)
+        
+        the_file_name = writefile(tmplist)
+        response = StreamingHttpResponse(file_iterator(the_file_name))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment;filename="{0}"'.format("续签率.xls")
+        return response
+    

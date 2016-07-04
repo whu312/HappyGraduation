@@ -255,5 +255,7 @@ def getindexlist(req):
             tmplist.append(("返款统计","/repaycnt"))
         if thisuser.jurisdiction & int("10000000000000000",2):
             tmplist.append(("待收查询","/waitrepay"))
+        if thisuser.jurisdiction & int("100000000000000000",2):
+            tmplist.append(("经理统计","/managerYear"))
         anslist.append(("统计功能",tmplist))
     return anslist
