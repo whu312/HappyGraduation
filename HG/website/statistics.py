@@ -283,9 +283,9 @@ def managerYear(req):
         for item in items:
             incnt = 0.0
             if item.thisproduct.closedtype == 'm':
-                incnt += 12*float(item.money)/item.thisproduct.closedperiod
+                incnt += float(item.money)*item.thisproduct.closedperiod/12
             elif item.thisproduct.closedtype == 'd':
-                incnt += 365*float(item.money)/item.thisproduct.closedperiod
+                incnt += float(item.money)*item.thisproduct.closedperiod/365
             if item.thismanager.id in ansmap:
                 ansmap[item.thismanager.id][0] += incnt
             else:
@@ -383,9 +383,9 @@ def yearintocnt(req,a={},type_id=0):
         totalmoney = 0.0
         for item in items:
             if item.thisproduct.closedtype == 'm':
-                totalmoney += 12*float(item.money)/item.thisproduct.closedperiod
+                totalmoney += float(item.money)*item.thisproduct.closedperiod/12
             elif item.thisproduct.closedtype == 'd':
-                totalmoney += 365*float(item.money)/item.thisproduct.closedperiod
+                totalmoney += float(item.money)*item.thisproduct.closedperiod/365
         #a = {"user":req.user}
         fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
         todate = req.GET.get("todate",str(datetime.date.today()))
