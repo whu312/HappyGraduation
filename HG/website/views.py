@@ -1004,3 +1004,56 @@ def ajust(req,type_id):
             return HttpResponse(jsonstr,content_type='application/javascript')
         else:
             return render_to_response('home.html', a)
+
+@csrf_exempt
+@checkauth
+def outcontracts(req):
+    if not checkjurisdiction(req,"合同查询"):
+        return render_to_response("jur.html",a)
+    def file_iterator(file_name, chunk_size=512):
+        with open(file_name,"rb") as f:
+            while True:
+                c = f.read(chunk_size)
+                if c:
+                    yield c
+                else:
+                    break
+    def writefile(items):
+        w = Workbook()
+        ws = w.add_sheet('sheet1')
+        titles = [u"合同编号",u"姓名",u"身份证号",u"开户行",u"银行卡号",u"产品",u"金额",u"签约日",u"到期日",u"理财顾问",u"状态",u"是否已续签"]
+        for i in range(0,len(titles)):
+            ws.write(0,i,titles[i])
+        for i in range(0,len(items)):
+            ws.write(i+1,0,items[i].number)
+            ws.write(i+1,1,items[i].client_name)
+            ws.write(i+1,2,items[i].client_idcard)
+            ws.write(i+1,3,items[i].bank)
+            ws.write(i+1,4,items[i].bank_card)
+            ws.write(i+1,5,items[i].thisproduct.name)
+            ws.write(i+1,6,items[i].money)
+            ws.write(i+1,7,items[i].startdate)
+            ws.write(i+1,8,items[i].enddate)
+            ws.write(i+1,9,items[i].thismanager.name)
+            if items[i].status==1:
+                ws.write(i+1,10,u"未审核")
+            elif items[i].status==2:
+                ws.write(i+1,10,u"初审通过")
+            elif items[i].status==4:
+                ws.write(i+1,10,u"终审通过")
+            elif items[i].status==-1:
+                ws.write(i+1,10,u"合同终止")
+            if items[i].renewal_son_id==-1:
+                ws.write(i+1,11,u"否")
+            else:
+                ws.write(i+1,11,u"是")
+        filename = ".//tmpfolder//" + str(datetime.datetime.now()).split(" ")[1].replace(":","").replace(".","") + ".xls"
+        w.save(filename)
+        return filename
+    if req.method == "POST":
+        cs = contract.objects.all()
+        the_file_name = writefile(cs)
+        response = StreamingHttpResponse(file_iterator(the_file_name))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment;filename="{0}"'.format("全部合同.xls")
+        return response

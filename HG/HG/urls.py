@@ -82,6 +82,7 @@ urlpatterns = [
     url(r'^daycashCnt/([0-9]{4}-[0-9]{2}-[0-9]{2})$', daycashCnt),
     url(r'^managercashCnt$',managercashCnt),
     url(r'^managercashDetail/([0-9]+)/$',managercashDetail),
+    url(r'^outcontracts/$',outcontracts),
     #url(r'^outrenewalCnt$',outrenewalCnt),
     #url(r'^product/([0-9]+)$', getproduct),
 ]
