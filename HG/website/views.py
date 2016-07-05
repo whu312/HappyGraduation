@@ -743,7 +743,8 @@ def querycontracts(req):
     a["indexlist"] = getindexlist(req)
     if not checkjurisdiction(req,"合同查询"):
         return render_to_response("jur.html",a)
-    
+    if checkjurisdiction(req,"合同导出"):
+        a["outjur"] = True
     if req.method == 'GET':
         try:
             thispage = int(req.GET.get("page",'1'))
