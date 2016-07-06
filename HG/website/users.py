@@ -243,23 +243,23 @@ def getindexlist(req):
         if thisuser.jurisdiction & int("10000000000000000",2):
             tmplist.append(("系统日志","/log"))
         anslist.append(("系统设置",tmplist))
-    if thisuser.jurisdiction & int("1111100000000000000000",2):
+    if thisuser.jurisdiction & int("11101111100000000000000000",2):
         tmplist = []
         if thisuser.jurisdiction & int("100000000000000000",2):
             tmplist.append(("还款计划","/repayplan"))
-        if thisuser.jurisdiction & int("1000000000000000",2):
-            tmplist.append(("进账统计","/intocnt"))
-        if thisuser.jurisdiction & int("10000000000000000",2):
-            tmplist.append(("年化进账统计","/yearintocnt"))
-        if thisuser.jurisdiction & int("1000000000000000",2):
-            tmplist.append(("返款统计","/repaycnt"))
-        if thisuser.jurisdiction & int("10000000000000000",2):
-            tmplist.append(("待收查询","/waitrepay"))
-        if thisuser.jurisdiction & int("100000000000000000",2):
-            tmplist.append(("经理统计","/managerYear"))
         if thisuser.jurisdiction & int("1000000000000000000",2):
-            tmplist.append(("续单统计","/renewalCnt"))
+            tmplist.append(("进账统计","/intocnt"))
         if thisuser.jurisdiction & int("10000000000000000000",2):
+            tmplist.append(("年化进账统计","/yearintocnt"))
+        if thisuser.jurisdiction & int("100000000000000000000",2):
+            tmplist.append(("返款统计","/repaycnt"))
+        if thisuser.jurisdiction & int("1000000000000000000000",2):
+            tmplist.append(("待收查询","/waitrepay"))
+        if thisuser.jurisdiction & int("100000000000000000000000",2):
+            tmplist.append(("经理统计","/managerYear"))
+        if thisuser.jurisdiction & int("1000000000000000000000000",2):
+            tmplist.append(("续单统计","/renewalCnt"))
+        if thisuser.jurisdiction & int("10000000000000000000000000",2):
             tmplist.append(("兑付统计","/cashCnt"))
         anslist.append(("统计功能",tmplist))
     return anslist
