@@ -529,7 +529,6 @@ def checkcontract(req):
 		thislog.save()
 		contracts = contract.objects.filter(status = 1)
 		allcount = contracts.count()
-		a = {'user':req.user}
 		a['curpage'] = 1
 		a['allpage'] = (allcount-1)/ONE_PAGE_NUM + 1
 		a["contracts"] = contracts[0:ONE_PAGE_NUM]
@@ -799,7 +798,6 @@ def lastcheck(req):
         fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
         todate = req.GET.get("todate",str(datetime.date.today())) #前一周
         cons = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate,status=2)
-        a = {'user':req.user}
         totalmoney = 0.0
         for con in cons:
             addmoney = 0.0
@@ -828,7 +826,6 @@ def lastcheck(req):
                 CreateRepayItem(con) 
         thislog = loginfo(info="lastcheck contracts from %s to %s" % (fromdate,todate),time=str(datetime.datetime.now()),thisuser=req.user)
         thislog.save()
-        a = {'user':req.user}
         return render_to_response("home.html",a)
     
 @checkauth
@@ -1004,6 +1001,8 @@ def ajust(req,type_id):
             jsonstr = json.dumps(a,ensure_ascii=False)
             return HttpResponse(jsonstr,content_type='application/javascript')
         else:
+            a = {'user':req.user}
+            a["indexlist"] = getindexlist(req)
             return render_to_response('home.html', a)
 
 @csrf_exempt
