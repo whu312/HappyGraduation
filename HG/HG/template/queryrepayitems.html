@@ -151,7 +151,10 @@ function setcontract_id()
             <td>
                 <div id="operate_{{item.id}}">
                 {%ifequal item.status 1%}
+                {%ifequal type_id "3"%}    
                 <button class="btn" onclick="repay({{item.id}},{{type_id}})">还款</button>
+                {%endifequal%}
+                {%ifequal type_id "2"%}
                 {%ifequal item.repaytype 2%}
                 <a href="/renewalcontract/{{item.id}}" class="btn">续签</a>
                 {%endifequal%}
@@ -159,8 +162,11 @@ function setcontract_id()
                 <a href="/renewalcontract/{{item.id}}" class="btn">续签</a>
                 {%endifequal%}
                 {%endifequal%}
+                {%endifequal%}
                 {%ifequal item.status 3%}
+                {%ifequal type_id "3"%}
                 <button class="btn" onclick="repay({{item.id}},{{type_id}})">还款</button>
+                {%endifequal%}
                 {%endifequal%}
                 </div>
             </td>
