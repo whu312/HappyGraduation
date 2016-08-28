@@ -163,3 +163,46 @@ def showmanager(req,mid):
         allc = contract.objects.filter(thismanager_id=int(mid))
         a["contracts"] = allc
         return render_to_response("manager_contract.html",a)
+    
+@csrf_exempt
+@checkauth
+def repayinterest(req):
+    a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
+    if not checkjurisdiction(req,"还款确认"):
+        return render_to_response("jur.html",a)
+    if req.method == "POST":
+        fromdate = req.POST.get("fromdate",str(datetime.date.today()))
+        todate = req.POST.get("todate",str(datetime.date.today()+datetime.timedelta(7))) #下一周
+        contract_number = req.POST.get("contract_id","")
+        
+        sorteditems = filterRepayItems(fromdate,todate,contract_number,"3") 
+        a["message"] = "true"
+        failitems = []
+        for thisitem in reversed(sorteditems):
+            #print thisitem.status
+            if thisitem.status==1 or thisitem.status==3:
+                restitems = repayitem.objects.filter(thiscontract_id=thisitem.thiscontract.id,repaydate__lt=thisitem.repaydate)
+                thisrepaysuc = True
+                for restitem in restitems:
+                    if restitem.status==1:
+                        a["info"] = "前期款项还未还"
+                        #print "false"
+                        a["message"] = "false"
+                        thisrepaysuc = False
+                        failitems.append(thisitem)
+                        break
+                if thisrepaysuc:
+                    thisitem.status += 1
+                    thisitem.save()
+                    thislog = loginfo(info="repay with %d of contract number=%s" % (thisitem.id,thisitem.thiscontract.number),time=str(datetime.datetime.now()),thisuser=req.user)
+                    thislog.save()
+                        
+       
+        a["repayitems"] = failitems
+        a["type_id"] = "3"
+        a["fromdate"] = fromdate
+        a["todate"] = todate
+        a["number"] = contract_number
+        
+        return render_to_response("queryrepayitems.html",a)

@@ -99,7 +99,26 @@ function setcontract_id()
     var c_id = document.getElementById("input_id").value;
     document.getElementById("hidden_id").value = c_id;
 }
+function makesure(){
+    var info = "确认一键还息?";
+    var r = confirm(info);
+    return r;
+}
 </script>
+
+{% ifequal message "true" %}
+        <div class="alert alert-error">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            <h4>成功!</h4>一键还息成功
+        </div>
+{% endifequal %}
+{%ifequal message "false"%}
+        <div class="alert alert-error">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            <h4>失败!</h4>部分前期利息未还
+        </div>
+{% endifequal %}
+
 {%ifequal type_id "1"%}
 <h2>还款查询</h2>
 {%endifequal%}
@@ -130,6 +149,14 @@ function setcontract_id()
     <input id="hidden_id" style="display:none;" type="text" name="contract_id" placeholder="合同编号">
     <input type="submit" value="导出excel">
     </form>
+
+    <form action="/repayinterest" method="post" onsubmit="return makesure()">
+    <input name="fromdate" style="display:none;" value={{fromdate}}>
+    <input name="todate" style="display:none;" value={{todate}}>
+    <input id="hidden_id" style="display:none;" type="text" value="{{number}}" name="contract_id" placeholder="合同编号">
+    <input type="submit" value="一键还息">
+    </form>
+
     {%endifequal%}
 </div>
     <div class="container">
