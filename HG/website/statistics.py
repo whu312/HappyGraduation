@@ -129,7 +129,7 @@ def getitems(req,lowest_status=0):
         
     return items
 
-def GetEnddateItems(req):
+def GetEnddateItems(req,lowest_status=0):
     fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
     todate = req.GET.get("todate",str(datetime.date.today()))
         
@@ -139,19 +139,19 @@ def GetEnddateItems(req):
     manager_id = int(req.GET.get("manager_id","-1"))
     items = []
     if manager_id != -1:
-        items = contract.objects.filter(enddate__gte=fromdate,enddate__lte=todate,thismanager_id=manager_id,status__gt=-1)
+        items = contract.objects.filter(enddate__gte=fromdate,enddate__lte=todate,thismanager_id=manager_id,status__gte=lowest_status)
     elif party_id != -1:
         ms = manager.objects.filter(thisparty_id=party_id)
         for m in ms:
             items.extend(contract.objects.filter(enddate__gte=fromdate,
-                enddate__lte=todate,thismanager_id=m.id,status__gt=-1))
+                enddate__lte=todate,thismanager_id=m.id,status__gte=lowest_status))
     elif bigparty_id != -1:
         ps = party.objects.filter(thisbigparty_id=bigparty_id)
         for p in ps:
             ms = manager.objects.filter(thisparty_id=p.id)
             for m in ms:
                 items.extend(contract.objects.filter(enddate__gte=fromdate,
-                    enddate__lte=todate,thismanager_id=m.id,status__gt=-1))
+                    enddate__lte=todate,thismanager_id=m.id,status__gte=lowest_status))
     elif field_id != -1:
         bps = bigparty.objects.filter(thisfield_id=field_id)
         for bp in bps:
@@ -160,9 +160,9 @@ def GetEnddateItems(req):
                 ms = manager.objects.filter(thisparty_id=p.id)
                 for m in ms:
                     items.extend(contract.objects.filter(enddate__gte=fromdate,
-                        enddate__lte=todate,thismanager_id=m.id,status__gt=-1))
+                        enddate__lte=todate,thismanager_id=m.id,status__gte=lowest_status))
     else:
-        items = contract.objects.filter(enddate__gte=fromdate,enddate__lte=todate,status__gt=-1)
+        items = contract.objects.filter(enddate__gte=fromdate,enddate__lte=todate,status__gte=lowest_status)
         
     return items
 
@@ -279,7 +279,7 @@ def renewalCnt(req):
         return render_to_response("jur.html",a)
     if req.method == "GET":
         anslist = []
-        items = GetEnddateItems(req)
+        items = GetEnddateItems(req,4)
         for item in items:
             if item.renewal_son_id!=-1:
                 renewc = contract.objects.filter(id=item.renewal_son_id)[0]
@@ -354,7 +354,7 @@ def outrenewalCnt(req):
         return render_to_response("jur.html",a)
     if req.method == "GET":
         anslist = []
-        items = GetEnddateItems(req)
+        items = GetEnddateItems(req,4)
         for item in items:
             if item.renewal_son_id!=-1:
                 renewc = contract.objects.filter(id=item.renewal_son_id)[0]
@@ -611,11 +611,16 @@ def renewalRate(req):
         return render_to_response("jur.html",a)
     if req.method == "GET":
         ansmap = {}
-        items = GetEnddateItems(req)
+        items = GetEnddateItems(req,4)
         ansmap = {}
         for item in items:
+            bRewal = False
+            newc = None
             if item.renewal_son_id!=-1:
                 newc = contract.objects.filter(id=item.renewal_son_id)[0]
+                if newc.status >= 4:
+                    bRewal = True
+            if bRewal:
                 if item.thismanager.id in ansmap:
                     ansmap[item.thismanager.id][0] += float(newc.money)
                     ansmap[item.thismanager.id][1] += float(item.money)
@@ -688,7 +693,7 @@ def outputrenewalRate(req):
         return render_to_response("jur.html",a)
     if req.method == "GET":
         ansmap = {}
-        items = GetEnddateItems(req)
+        items = GetEnddateItems(req,4)
         ansmap = {}
         for item in items:
             if item.renewal_son_id!=-1:
@@ -788,7 +793,7 @@ def managercashCnt(req):
         return render_to_response("jur.html",a)
     if req.method == "GET":
         ansmap = {}
-        items = GetEnddateItems(req)
+        items = GetEnddateItems(req,4)
         for item in items:
             if item.renewal_son_id!=-1:
                 continue
