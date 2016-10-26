@@ -107,11 +107,11 @@ function getmanagerlist(party_id){
 }
 
 </script>
-<h5>经理年化进账</h5>
-<h5><a href="/renewalRate">经理续单率</a></h5>
-<h5><a href="/managerDeduct2">经理提成表</a></h5>
+<h5>业绩明细表</h5>
+<h5><a href="/yearintocnt">年化进账统计</a></h5>
+<h5><a href="/managerDeduct">经理提成统计</a></h5>
 <div class="input-append" >
-    <form action="/managerYear" method="get">
+    <form action="/performanceDetail" method="get">
     起始日期
     <input id="fromdate" value={{fromdate}} name="fromdate" onClick="WdatePicker()">
     终止日期
@@ -176,7 +176,7 @@ function getmanagerlist(party_id){
     </p>
     <input type="submit" value="提交" />
 </form>
-<form action="/outmanagerYear" method="get" target="_blank" onsubmit="setcontract_id()">
+<form action="/performanceDetail" method="post" target="_blank">
     <input name="fromdate" style="display:none;" value={{fromdate}}>
     <input name="todate" style="display:none;" value={{todate}}>
     
@@ -202,17 +202,37 @@ function getmanagerlist(party_id){
             <th>大团</th>
             <th>小团</th>
             <th>经理</th>
-            <th>年化业绩</th>
+            {%for item in plist%}
+            <th>{{item.name}}</th>
+            {%endfor%}
+            <th>进账额</th>
+	        <th>年化业绩总额</th>
+	        <th>手续费</th>
+            <th>续单数</th>
+	        <th>续单金额</th>
+	        <th>续单比例</th>
+            <th>应兑数</th>
+	        <th>应兑金额</th>
           </tr>
         </thead>
         <tbody>
-        {%for item in myearin%}
-        <tr id="row_{{item.0}}">
-            <td>{{item.1.1.thisparty.thisbigparty.thisfield.name}}</td>
-            <td>{{item.1.1.thisparty.thisbigparty.name}}</td>
-            <td>{{item.1.1.thisparty.name}}</td>
-            <td>{{item.1.1.name}}</td>
-            <td>{{item.1.0}}</td>          
+        {%for item in mlist%}
+        <tr id="row_{{item.1.0.id}}">
+            <td>{{item.1.0.thisparty.thisbigparty.thisfield.name}}</td>
+            <td>{{item.1.0.thisparty.thisbigparty.name}}</td>
+            <td>{{item.1.0.thisparty.name}}</td>
+            <td>{{item.1.0.name}}</td>
+            {%for p in item.1.1%}
+            <td>{{p}}</td>
+            {%endfor%}
+            <td>{{item.1.2}}</td>    
+            <td>{{item.1.3}}</td>
+            <td>{{item.1.4}}</td>
+            <td>{{item.1.5}}</td>
+            <td>{{item.1.6}}</td>
+            <td>{{item.1.7}}</td>
+            <td>{{item.1.8}}</td>  
+            <td>{{item.1.9}}</td> 
         </tr>
         {%endfor%}
         </tbody>

@@ -107,11 +107,11 @@ function getmanagerlist(party_id){
 }
 
 </script>
-<h5>经理年化进账</h5>
-<h5><a href="/renewalRate">经理续单率</a></h5>
-<h5><a href="/managerDeduct2">经理提成表</a></h5>
+<h5>经理提成表</h5>
+<h5><a href="/yearintocnt">年化进账统计</a></h5>
+<h5><a href="/performanceDetail">业绩明细表</a></h5>
 <div class="input-append" >
-    <form action="/managerYear" method="get">
+    <form action="/managerDeduct" method="get">
     起始日期
     <input id="fromdate" value={{fromdate}} name="fromdate" onClick="WdatePicker()">
     终止日期
@@ -176,7 +176,7 @@ function getmanagerlist(party_id){
     </p>
     <input type="submit" value="提交" />
 </form>
-<form action="/outmanagerYear" method="get" target="_blank" onsubmit="setcontract_id()">
+<form action="/managerDeduct" method="post" target="_blank">
     <input name="fromdate" style="display:none;" value={{fromdate}}>
     <input name="todate" style="display:none;" value={{todate}}>
     
@@ -202,17 +202,21 @@ function getmanagerlist(party_id){
             <th>大团</th>
             <th>小团</th>
             <th>经理</th>
-            <th>年化业绩</th>
+            <th>新签业绩</th>
+	    <th>续签业绩</th>
+	    <th>总计</th>
           </tr>
         </thead>
         <tbody>
-        {%for item in myearin%}
+        {%for item in mlist%}
         <tr id="row_{{item.0}}">
-            <td>{{item.1.1.thisparty.thisbigparty.thisfield.name}}</td>
-            <td>{{item.1.1.thisparty.thisbigparty.name}}</td>
-            <td>{{item.1.1.thisparty.name}}</td>
-            <td>{{item.1.1.name}}</td>
-            <td>{{item.1.0}}</td>          
+            <td>{{item.1.0.thisparty.thisbigparty.thisfield.name}}</td>
+            <td>{{item.1.0.thisparty.thisbigparty.name}}</td>
+            <td>{{item.1.0.thisparty.name}}</td>
+            <td>{{item.1.0.name}}</td>
+            <td><a href="/deductDetail?type=new&mid={{item.0}}&fromdate={{fromdate}}&todate={{todate}}">{{item.1.1}}</a></td>
+	    <td><a href="/deductDetail?type=renewal&mid={{item.0}}&fromdate={{fromdate}}&todate={{todate}}">{{item.1.2}}</a></td>
+	    <td>{{item.1.3}}</td>         
         </tr>
         {%endfor%}
         </tbody>

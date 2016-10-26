@@ -92,14 +92,24 @@ def dayrepay(req,onedate):
     a["totalrepay"] = totalrepay
     return render_to_response("dayrepay.html",a)
 
-def getitems(req,lowest_status=0):
-    fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
-    todate = req.GET.get("todate",str(datetime.date.today()))
+def getitems(req,lowest_status=4,method="get"):
+    if method == "get":
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+        todate = req.GET.get("todate",str(datetime.date.today()))
         
-    field_id = int(req.GET.get("field_id","-1"))
-    party_id = int(req.GET.get("party_id","-1"))
-    bigparty_id = int(req.GET.get("bigparty_id","-1"))
-    manager_id = int(req.GET.get("manager_id","-1"))
+        field_id = int(req.GET.get("field_id","-1"))
+        party_id = int(req.GET.get("party_id","-1"))
+        bigparty_id = int(req.GET.get("bigparty_id","-1"))
+        manager_id = int(req.GET.get("manager_id","-1"))
+    elif method == "post":
+        fromdate = req.POST.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+        todate = req.POST.get("todate",str(datetime.date.today()))
+        
+        field_id = int(req.POST.get("field_id","-1"))
+        party_id = int(req.POST.get("party_id","-1"))
+        bigparty_id = int(req.POST.get("bigparty_id","-1"))
+        manager_id = int(req.POST.get("manager_id","-1"))
+
     items = []
     if manager_id != -1:
         items = contract.objects.filter(startdate__gte=fromdate,startdate__lte=todate,thismanager_id=manager_id,status__gte=lowest_status)
@@ -129,14 +139,23 @@ def getitems(req,lowest_status=0):
         
     return items
 
-def GetEnddateItems(req,lowest_status=0):
-    fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
-    todate = req.GET.get("todate",str(datetime.date.today()))
+def GetEnddateItems(req,lowest_status,method="get"):
+    if method == "get":
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+        todate = req.GET.get("todate",str(datetime.date.today()))
         
-    field_id = int(req.GET.get("field_id","-1"))
-    party_id = int(req.GET.get("party_id","-1"))
-    bigparty_id = int(req.GET.get("bigparty_id","-1"))
-    manager_id = int(req.GET.get("manager_id","-1"))
+        field_id = int(req.GET.get("field_id","-1"))
+        party_id = int(req.GET.get("party_id","-1"))
+        bigparty_id = int(req.GET.get("bigparty_id","-1"))
+        manager_id = int(req.GET.get("manager_id","-1"))
+    else:
+        fromdate = req.POST.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+        todate = req.POST.get("todate",str(datetime.date.today()))
+        
+        field_id = int(req.POST.get("field_id","-1"))
+        party_id = int(req.POST.get("party_id","-1"))
+        bigparty_id = int(req.POST.get("bigparty_id","-1"))
+        manager_id = int(req.POST.get("manager_id","-1"))
     items = []
     if manager_id != -1:
         items = contract.objects.filter(enddate__gte=fromdate,enddate__lte=todate,thismanager_id=manager_id,status__gte=lowest_status)
@@ -1000,4 +1019,386 @@ def singleguestCnt(req):
         response = StreamingHttpResponse(file_iterator(the_file_name))
         response['Content-Type'] = 'application/octet-stream'
         response['Content-Disposition'] = 'attachment;filename="{0}"'.format("客户单笔统计表.xls")
+        return response
+    
+@csrf_exempt
+@checkauth
+def managerDeduct(req):
+    a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
+    def file_iterator(file_name, chunk_size=512):
+        with open(file_name,"rb") as f:
+            while True:
+                c = f.read(chunk_size)
+                if c:
+                    yield c
+                else:
+                    break
+    def writefile(items):
+        w = Workbook()
+        ws = w.add_sheet('sheet1')
+        titles = [u"职场",u"大团",u"小团",u"经理",u"新签业绩",u"续签业绩",u"总计"]
+        for i in range(0,len(titles)):
+            ws.write(0,i,titles[i])
+        for i in range(0,len(items)):
+            ws.write(i+1,0,items[i][1][0].thisparty.thisbigparty.thisfield.name)
+            ws.write(i+1,1,items[i][1][0].thisparty.thisbigparty.name)
+            ws.write(i+1,2,items[i][1][0].thisparty.name)
+            ws.write(i+1,3,items[i][1][0].name)
+            ws.write(i+1,4,items[i][1][1])
+            ws.write(i+1,5,items[i][1][2])
+            ws.write(i+1,6,items[i][1][3])
+        filename = ".//tmpfolder//" + str(datetime.datetime.now()).split(" ")[1].replace(":","").replace(".","") + ".xls"
+        w.save(filename)
+        return filename
+    
+    def GetManagerDeductList(req,method):
+	ansmap = {}
+        items = getitems(req,4,method)
+        ansmap = {}
+        for item in items:
+            if item.renewal_father_id==-1:
+                if item.thismanager.id in ansmap:
+                    ansmap[item.thismanager.id][1] += float(item.money)
+                    ansmap[item.thismanager.id][3] += float(item.money)
+                else:
+                    ansmap[item.thismanager.id] = [item.thismanager,float(item.money),0,float(item.money)]
+            else:
+                if item.thismanager.id in ansmap:
+                    ansmap[item.thismanager.id][2] += float(item.money)
+                    ansmap[item.thismanager.id][3] += float(item.money)
+                else:
+                    ansmap[item.thismanager.id] = [item.thismanager,0,float(item.money),float(item.money)]
+        
+        return sorted(ansmap.iteritems(),key=lambda asd:asd[1][3],reverse=True)
+
+    if req.method == "GET":
+    	if not checkjurisdiction(req,"年化进账统计"):
+            return render_to_response("jur.html",a)
+   
+        tmplist = GetManagerDeductList(req,"get")
+        a["mlist"] = tmplist
+        
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+        todate = req.GET.get("todate",str(datetime.date.today()))
+        a["fromdate"] = fromdate
+        a["todate"] = todate
+        a["fields"] = field.objects.all()
+        fid = req.GET.get("field_id","-1")
+        a["fid"] = int(fid)
+        if fid!="-1":
+            bps = bigparty.objects.filter(thisfield_id=int(fid))
+            a["bigparty"] = True
+            a["bigparties"] = bps
+            bpid = req.GET.get("bigparty_id","-1")
+            a["bpid"] = int(bpid)
+            if bpid!="-1":
+                ps = party.objects.filter(thisbigparty_id=int(bpid))
+                a["party"] = True
+                a["parties"] = ps
+                pid = req.GET.get("party_id","-1")
+                a["pid"] = int(pid)
+                if pid!="-1":
+                    ms = manager.objects.filter(thisparty_id=int(pid))
+                    a["manager"] = True
+                    a["managers"] = ms
+                    mid = req.GET.get("manager_id","-1")
+                    a["mid"] = int(mid)
+                    
+        return render_to_response("managerDeduct.html",a)
+    
+    if req.method == "POST":
+        if not (checkjurisdiction(req,"年化进账统计") or checkjurisdiction(req,"经理统计")):
+            return render_to_response("jur.html",a)
+
+        tmplist = GetManagerDeductList(req,"post")
+        
+        the_file_name = writefile(tmplist)
+        response = StreamingHttpResponse(file_iterator(the_file_name))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment;filename="{0}"'.format("经理提成表.xls")
+        return response
+
+@csrf_exempt
+@checkauth
+def managerDeduct2(req):
+    a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
+    if not checkjurisdiction(req,"经理统计"):
+        return render_to_response("jur.html",a)
+    
+    def GetManagerDeductList(req,method):
+	ansmap = {}
+        items = getitems(req,4,method)
+        ansmap = {}
+        for item in items:
+            if item.renewal_father_id==-1:
+                if item.thismanager.id in ansmap:
+                    ansmap[item.thismanager.id][1] += float(item.money) 
+                    ansmap[item.thismanager.id][3] += float(item.money)
+                else:
+                    ansmap[item.thismanager.id] = [item.thismanager,float(item.money),0,float(item.money)]
+            else:
+                FatherContract = contract.objects.filter(id=item.renewal_father_id)[0]
+                if item.thismanager.id in ansmap:
+                    newmoney = float(item.money) - float(FatherContract.money)
+                    
+                    ansmap[item.thismanager.id][1] += (newmoney > 0 and newmoney or 0)
+                    ansmap[item.thismanager.id][2] += (newmoney > 0 and float(FatherContract.money) or float(item.money))
+                    ansmap[item.thismanager.id][3] += float(item.money)
+                else:
+                    ansmap[item.thismanager.id] = [item.thismanager,0,float(item.money),float(item.money)]
+        
+        return sorted(ansmap.iteritems(),key=lambda asd:asd[1][3],reverse=True)
+
+    if req.method == "GET":
+        
+        tmplist = GetManagerDeductList(req,"get")
+        a["mlist"] = tmplist
+        
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+        todate = req.GET.get("todate",str(datetime.date.today()))
+        a["fromdate"] = fromdate
+        a["todate"] = todate
+        a["fields"] = field.objects.all()
+        fid = req.GET.get("field_id","-1")
+        a["fid"] = int(fid)
+        if fid!="-1":
+            bps = bigparty.objects.filter(thisfield_id=int(fid))
+            a["bigparty"] = True
+            a["bigparties"] = bps
+            bpid = req.GET.get("bigparty_id","-1")
+            a["bpid"] = int(bpid)
+            if bpid!="-1":
+                ps = party.objects.filter(thisbigparty_id=int(bpid))
+                a["party"] = True
+                a["parties"] = ps
+                pid = req.GET.get("party_id","-1")
+                a["pid"] = int(pid)
+                if pid!="-1":
+                    ms = manager.objects.filter(thisparty_id=int(pid))
+                    a["manager"] = True
+                    a["managers"] = ms
+                    mid = req.GET.get("manager_id","-1")
+                    a["mid"] = int(mid)
+                    
+        return render_to_response("managerDeduct2.html",a)
+    if req.method == "POST":
+	if not (checkjurisdiction(req,"年化进账统计") or checkjurisdiction(req,"经理统计")):
+            return render_to_response("jur.html",a)
+
+        tmplist = GetManagerDeductList(req,"post")
+        
+        the_file_name = writefile(tmplist)
+        response = StreamingHttpResponse(file_iterator(the_file_name))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment;filename="{0}"'.format("经理提成表.xls")
+        return response
+ 
+@csrf_exempt
+@checkauth
+def deductDetail(req):
+    a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
+    if not checkjurisdiction(req,"年化进账统计"):
+        return render_to_response("jur.html",a)
+    if req.method == "GET":
+        fromdate = req.GET.get("fromdate","")
+        todate = req.GET.get("todate","")
+        itype = req.GET.get("type","")
+        mid = req.GET.get("mid","")
+        cs = []
+        if itype == "new":
+            cs = contract.objects.filter(renewal_father_id=-1,startdate__gte=fromdate,startdate__lte=todate,thismanager_id=int(mid))
+        elif itype == "renewal":
+            cs = contract.objects.filter(renewal_father_id__gt=-1,startdate__gte=fromdate,startdate__lte=todate,thismanager_id=int(mid))
+      
+        a["contracts"] = cs
+                    
+        return render_to_response("deductDetail.html",a)
+   
+@csrf_exempt
+@checkauth
+def performanceDetail(req):
+    a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
+    def file_iterator(file_name, chunk_size=512):
+        with open(file_name,"rb") as f:
+            while True:
+                c = f.read(chunk_size)
+                if c:
+                    yield c
+                else:
+                    break
+    def writefile(items):
+        w = Workbook()
+        ws = w.add_sheet('sheet1')
+        titles = [u"职场",u"大团",u"小团",u"经理",u"进账额",u"年化业绩总额",u"手续费",u"续单数",u"续单金额",u"续单比例",u"应兑数",u"应兑金额"]
+        ps = product.objects.all()
+        index = 4
+        for p in ps:
+            titles.insert(index, p.name)
+            index += 1
+        
+        for i in range(0,len(titles)):
+            ws.write(0,i,titles[i])
+        for i in range(0,len(items)):
+            ws.write(i+1,0,items[i][1][0].thisparty.thisbigparty.thisfield.name)
+            ws.write(i+1,1,items[i][1][0].thisparty.thisbigparty.name)
+            ws.write(i+1,2,items[i][1][0].thisparty.name)
+            ws.write(i+1,3,items[i][1][0].name)
+            index = 4
+            for pm in items[i][1][1]:
+                ws.write(i+1,index,pm)
+                index += 1
+            for k in range(2,10):
+                ws.write(i+1,index,items[i][1][k])
+                index += 1
+        filename = ".//tmpfolder//" + str(datetime.datetime.now()).split(" ")[1].replace(":","").replace(".","") + ".xls"
+        w.save(filename)
+        return filename
+    
+    def GetProductMap():
+        productmap = {}
+        allp = product.objects.all()
+        cnt = 0
+        for p in allp:
+            productmap[p.id] = cnt
+            cnt += 1
+        return productmap
+    def ParserInfoFromContract(onecontract):
+        anslist = []
+        productmap = GetProductMap()
+        
+        product_mlist = [0]*len(productmap) # for i range(0,len(productmap)) ]
+        fmoney = float(onecontract.money)
+        product_mlist[productmap[onecontract.thisproduct.id]] = fmoney
+        anslist.append(product_mlist)
+        anslist.append(fmoney) #进账额
+        father_money = 0.0
+        incnt = 0.0
+        if onecontract.thisproduct.closedtype == 'm':
+            incnt += float(onecontract.money)*onecontract.thisproduct.closedperiod/12
+        elif onecontract.thisproduct.closedtype == 'd':
+            incnt += float(onecontract.money)*onecontract.thisproduct.closedperiod/365
+        anslist.append(incnt) #年化业绩总额
+        anslist.append(float(onecontract.factorage)) #手续费
+        if onecontract.renewal_father_id == -1:
+            anslist.append(0)
+            anslist.append(0) # 续单金额
+        else:
+            anslist.append(1) # 续单数
+            FatherContract = contract.objects.filter(id=onecontract.renewal_father_id)[0]
+            renewal_money = float(FatherContract.money)
+            father_money = float(FatherContract.money)
+            if renewal_money > fmoney:
+                renewal_money = fmoney
+            anslist.append(renewal_money)
+        anslist.append(father_money) # 总金额
+        return anslist
+        
+    def InitInfoList():
+        anslist = []
+        productmap = GetProductMap()
+        product_mlist = [0]*len(productmap) # for i range(len(productmap)) ]
+        anslist = [product_mlist, 0, 0, 0, 0, 0, 0]
+        return anslist
+    
+    def addlist(list1, list2):
+        anslist = []
+        for i in range(0,len(list1)):
+            if isinstance(list1[i], list):
+                anslist.append(addlist(list1[i], list2[i]))
+            else:
+                anslist.append(list1[i] + list2[i])
+        return anslist
+    
+    def ParserDeductFromContract(onecontract):
+        anslist = [1,float(onecontract.money)]
+        return anslist
+        
+    def GetManagerPerformanceList(req,method):
+        ansmap = {}
+        items = getitems(req,4,method)
+        
+        ansmap = {}
+        for item in items:
+            cinfo = ParserInfoFromContract(item)
+            if item.thismanager.id in ansmap:
+                ansmap[item.thismanager.id] = addlist(ansmap[item.thismanager.id], cinfo)
+            else:
+                ansmap[item.thismanager.id] = cinfo
+        
+        for m in ansmap:
+            ansmap[m].append(0)
+            ansmap[m].append(0)
+            
+        otheritems = GetEnddateItems(req,4,method)
+        for item in otheritems:
+            if item.renewal_son_id!=-1:
+                continue
+            cinfo = ParserDeductFromContract(item)
+            if item.thismanager.id in ansmap:
+                ansmap[item.thismanager.id][7] += cinfo[0]
+                ansmap[item.thismanager.id][8] += cinfo[1]
+            else:
+                ansmap[item.thismanager.id] = InitInfoList()
+                ansmap[item.thismanager.id].append(cinfo[0])
+                ansmap[item.thismanager.id].append(cinfo[1])
+        
+        for m in ansmap:
+            if ansmap[m][6] != 0:
+                ansmap[m][6] = ansmap[m][5] / ansmap[m][6]
+            else:
+                ansmap[m][6] = 0
+            manager_here = manager.objects.filter(id=m)[0]
+            ansmap[m].insert(0,manager_here)
+        
+        return sorted(ansmap.iteritems(),key=lambda asd:asd[1][2],reverse=True)
+
+    if req.method == "GET":
+    	if not checkjurisdiction(req,"年化进账统计"):
+            return render_to_response("jur.html",a)
+   
+        tmplist = GetManagerPerformanceList(req,"get")
+        a["mlist"] = tmplist
+        a["plist"] =  product.objects.all()
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
+        todate = req.GET.get("todate",str(datetime.date.today()))
+        a["fromdate"] = fromdate
+        a["todate"] = todate
+        a["fields"] = field.objects.all()
+        fid = req.GET.get("field_id","-1")
+        a["fid"] = int(fid)
+        if fid!="-1":
+            bps = bigparty.objects.filter(thisfield_id=int(fid))
+            a["bigparty"] = True
+            a["bigparties"] = bps
+            bpid = req.GET.get("bigparty_id","-1")
+            a["bpid"] = int(bpid)
+            if bpid!="-1":
+                ps = party.objects.filter(thisbigparty_id=int(bpid))
+                a["party"] = True
+                a["parties"] = ps
+                pid = req.GET.get("party_id","-1")
+                a["pid"] = int(pid)
+                if pid!="-1":
+                    ms = manager.objects.filter(thisparty_id=int(pid))
+                    a["manager"] = True
+                    a["managers"] = ms
+                    mid = req.GET.get("manager_id","-1")
+                    a["mid"] = int(mid)
+                    
+        return render_to_response("performanceDetail.html",a)
+    
+    if req.method == "POST":
+        if not checkjurisdiction(req,"年化进账统计"):
+            return render_to_response("jur.html",a)
+
+        tmplist = GetManagerPerformanceList(req,"post")
+        
+        the_file_name = writefile(tmplist)
+        response = StreamingHttpResponse(file_iterator(the_file_name))
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment;filename="{0}"'.format("业绩明细表.xls")
         return response

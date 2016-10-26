@@ -540,6 +540,20 @@ def checkcontract(req):
 		return render_to_response("checkcontracts.html",a)
 
 @checkauth
+def repaytest(req):
+    a = {'user':req.user}
+    a["indexlist"] = getindexlist(req)
+    if not checkjurisdiction(req,"还款查询"):
+        return render_to_response("jur.html",a)
+    
+    if req.method == "GET":
+        fromdate = req.GET.get("fromdate",str(datetime.date.today()))
+        todate = req.GET.get("todate",str(datetime.date.today()+datetime.timedelta(7))) #下一周
+        a["fromdate"] = fromdate
+        a["todate"] = todate
+        return render_to_response("repaytest.html",a)
+    
+@checkauth
 def queryrepayitems(req,type_id):
     a = {'user':req.user}
     a["indexlist"] = getindexlist(req)
