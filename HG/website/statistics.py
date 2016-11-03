@@ -1232,7 +1232,7 @@ def performanceDetail(req):
     def writefile(items):
         w = Workbook()
         ws = w.add_sheet('sheet1')
-        titles = [u"职场",u"大团",u"小团",u"经理",u"进账额",u"年化业绩总额",u"手续费",u"续单数",u"续单金额",u"续单比例",u"应兑数",u"应兑金额"]
+        titles = [u"职场",u"大团",u"小团",u"经理",u"进账额",u"年化业绩总额",u"手续费",u"续单数",u"续单金额",u"续单比例",u"年化续单金额",u"应兑数",u"应兑金额"]
         ps = product.objects.all()
         index = 4
         for p in ps:
@@ -1250,7 +1250,7 @@ def performanceDetail(req):
             for pm in items[i][1][1]:
                 ws.write(i+1,index,pm)
                 index += 1
-            for k in range(2,10):
+            for k in range(2,11):
                 ws.write(i+1,index,items[i][1][k])
                 index += 1
         filename = ".//tmpfolder//" + str(datetime.datetime.now()).split(" ")[1].replace(":","").replace(".","") + ".xls"
@@ -1305,13 +1305,18 @@ def performanceDetail(req):
     
     def ParserDeductFromContract(onecontract):
         if onecontract.renewal_son_id == -1:
-            anslist = [0,0,float(onecontract.money),1,float(onecontract.money)]
+            anslist = [0,0,float(onecontract.money),0,1,float(onecontract.money)]
         else:
             son_contract = contract.objects.filter(id=onecontract.renewal_son_id)[0]
             renewal_money = float(son_contract.money)
             if renewal_money > float(onecontract.money):
                 renewal_money = float(onecontract.money)
-            anslist = [1,renewal_money,float(onecontract.money),1,float(onecontract.money)]
+            incnt = 0.0 # 年化续单
+            if onecontract.thisproduct.closedtype == 'm':
+                incnt += float(renewal_money)*onecontract.thisproduct.closedperiod/12
+            elif onecontract.thisproduct.closedtype == 'd':
+                incnt += float(renewal_money)*onecontract.thisproduct.closedperiod/365
+            anslist = [1,renewal_money,float(onecontract.money),incnt,1,float(onecontract.money)]
         return anslist
         
     def GetManagerPerformanceList(req,method):
@@ -1327,7 +1332,7 @@ def performanceDetail(req):
                 ansmap[item.thismanager.id] = cinfo
         
         for m in ansmap:
-            for i in range(0,5):
+            for i in range(0,6):
                 ansmap[m].append(0)
             
         otheritems = GetEnddateItems(req,4,method)
@@ -1343,6 +1348,7 @@ def performanceDetail(req):
                 ansmap[manager_id][6] += cinfo[2]
                 ansmap[manager_id][7] += cinfo[3]
                 ansmap[manager_id][8] += cinfo[4]
+                ansmap[manager_id][9] += cinfo[5]
             else:
                 ansmap[manager_id] = InitInfoList()
                 ansmap[manager_id].append(cinfo[0])
@@ -1350,6 +1356,7 @@ def performanceDetail(req):
                 ansmap[manager_id].append(cinfo[2])
                 ansmap[manager_id].append(cinfo[3])
                 ansmap[manager_id].append(cinfo[4])
+                ansmap[manager_id].append(cinfo[5])
         
         for m in ansmap:
             if ansmap[m][6] != 0:
