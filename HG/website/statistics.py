@@ -1128,7 +1128,7 @@ def managerDeduct2(req):
         return render_to_response("jur.html",a)
     
     def GetManagerDeductList(req,method):
-	ansmap = {}
+        ansmap = {}
         items = getitems(req,4,method)
         ansmap = {}
         for item in items:
@@ -1140,14 +1140,13 @@ def managerDeduct2(req):
                     ansmap[item.thismanager.id] = [item.thismanager,float(item.money),0,float(item.money)]
             else:
                 FatherContract = contract.objects.filter(id=item.renewal_father_id)[0]
+                newmoney = float(item.money) - float(FatherContract.money)
                 if item.thismanager.id in ansmap:
-                    newmoney = float(item.money) - float(FatherContract.money)
-                    
                     ansmap[item.thismanager.id][1] += (newmoney > 0 and newmoney or 0)
                     ansmap[item.thismanager.id][2] += (newmoney > 0 and float(FatherContract.money) or float(item.money))
                     ansmap[item.thismanager.id][3] += float(item.money)
                 else:
-                    ansmap[item.thismanager.id] = [item.thismanager,0,float(item.money),float(item.money)]
+                    ansmap[item.thismanager.id] = [item.thismanager,(newmoney > 0 and newmoney or 0),(newmoney > 0 and float(FatherContract.money) or float(item.money)),float(item.money)]
         
         return sorted(ansmap.iteritems(),key=lambda asd:asd[1][3],reverse=True)
 
@@ -1184,7 +1183,7 @@ def managerDeduct2(req):
                     
         return render_to_response("managerDeduct2.html",a)
     if req.method == "POST":
-	if not (checkjurisdiction(req,"年化进账统计") or checkjurisdiction(req,"经理统计")):
+        if not (checkjurisdiction(req,"年化进账统计") or checkjurisdiction(req,"经理统计")):
             return render_to_response("jur.html",a)
 
         tmplist = GetManagerDeductList(req,"post")
