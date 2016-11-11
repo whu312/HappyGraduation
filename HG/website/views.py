@@ -704,6 +704,9 @@ def checkcontracts(req):
             for c in othercontracts:
                 if float(c.money) >= iShowMoney:
                     contracts.append(c)
+            allcount = len(contracts)
+        if allcount==0:
+            allcount = 1
         a['curpage'] = thispage
         a['allpage'] = (allcount-1)/ONE_PAGE_NUM + 1
         a['contracts'] = contracts
