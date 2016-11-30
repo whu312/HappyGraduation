@@ -834,7 +834,7 @@ def querycontracts(req):
             if float(c.money) >= iShowMoney:
                 contracts.append(c)
                 
-        a['contract_size'] = contracts.count() 
+        a['contract_size'] = len(contracts) 
         a['contracts'] = contracts
         a['curpage'] = 1
         a['allpage'] = 1
