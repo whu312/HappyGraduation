@@ -411,11 +411,12 @@ def managerYear(req):
         ansmap = {}
         items = getitems(req,4)
         for item in items:
+            startdate = datetime.datetime.strptime(item.startdate,'%Y-%m-%d').date()
+            enddate = datetime.datetime.strptime(item.enddate,'%Y-%m-%d').date()
+            durdate = enddate - startdate
+            durdays = durdate.days
             incnt = 0.0
-            if item.thisproduct.closedtype == 'm':
-                incnt += float(item.money)*item.thisproduct.closedperiod/12
-            elif item.thisproduct.closedtype == 'd':
-                incnt += float(item.money)*item.thisproduct.closedperiod/365
+            incnt += float(item.money)*durdays/365
             if item.thismanager.id in ansmap:
                 ansmap[item.thismanager.id][0] += incnt
             else:
@@ -483,11 +484,12 @@ def outputmanagerYear(req):
         ansmap = {}
         items = getitems(req,4)
         for item in items:
+            startdate = datetime.datetime.strptime(item.startdate,'%Y-%m-%d').date()
+            enddate = datetime.datetime.strptime(item.enddate,'%Y-%m-%d').date()
+            durdate = enddate - startdate
+            durdays = durdate.days
             incnt = 0.0
-            if item.thisproduct.closedtype == 'm':
-                incnt += float(item.money)*item.thisproduct.closedperiod/12
-            elif item.thisproduct.closedtype == 'd':
-                incnt += float(item.money)*item.thisproduct.closedperiod/365
+            incnt += float(item.money)*durdays/365
             if item.thismanager.id in ansmap:
                 ansmap[item.thismanager.id][0] += incnt
             else:
@@ -512,10 +514,11 @@ def yearintocnt(req,a={},type_id=0):
         items = getitems(req,4)
         totalmoney = 0.0
         for item in items:
-            if item.thisproduct.closedtype == 'm':
-                totalmoney += float(item.money)*item.thisproduct.closedperiod/12
-            elif item.thisproduct.closedtype == 'd':
-                totalmoney += float(item.money)*item.thisproduct.closedperiod/365
+            startdate = datetime.datetime.strptime(item.startdate,'%Y-%m-%d').date()
+            enddate = datetime.datetime.strptime(item.enddate,'%Y-%m-%d').date()
+            durdate = enddate - startdate
+            durdays = durdate.days
+            totalmoney += float(item.money)*durdays/365
         #a = {"user":req.user}
         fromdate = req.GET.get("fromdate",str(datetime.date.today()-datetime.timedelta(7)))
         todate = req.GET.get("todate",str(datetime.date.today()))
@@ -1292,10 +1295,12 @@ def performanceDetail(req):
         anslist.append(fmoney) #进账额
         father_money = 0.0
         incnt = 0.0
-        if onecontract.thisproduct.closedtype == 'm':
-            incnt += float(onecontract.money)*onecontract.thisproduct.closedperiod/12
-        elif onecontract.thisproduct.closedtype == 'd':
-            incnt += float(onecontract.money)*onecontract.thisproduct.closedperiod/365
+
+        startdate = datetime.datetime.strptime(onecontract.startdate,'%Y-%m-%d').date()
+        enddate = datetime.datetime.strptime(onecontract.enddate,'%Y-%m-%d').date()
+        durdate = enddate - startdate
+        durdays = durdate.days
+        incnt += float(onecontract.money)*durdays/365
         anslist.append(incnt) #年化业绩总额
         try:
             anslist.append(float(onecontract.factorage)) #手续费
@@ -1328,10 +1333,11 @@ def performanceDetail(req):
             if renewal_money > float(onecontract.money):
                 renewal_money = float(onecontract.money)
             incnt = 0.0 # 年化续单
-            if son_contract.thisproduct.closedtype == 'm':
-                incnt += float(renewal_money)*son_contract.thisproduct.closedperiod/12
-            elif son_contract.thisproduct.closedtype == 'd':
-                incnt += float(renewal_money)*son_contract.thisproduct.closedperiod/365
+            startdate = datetime.datetime.strptime(son_contract.startdate,'%Y-%m-%d').date()
+            enddate = datetime.datetime.strptime(son_contract.enddate,'%Y-%m-%d').date()
+            durdate = enddate - startdate
+            durdays = durdate.days
+            incnt += float(son_contract.money)*durdays/365
             anslist = [1,renewal_money,float(onecontract.money),incnt,1,float(onecontract.money)]
         return anslist
         

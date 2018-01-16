@@ -7,12 +7,12 @@ def getNextDay(onedate,months,days):
             heremonth = (thisdate.month+months)%12
             if heremonth == 0:
                 heremonth = 12
-            thisdate = datetime.date(thisdate.year+1,heremonth,thisdate.day)
+            thisdate = datetime.date(thisdate.year+((thisdate.month+months)/12),heremonth,thisdate.day)
         except:
             nowday = thisdate.day
             while True:
                 try:
-                    thisdate = datetime.date(thisdate.year+1,(thisdate.month+months)%12,nowday-1)
+                    thisdate = datetime.date(thisdate.year+((thisdate.month+months)/12),(thisdate.month+months)%12,nowday-1)
                     break
                 except:
                     nowday -= 1

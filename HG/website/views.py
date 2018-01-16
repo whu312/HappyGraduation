@@ -18,6 +18,7 @@ ONE_PAGE_NUM = 10
 # Create your views here.
 
 def testhtml(req):
+    '''
     alllogs = loginfo.objects.all()
     for item in alllogs:
         pos = item.info.find("=")
@@ -51,6 +52,35 @@ def testhtml(req):
             continue
         item.info = item.info.replace("="+str(cid),"="+number)
         item.save()
+    '''
+    print "===== do my test" 
+    ac = contract.objects.all()
+    for item in ac:
+        if not item.thisproduct.closedperiod == 18:
+            continue
+        if not item.thisproduct.closedtype == 'm':
+            continue
+        thisdate = datetime.datetime.strptime(item.startdate, '%Y-%m-%d').date()
+        if thisdate.month < 7 :
+            continue
+        my_repayitems = repayitem.objects.filter(thiscontract_id = item.id)
+        if not my_repayitems:
+            continue
+        
+        intmoney = float(item.money)
+        thisdate = datetime.datetime.strptime(item.enddate,'%Y-%m-%d').date()
+        startdate = datetime.datetime.strptime(item.startdate,'%Y-%m-%d').date()
+        totalmoney = intmoney + intmoney*float(item.thisproduct.rate)/1200*item.thisproduct.closedperiod
+        leftdays = getDays(getNextDay(startdate,item.thisproduct.closedperiod,0),thisdate)
+        print totalmoney
+        totalmoney += intmoney*float(item.thisproduct.rate)/36500*leftdays
+
+        my_repayitem = my_repayitems[0]
+        print item.number, " ", my_repayitem.repaymoney, "==", totalmoney, "---", leftdays 
+        my_repayitem.repaymoney = str(int(totalmoney+0.5))
+        my_repayitem.save() 
+
+
     return render_to_response("home.html")
     
 def cleanall(req):
